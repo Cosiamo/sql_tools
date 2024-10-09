@@ -4,5 +4,8 @@ pub enum Error {
     OracleError(#[from] oracle::Error),
 
     #[error("Could not find number of rows")]
-    CountError
+    CountError,
+    
+    #[error("Wrong connection type passed to function: Contact maintainer")]
+    WrongConnectionType
 }

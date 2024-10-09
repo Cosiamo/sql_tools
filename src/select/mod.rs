@@ -1,9 +1,9 @@
-use crate::{errors::Error, QueryTypes, SQLTypes};
+use oracle_sql::{oracle_build_select, oracle_build_single_thread_select};
 
-pub mod clause_builder;
-pub mod utils;
+use crate::{errors::Error, where_clause::WhereSelect, SQLTypes};
 
-// ===== Select =====
+pub mod oracle_sql;
+
 #[derive(Debug)]
 pub struct SelectProps {
     pub connect: SQLTypes,
@@ -13,19 +13,29 @@ pub struct SelectProps {
 }
 
 pub trait SelectBuilder {
-    fn filter(self, column: &str, value: &str) -> WhereClause;
+    fn filter(self, column: &str, value: &str) -> WhereSelect;
     fn build(self) -> Result<Vec<Vec<Option<String>>>, Error>;
     fn build_single_thread(self) -> Result<Vec<Vec<Option<String>>>, Error>;
 }
 
-pub struct WhereClause {
-    pub query_type: QueryTypes,
-    pub clause: String,
-}
+impl SelectBuilder for SelectProps {
+    fn filter(self, column: &str, value: &str) -> WhereSelect {
+        let where_clause = format!("{} {}", column, value);
+        WhereSelect { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
 
-pub trait ClauseBuilder {
-    fn and(self, column: &str, value: &str) -> Self;
-    fn or(self, column: &str, value: &str) -> Self;
-    fn build(self) -> Result<Vec<Vec<Option<String>>>, Error>;
-    fn build_single_thread(self) -> Result<Vec<Vec<Option<String>>>, Error>;
+    fn build(self) -> Result<Vec<Vec<Option<String>>>, Error> {
+        match self.connect {
+            SQLTypes::Oracle(_) => oracle_build_select(self),
+        }
+    }
+    
+    fn build_single_thread(self) -> Result<Vec<Vec<Option<String>>>, Error> {
+        match self.connect {
+            SQLTypes::Oracle(_) => oracle_build_single_thread_select(self),
+        }
+    }
 }
