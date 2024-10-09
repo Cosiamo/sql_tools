@@ -1,28 +1,23 @@
-use errors::Error;
+use oracle_sql::OracleConnect;
+use select::SelectProps;
+use update::UpdateProps;
 
 pub mod errors;
+pub mod oracle_sql;
+pub mod select;
+pub mod update;
+pub mod utils;
 
-pub struct OracleConnect {
-    connection_string: String,
-    username: String,
-    password: String
+pub trait QueryBuilder {
+    fn select(self, table: &str, columns: Vec<String>) -> SelectProps;
 }
 
-impl OracleConnect {
-    pub fn new(connection_string: &str, username: &str, password: &str) -> Self {
-        Self {
-            connection_string: connection_string.to_string(),
-            username: username.to_string(),
-            password: password.to_string(),
-        }
-    }
+#[derive(Debug)]
+pub enum SQLTypes {
+    Oracle(OracleConnect),
 }
 
-pub struct QueryBuilder {
-    connect: OracleConnect,
-    columns: Vec<String>,
-}
-
-pub trait SQLQueryBuilder {
-    fn select() {}
+pub enum QueryTypes {
+    Select(SelectProps),
+    Update(UpdateProps),
 }
