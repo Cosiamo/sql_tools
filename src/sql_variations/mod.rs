@@ -1,4 +1,4 @@
-use crate::{select::SelectProps, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLTypes};
+use crate::{data_types::FormatData, insert::InsertProps, select::SelectProps, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLTypes};
 
 #[derive(Debug)]
 pub struct OracleConnect {
@@ -33,6 +33,14 @@ impl QueryBuilder for OracleConnect {
     fn update(self, table: &str) -> UpdateProps {
         UpdateProps {
             connect: SQLTypes::Oracle(self),
+            table: table.to_string(),
+        }
+    }
+    
+    fn insert<T: FormatData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps<T> {
+        InsertProps {
+            connect: SQLTypes::Oracle(self),
+            grid: data,
             table: table.to_string(),
         }
     }
