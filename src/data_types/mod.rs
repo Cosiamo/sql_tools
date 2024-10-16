@@ -1,3 +1,5 @@
+use core::fmt;
+
 use chrono::{NaiveDate, NaiveDateTime};
 
 pub mod implement;
@@ -10,6 +12,19 @@ pub enum SQLDataTypes {
     DATE(NaiveDate),
     TIMESTAMP(NaiveDateTime),
     NULL,
+}
+
+impl fmt::Display for SQLDataTypes {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            SQLDataTypes::VARCHAR(val) => write!(f, "{}", val),
+            SQLDataTypes::INT(val) => write!(f, "{}", val),
+            SQLDataTypes::FLOAT(val) => write!(f, "{}", val),
+            SQLDataTypes::DATE(val) => write!(f, "{}", val),
+            SQLDataTypes::TIMESTAMP(val) => write!(f, "{}", val),
+            SQLDataTypes::NULL => write!(f, ""),
+        }
+    }
 }
 
 /// A trait that formats the input data to match [`SQLDataTypes`]
@@ -52,4 +67,7 @@ pub enum SQLDataTypes {
 ///     }
 /// }
 /// ```
-pub trait FormatData { fn fmt_data(self) -> SQLDataTypes; }
+pub trait FormatData { 
+    fn fmt_data(self) -> SQLDataTypes; 
+    fn fmt_data_borrowed(&self) -> SQLDataTypes;
+}

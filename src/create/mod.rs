@@ -11,13 +11,13 @@ pub struct CreateProps {
     pub table: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateColumns {
     pub name: String,
     pub data_type: CreateDataTypes
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CreateDataTypes {
     VARCHAR(usize),
     INT,

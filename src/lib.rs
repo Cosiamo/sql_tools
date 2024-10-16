@@ -18,7 +18,7 @@ pub mod create;
 pub trait QueryBuilder {
     fn select(self, table: &str, columns: Vec<String>) -> SelectProps;
     fn update(self, table: &str) -> UpdateProps;
-    fn insert<T: FormatData + std::fmt::Debug>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps<T>;
+    fn insert<T: FormatData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
     fn create(self, table: &str, columns: Vec<CreateColumns>) -> CreateProps;
 }
 

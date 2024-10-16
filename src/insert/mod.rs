@@ -1,34 +1,35 @@
 use oracle_sql::oracle_build_insert;
 
-use crate::{data_types::FormatData, errors::Error, SQLTypes};
+use crate::{data_types::SQLDataTypes, errors::Error, SQLTypes};
 
 pub mod oracle_sql;
 
 #[derive(Debug)]
-pub struct InsertProps<T: FormatData> {
+pub struct InsertProps {
     pub connect: SQLTypes,
-    pub grid: Vec<Vec<T>>,
+    pub header: Vec<String>,
+    pub grid: Vec<Vec<SQLDataTypes>>,
     pub table: String,
 }
 
 #[derive(Debug)]
-pub struct InsertPropsFormatted<T: FormatData> {
-    pub insert_props: InsertProps<T>,
+pub struct InsertPropsFormatted {
+    pub insert_props: InsertProps,
 }
 
-impl<T: FormatData> InsertPropsFormatted<T> {
+impl InsertPropsFormatted {
     pub fn build(self) -> Result<(), Error> {
         self.insert_props.build()
     }
 }
 
 pub trait InsertBuilder {
-    fn format_data<T: FormatData>(self) -> Result<InsertPropsFormatted<T>, Error>;
+    fn format_data(self) -> Result<InsertPropsFormatted, Error>;
     fn build(self) -> Result<(), Error>;
 }
 
-impl<T: FormatData> InsertBuilder for InsertProps<T> {
-    fn format_data<G: FormatData>(self) -> Result<InsertPropsFormatted<G>, Error> {
+impl InsertBuilder for InsertProps {
+    fn format_data(self) -> Result<InsertPropsFormatted, Error> {
         todo!()
     }
     

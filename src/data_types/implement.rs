@@ -3,10 +3,18 @@ use chrono::{NaiveDate, NaiveDateTime};
 use super::{FormatData, SQLDataTypes};
 
 
-impl FormatData for SQLDataTypes { fn fmt_data(self) -> Self { self } }
+impl FormatData for SQLDataTypes { 
+    fn fmt_data(self) -> Self { self } 
+    fn fmt_data_borrowed(&self) -> SQLDataTypes { self.to_owned() }
+}
 
 impl FormatData for &[u8] {
     fn fmt_data(self) -> SQLDataTypes {
+        let clone_on_write_string = String::from_utf8_lossy(self);
+        let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
+        SQLDataTypes::VARCHAR(utf8_string)
+    }
+    fn fmt_data_borrowed(&self) -> SQLDataTypes {
         let clone_on_write_string = String::from_utf8_lossy(self);
         let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
         SQLDataTypes::VARCHAR(utf8_string)
@@ -21,9 +29,27 @@ impl FormatData for Vec<u8> {
             .unwrap();
         SQLDataTypes::VARCHAR(utf8_string)
     }
+    fn fmt_data_borrowed(&self) -> SQLDataTypes {
+        let utf8_string = String::from_utf8(self.to_vec())
+            .map_err(|non_utf8| 
+                String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
+            )
+            .unwrap();
+        SQLDataTypes::VARCHAR(utf8_string)
+    }
 }
 impl FormatData for Option<&[u8]> {
     fn fmt_data(self) -> SQLDataTypes {
+        match self {
+            Some(val) => {
+                let clone_on_write_string = String::from_utf8_lossy(val);
+                let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
+                SQLDataTypes::VARCHAR(utf8_string)
+            },
+            None => SQLDataTypes::NULL,
+        }
+    }
+    fn fmt_data_borrowed(&self) -> SQLDataTypes {
         match self {
             Some(val) => {
                 let clone_on_write_string = String::from_utf8_lossy(val);
@@ -48,12 +74,26 @@ impl FormatData for Option<Vec<u8>> {
             None => SQLDataTypes::NULL,
         }
     }
+    fn fmt_data_borrowed(&self) -> SQLDataTypes {
+        match self {
+            Some(val) => {
+                let utf8_string = String::from_utf8(val.to_vec())
+                    .map_err(|non_utf8| 
+                        String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
+                    )
+                    .unwrap();
+                SQLDataTypes::VARCHAR(utf8_string)
+            },
+            None => SQLDataTypes::NULL,
+        }
+    }
 }
 
 macro_rules! impl_fmt_data {
     ($data_type:ty, $enum_type:ident) => {
         impl FormatData for $data_type {
             fn fmt_data(self) -> SQLDataTypes { SQLDataTypes::$enum_type(self.into()) }
+            fn fmt_data_borrowed(&self) -> SQLDataTypes { SQLDataTypes::$enum_type(self.to_owned().into()) }
         }
     };
 }
@@ -74,6 +114,12 @@ macro_rules! impl_fmt_data_option {
             fn fmt_data(self) -> SQLDataTypes {
                 match self {
                     Some(val) => SQLDataTypes::$enum_type(val.into()),
+                    None => SQLDataTypes::NULL,
+                }
+            }
+            fn fmt_data_borrowed(&self) -> SQLDataTypes {
+                match self {
+                    Some(val) => SQLDataTypes::$enum_type(val.to_owned().into()),
                     None => SQLDataTypes::NULL,
                 }
             }

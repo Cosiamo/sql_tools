@@ -7,5 +7,5 @@ pub enum Error {
     CountError,
     
     #[error("Wrong connection type passed to function: Contact maintainer")]
-    WrongConnectionType
+    WrongConnectionType,
 }
