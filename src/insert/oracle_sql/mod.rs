@@ -4,7 +4,7 @@ use mutate_grid::{divide_grid, iter_grid};
 use sql_fmt::insert_stmt;
 use validation::{does_table_exist, get_col_indexes};
 
-use crate::{create::{CreateColumns, CreateDataTypes, CreateTable}, data_types::SQLDataTypes, errors::Error, QueryBuilder, SQLTypes};
+use crate::{create::{CreateColumns, CreateDataTypes, CreateTable}, data_types::SQLDataTypes, errors::Error, QueryBuilder, SQLVariation};
 
 use super::InsertProps;
 
@@ -14,7 +14,7 @@ pub mod sql_fmt;
 
 pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
-        SQLTypes::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
     let username_conn = conn_info.username.to_owned();
     let password_conn = conn_info.password.to_owned();

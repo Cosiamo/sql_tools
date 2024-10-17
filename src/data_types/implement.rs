@@ -1,14 +1,14 @@
 use chrono::{NaiveDate, NaiveDateTime};
 
-use super::{FormatData, SQLDataTypes};
+use super::{ToSQLData, SQLDataTypes};
 
 
-impl FormatData for SQLDataTypes { 
+impl ToSQLData for SQLDataTypes { 
     fn fmt_data(self) -> Self { self } 
     fn fmt_data_borrowed(&self) -> SQLDataTypes { self.to_owned() }
 }
 
-impl FormatData for &[u8] {
+impl ToSQLData for &[u8] {
     fn fmt_data(self) -> SQLDataTypes {
         let clone_on_write_string = String::from_utf8_lossy(self);
         let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
@@ -20,7 +20,7 @@ impl FormatData for &[u8] {
         SQLDataTypes::VARCHAR(utf8_string)
     }
 }
-impl FormatData for Vec<u8> {
+impl ToSQLData for Vec<u8> {
     fn fmt_data(self) -> SQLDataTypes {
         let utf8_string = String::from_utf8(self)
             .map_err(|non_utf8| 
@@ -38,7 +38,7 @@ impl FormatData for Vec<u8> {
         SQLDataTypes::VARCHAR(utf8_string)
     }
 }
-impl FormatData for Option<&[u8]> {
+impl ToSQLData for Option<&[u8]> {
     fn fmt_data(self) -> SQLDataTypes {
         match self {
             Some(val) => {
@@ -60,7 +60,7 @@ impl FormatData for Option<&[u8]> {
         }
     }
 }
-impl FormatData for Option<Vec<u8>> {
+impl ToSQLData for Option<Vec<u8>> {
     fn fmt_data(self) -> SQLDataTypes {
         match self {
             Some(val) => {
@@ -91,7 +91,7 @@ impl FormatData for Option<Vec<u8>> {
 
 macro_rules! impl_fmt_data {
     ($data_type:ty, $enum_type:ident) => {
-        impl FormatData for $data_type {
+        impl ToSQLData for $data_type {
             fn fmt_data(self) -> SQLDataTypes { SQLDataTypes::$enum_type(self.into()) }
             fn fmt_data_borrowed(&self) -> SQLDataTypes { SQLDataTypes::$enum_type(self.to_owned().into()) }
         }
@@ -110,7 +110,7 @@ impl_fmt_data!(NaiveDateTime, TIMESTAMP);
 
 macro_rules! impl_fmt_data_option {
     ($data_type:ty, $enum_type:ident) => {
-        impl FormatData for $data_type {
+        impl ToSQLData for $data_type {
             fn fmt_data(self) -> SQLDataTypes {
                 match self {
                     Some(val) => SQLDataTypes::$enum_type(val.into()),

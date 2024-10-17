@@ -1,10 +1,10 @@
-use crate::{errors::Error, select::oracle_sql::utils::stmt_res, SQLTypes};
+use crate::{errors::Error, select::oracle_sql::utils::stmt_res, SQLVariation};
 
 use super::UpdateSet;
 
 pub fn oracle_build_update(update_set: UpdateSet)  -> Result<(), Error> {
     let conn_info = match update_set.connect {
-        SQLTypes::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
     
     let set_match_len = &update_set.set_match.len();

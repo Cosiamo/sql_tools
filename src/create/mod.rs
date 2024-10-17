@@ -1,12 +1,12 @@
 use oracle_sql::oracle_build_create_table;
 
-use crate::{errors::Error, SQLTypes};
+use crate::{errors::Error, SQLVariation};
 
 pub mod oracle_sql;
 
 #[derive(Debug)]
 pub struct CreateProps {
-    pub connect: SQLTypes,
+    pub connect: SQLVariation,
     pub columns: Vec<CreateColumns>,
     pub table: String,
 }
@@ -38,7 +38,7 @@ impl CreateTable for CreateProps {
 
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLTypes::Oracle(_) => oracle_build_create_table(self),
+            SQLVariation::Oracle(_) => oracle_build_create_table(self),
         }
     }
 }

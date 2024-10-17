@@ -1,7 +1,8 @@
-use crate::{select::SelectProps, update::UpdateSet};
+use crate::{data_types::ToSQLData, select::SelectProps, update::UpdateSet};
 
 pub mod select;
 pub mod update;
+pub mod utils;
 
 pub struct WhereSelect {
     pub query_type: SelectProps,
@@ -14,6 +15,8 @@ pub struct WhereUpdate {
 }
 
 pub trait ClauseBuilder {
-    fn and(self, column: &str, value: &str) -> Self;
-    fn or(self, column: &str, value: &str) -> Self;
+    fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
+    fn or<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
+    fn and_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
+    fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
 }

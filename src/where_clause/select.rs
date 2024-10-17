@@ -1,10 +1,11 @@
-use crate::{errors::Error, select::SelectBuilder};
+use crate::{data_types::ToSQLData, errors::Error, select::SelectBuilder};
 
-use super::{ClauseBuilder, WhereSelect};
+use super::{utils::where_clause_value_format, ClauseBuilder, WhereSelect};
 
 impl ClauseBuilder for WhereSelect {
-    fn and(self, column: &str, value: &str) -> Self {
-        let and = format!("{} {}", column, value);
+    fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+        let value = where_clause_value_format(values);
+        let and = format!("{} IN ({})", column, value);
         let clause = format!("{} AND {}", self.clause, and);
         Self { 
             query_type: self.query_type,
@@ -12,8 +13,29 @@ impl ClauseBuilder for WhereSelect {
         }
     }
 
-    fn or(self, column: &str, value: &str) -> Self {
-        let or = format!("{} {}", column, value);
+    fn or<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+        let value = where_clause_value_format(values);
+        let or = format!("{} IN ({})", column, value);
+        let clause = format!("{} OR {}", self.clause, or);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
+    
+    fn and_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+        let value = where_clause_value_format(values);
+        let and = format!("{} NOT IN ({})", column, value);
+        let clause = format!("{} AND {}", self.clause, and);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
+    
+    fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+        let value = where_clause_value_format(values);
+        let or = format!("{} NOT IN ({})", column, value);
         let clause = format!("{} OR {}", self.clause, or);
         Self { 
             query_type: self.query_type,

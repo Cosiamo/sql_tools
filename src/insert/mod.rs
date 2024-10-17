@@ -1,12 +1,12 @@
 use oracle_sql::oracle_build_insert;
 
-use crate::{data_types::SQLDataTypes, errors::Error, SQLTypes};
+use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
 
 pub mod oracle_sql;
 
 #[derive(Debug)]
 pub struct InsertProps {
-    pub connect: SQLTypes,
+    pub connect: SQLVariation,
     pub header: Vec<String>,
     pub grid: Vec<Vec<SQLDataTypes>>,
     pub table: String,
@@ -35,7 +35,7 @@ impl InsertBuilder for InsertProps {
     
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLTypes::Oracle(_) => oracle_build_insert(self),
+            SQLVariation::Oracle(_) => oracle_build_insert(self),
         }
     }
 }

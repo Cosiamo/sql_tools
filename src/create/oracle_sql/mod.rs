@@ -1,10 +1,10 @@
-use crate::{errors::Error, SQLTypes};
+use crate::{errors::Error, SQLVariation};
 
 use super::{CreateDataTypes, CreateProps};
 
 pub fn oracle_build_create_table(create_props: CreateProps) -> Result<(), Error> {
     let conn_info = match create_props.connect {
-        SQLTypes::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
 
     let cols_and_data_types = create_props.columns.iter().map(|col_props|{

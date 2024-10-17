@@ -67,7 +67,7 @@ impl fmt::Display for SQLDataTypes {
 ///     }
 /// }
 /// ```
-pub trait FormatData { 
+pub trait ToSQLData { 
     fn fmt_data(self) -> SQLDataTypes; 
     fn fmt_data_borrowed(&self) -> SQLDataTypes;
 }

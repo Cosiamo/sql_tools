@@ -1,5 +1,5 @@
 use create::{CreateColumns, CreateProps};
-use data_types::FormatData;
+use data_types::ToSQLData;
 use insert::InsertProps;
 use sql_variations::OracleConnect;
 use select::SelectProps;
@@ -18,18 +18,11 @@ pub mod create;
 pub trait QueryBuilder {
     fn select(self, table: &str, columns: Vec<String>) -> SelectProps;
     fn update(self, table: &str) -> UpdateProps;
-    fn insert<T: FormatData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
+    fn insert<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
     fn create(self, table: &str, columns: Vec<CreateColumns>) -> CreateProps;
 }
 
 #[derive(Debug)]
-pub enum SQLTypes {
+pub enum SQLVariation {
     Oracle(OracleConnect),
 }
-
-// pub enum QueryTypes<T: FormatData> {
-//     Select(SelectProps),
-//     Update(UpdateProps),
-//     Insert(InsertProps<T>),
-//     Create(CreateProps),
-// }

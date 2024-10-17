@@ -1,18 +1,18 @@
 use oracle_sql::oracle_build_update;
 
-use crate::{errors::Error, where_clause::WhereUpdate, SQLTypes};
+use crate::{errors::Error, where_clause::WhereUpdate, SQLVariation};
 
 pub mod oracle_sql;
 
 #[derive(Debug)]
 pub struct UpdateProps {
-    pub connect: SQLTypes,
+    pub connect: SQLVariation,
     pub table: String,
 }
 
 #[derive(Debug)]
 pub struct UpdateSet {
-    pub connect: SQLTypes,
+    pub connect: SQLVariation,
     pub set_match: Vec<SetMatch>,
     pub table: String,
     pub clause: Option<String>,
@@ -68,7 +68,7 @@ impl UpdateBuilder for UpdateSet {
 
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLTypes::Oracle(_) => oracle_build_update(self),
+            SQLVariation::Oracle(_) => oracle_build_update(self),
         }
     }
 }

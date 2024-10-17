@@ -2,7 +2,7 @@ use std::thread::{self, JoinHandle};
 
 use utils::stmt_res;
 
-use crate::{errors::Error, SQLTypes};
+use crate::{errors::Error, SQLVariation};
 
 use super::SelectProps;
 
@@ -10,7 +10,7 @@ pub mod utils;
 
 pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<String>>>, Error> {
     let conn_info = match select_props.connect {
-        SQLTypes::Oracle(connect) => connect,
+        SQLVariation::Oracle(connect) => connect,
         // _ => return Err(Error::WrongConnectionType),
     };
 
@@ -86,7 +86,7 @@ pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<S
 
 pub fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<Option<String>>>, Error> {
     let conn_info = match select_props.connect {
-        SQLTypes::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::Oracle(oracle_connect) => oracle_connect,
         // _ => return Err(Error::WrongConnectionType),
     };
     let query = match select_props.clause {
