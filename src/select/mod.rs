@@ -1,6 +1,6 @@
 use oracle_sql::{oracle_build_select, oracle_build_single_thread_select};
 
-use crate::{data_types::ToSQLData, errors::Error, where_clause::{utils::where_clause_value_format, WhereSelect}, SQLVariation};
+use crate::{data_types::{SQLDataTypes, ToSQLData}, errors::Error, where_clause::{utils::where_clause_value_format, WhereSelect}, SQLVariation};
 
 pub mod oracle_sql;
 
@@ -15,8 +15,8 @@ pub struct SelectProps {
 pub trait SelectBuilder {
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
-    fn build(self) -> Result<Vec<Vec<Option<String>>>, Error>;
-    fn build_single_thread(self) -> Result<Vec<Vec<Option<String>>>, Error>;
+    fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error>;
+    fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error>;
 }
 
 impl SelectBuilder for SelectProps {
@@ -38,13 +38,13 @@ impl SelectBuilder for SelectProps {
         }
     }
 
-    fn build(self) -> Result<Vec<Vec<Option<String>>>, Error> {
+    fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_select(self),
         }
     }
     
-    fn build_single_thread(self) -> Result<Vec<Vec<Option<String>>>, Error> {
+    fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
         }

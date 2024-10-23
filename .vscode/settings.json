@@ -2,7 +2,10 @@
     "cSpell.words": [
         "chrono",
         "cpus",
+        "fromsql",
         "nthreads",
-        "rowid"
+        "oratype",
+        "rowid",
+        "tosql"
     ]
 }

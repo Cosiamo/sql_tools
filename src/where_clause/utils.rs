@@ -7,7 +7,6 @@ pub fn where_clause_value_format<T: ToSQLData>(values: Vec<T>) -> String {
             data_types::SQLDataTypes::INT(val) => format!("{}", val),
             data_types::SQLDataTypes::FLOAT(val) => format!("{}", val),
             data_types::SQLDataTypes::DATE(val) => format!("'{}'", val),
-            data_types::SQLDataTypes::TIMESTAMP(val) => format!("'{}'", val),
             data_types::SQLDataTypes::NULL => format!("NULL"),
         }
     }).collect::<Vec<String>>().join(", ")

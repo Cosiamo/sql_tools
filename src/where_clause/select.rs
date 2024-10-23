@@ -1,4 +1,4 @@
-use crate::{data_types::ToSQLData, errors::Error, select::SelectBuilder};
+use crate::{data_types::{SQLDataTypes, ToSQLData}, errors::Error, select::SelectBuilder};
 
 use super::{utils::where_clause_value_format, ClauseBuilder, WhereSelect};
 
@@ -45,12 +45,12 @@ impl ClauseBuilder for WhereSelect {
 }
 
 impl WhereSelect {
-    pub fn build(mut self) -> Result<Vec<Vec<Option<String>>>, Error> { 
+    pub fn build(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
         self.query_type.clause = Some(self.clause);
         self.query_type.build()
     }
     
-    pub fn build_single_thread(mut self) -> Result<Vec<Vec<Option<String>>>, Error> {
+    pub fn build_single_thread(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         self.query_type.clause = Some(self.clause);
         self.query_type.build_single_thread()
     }

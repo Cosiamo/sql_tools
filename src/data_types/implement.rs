@@ -1,4 +1,4 @@
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDateTime;
 
 use super::{ToSQLData, SQLDataTypes};
 
@@ -105,8 +105,7 @@ impl_fmt_data!(i32, INT);
 impl_fmt_data!(i64, INT);
 impl_fmt_data!(f32, FLOAT);
 impl_fmt_data!(f64, FLOAT);
-impl_fmt_data!(NaiveDate, DATE);
-impl_fmt_data!(NaiveDateTime, TIMESTAMP);
+impl_fmt_data!(NaiveDateTime, DATE);
 
 macro_rules! impl_fmt_data_option {
     ($data_type:ty, $enum_type:ident) => {
@@ -134,5 +133,4 @@ impl_fmt_data_option!(Option<i32>, INT);
 impl_fmt_data_option!(Option<i64>, INT);
 impl_fmt_data_option!(Option<f32>, FLOAT);
 impl_fmt_data_option!(Option<f64>, FLOAT);
-impl_fmt_data_option!(Option<NaiveDate>, DATE);
-impl_fmt_data_option!(Option<NaiveDateTime>, TIMESTAMP);
+impl_fmt_data_option!(Option<NaiveDateTime>, DATE);

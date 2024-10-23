@@ -12,7 +12,6 @@ pub fn iter_grid(mut batch: &mut Batch<'_>, data: Vec<Vec<SQLDataTypes>>) -> Res
                 SQLDataTypes::INT(val) => bind_cell_to_batch(&mut batch, val, idx),
                 SQLDataTypes::FLOAT(val) => bind_cell_to_batch(&mut batch, val, idx),
                 SQLDataTypes::DATE(val) => bind_cell_to_batch(&mut batch, val, idx),
-                SQLDataTypes::TIMESTAMP(val) => bind_cell_to_batch(&mut batch, val, idx),
                 SQLDataTypes::NULL => bind_cell_to_batch(&mut batch, &None::<String>, idx),
             }
         })?;

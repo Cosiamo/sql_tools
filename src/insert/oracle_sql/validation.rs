@@ -58,7 +58,6 @@ pub fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes,
                 SQLDataTypes::INT(_) => is_int.push(x_idx),
                 SQLDataTypes::FLOAT(_) => is_float.push(x_idx),
                 SQLDataTypes::DATE(_) => is_date.push(x_idx),
-                SQLDataTypes::TIMESTAMP(_) => is_date.push(x_idx),
                 SQLDataTypes::NULL => continue,
             }
         }

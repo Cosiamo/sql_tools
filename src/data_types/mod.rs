@@ -1,16 +1,16 @@
 use core::fmt;
 
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDateTime;
 
 pub mod implement;
+pub mod fromsql;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SQLDataTypes {
     VARCHAR(String),
     INT(i64),
     FLOAT(f64),
-    DATE(NaiveDate),
-    TIMESTAMP(NaiveDateTime),
+    DATE(NaiveDateTime),
     NULL,
 }
 
@@ -21,7 +21,6 @@ impl fmt::Display for SQLDataTypes {
             SQLDataTypes::INT(val) => write!(f, "{}", val),
             SQLDataTypes::FLOAT(val) => write!(f, "{}", val),
             SQLDataTypes::DATE(val) => write!(f, "{}", val),
-            SQLDataTypes::TIMESTAMP(val) => write!(f, "{}", val),
             SQLDataTypes::NULL => write!(f, ""),
         }
     }

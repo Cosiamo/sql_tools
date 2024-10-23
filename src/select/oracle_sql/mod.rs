@@ -2,13 +2,13 @@ use std::thread::{self, JoinHandle};
 
 use utils::stmt_res;
 
-use crate::{errors::Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
 
 use super::SelectProps;
 
 pub mod utils;
 
-pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<String>>>, Error> {
+pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(connect) => connect,
         // _ => return Err(Error::WrongConnectionType),
@@ -40,7 +40,7 @@ pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<S
     let nthreads = num_cpus::get();
     let num = (len / nthreads + if len % nthreads == 0 { 0 } else { 1 }) as f32;
 
-    let mut handles: Vec<JoinHandle<Result<Vec<Vec<Option<String>>>, Error>>> = Vec::new();
+    let mut handles: Vec<JoinHandle<Result<Vec<Vec<SQLDataTypes>>, Error>>> = Vec::new();
 
     let mut c: usize = 0;
     let mut prev: usize = 0;
@@ -75,7 +75,7 @@ pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<S
         let res = handle.iter_mut().map(|row|{
             let _ = row.remove(0);
             row.to_owned()
-        }).collect::<Vec<Vec<Option<String>>>>();
+        }).collect::<Vec<Vec<SQLDataTypes>>>();
         group.push(res);
     }
     let res = group.concat();
@@ -84,7 +84,7 @@ pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<Option<S
     Ok(res)
 }
 
-pub fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<Option<String>>>, Error> {
+pub fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
         // _ => return Err(Error::WrongConnectionType),
