@@ -1,4 +1,4 @@
-use crate::{create::{CreateColumns, CreateProps}, data_types::{ToSQLData, SQLDataTypes}, insert::InsertProps, select::SelectProps, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
+use crate::{create::CreateProps, data_types::{ToSQLData, SQLDataTypes}, insert::InsertProps, select::SelectProps, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
 
 impl OracleConnect {
     pub fn new(connection_string: &str, username: &str, password: &str) -> Self {
@@ -47,11 +47,9 @@ impl QueryBuilder for OracleConnect {
         }
     }
     
-    fn create(self, table: &str, columns: Vec<CreateColumns>) -> CreateProps {
+    fn create(self) -> CreateProps {
         CreateProps {
             connect: SQLVariation::Oracle(self),
-            columns,
-            table: table.to_string(),
         }
     }
 }

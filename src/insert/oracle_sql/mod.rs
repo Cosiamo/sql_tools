@@ -1,15 +1,15 @@
 use std::thread::{self, JoinHandle};
 
-use mutate_grid::{divide_grid, iter_grid};
+use iter_grid::{divide_grid, iter_grid};
 use sql_fmt::insert_stmt;
 use validation::{does_table_exist, get_col_indexes};
 
-use crate::{create::{CreateColumns, CreateDataTypes, CreateTable}, data_types::SQLDataTypes, errors::Error, QueryBuilder, SQLVariation};
+use crate::{create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, data_types::SQLDataTypes, errors::Error, QueryBuilder, SQLVariation};
 
 use super::InsertProps;
 
 pub mod validation;
-pub mod mutate_grid;
+pub mod iter_grid;
 pub mod sql_fmt;
 
 pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
@@ -35,7 +35,7 @@ pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
                 CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::VARCHAR(*size) }
             } 
         }).collect::<Vec<CreateColumns>>();
-        conn_info.create(&insert_props.table, columns.to_vec()).build()?;
+        conn_info.create().table(&insert_props.table, columns.to_vec()).build()?;
     }
 
     let len = &insert_props.grid.len();

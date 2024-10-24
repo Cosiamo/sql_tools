@@ -1,8 +1,8 @@
 use crate::{errors::Error, SQLVariation};
 
-use super::{CreateDataTypes, CreateProps};
+use super::{CreateDataTypes, CreateTable};
 
-pub fn oracle_build_create_table(create_props: CreateProps) -> Result<(), Error> {
+pub fn oracle_build_create_table(create_props: CreateTable) -> Result<(), Error> {
     let conn_info = match create_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };

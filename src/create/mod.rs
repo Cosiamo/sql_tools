@@ -5,10 +5,15 @@ use crate::{errors::Error, SQLVariation};
 pub mod oracle_sql;
 
 #[derive(Debug)]
-pub struct CreateProps {
+pub struct CreateTable {
     pub connect: SQLVariation,
     pub columns: Vec<CreateColumns>,
     pub table: String,
+}
+
+#[derive(Debug)]
+pub struct CreateProps {
+    pub connect: SQLVariation,
 }
 
 #[derive(Debug, Clone)]
@@ -25,12 +30,12 @@ pub enum CreateDataTypes {
     DATE,
 }
 
-pub trait CreateTable {
+pub trait ModifyCreateTable {
     fn add_column(self, column: String, data_type: CreateDataTypes) -> Self;
     fn build(self) -> Result<(), Error>;
 }
 
-impl CreateTable for CreateProps {
+impl ModifyCreateTable for CreateTable {
     fn add_column(mut self, column: String, data_type: CreateDataTypes) -> Self {
         self.columns.push(CreateColumns{ name: column, data_type });
         self
@@ -39,6 +44,16 @@ impl CreateTable for CreateProps {
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_create_table(self),
+        }
+    }
+}
+
+impl CreateProps {
+    pub fn table(self, table: &str, columns: Vec<CreateColumns>) -> CreateTable {
+        CreateTable {
+            connect: self.connect,
+            columns,
+            table: table.to_string(),
         }
     }
 }

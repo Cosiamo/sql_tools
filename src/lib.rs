@@ -1,4 +1,4 @@
-use create::{CreateColumns, CreateProps};
+use create::CreateProps;
 use data_types::ToSQLData;
 use insert::InsertProps;
 use sql_variations::OracleConnect;
@@ -19,7 +19,7 @@ pub trait QueryBuilder {
     fn select(self, table: &str, columns: Vec<String>) -> SelectProps;
     fn update(self, table: &str) -> UpdateProps;
     fn insert<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
-    fn create(self, table: &str, columns: Vec<CreateColumns>) -> CreateProps;
+    fn create(self) -> CreateProps;
 }
 
 #[derive(Debug)]
