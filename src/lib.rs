@@ -16,7 +16,7 @@ pub mod data_types;
 pub mod create;
 
 pub trait QueryBuilder {
-    fn select(self, table: &str, columns: Vec<String>) -> SelectProps;
+    fn select(self, table: &str, columns: Vec<&str>) -> SelectProps;
     fn update(self, table: &str) -> UpdateProps;
     fn insert<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
     fn create(self) -> CreateProps;
