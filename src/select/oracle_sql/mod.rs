@@ -8,11 +8,35 @@ use super::SelectProps;
 
 pub mod utils;
 
-pub fn oracle_build_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
-    let conn_info = match select_props.connect {
+pub fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>, Error> {
+    let conn_info = match &select_props.connect {
         SQLVariation::Oracle(connect) => connect,
         // _ => return Err(Error::WrongConnectionType),
     };
+    let sql = format!("SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'", select_props.table.to_ascii_uppercase());
+    let conn: oracle::Connection = oracle::Connection::connect(conn_info.username.clone(), conn_info.password.clone(), conn_info.connection_string.clone())?;
+
+    let mut header: Vec<String> = Vec::new();
+    let rows = conn.query(&sql, &[])?;
+    for row_result in rows {
+        let row = row_result?;
+        for val in row.sql_values() {
+            let res = val.get()?;
+            header.push(res)
+        }
+    };
+    Ok(header)
+}
+
+pub fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    let conn_info = match select_props.connect {
+        SQLVariation::Oracle(ref connect) => connect,
+        // _ => return Err(Error::WrongConnectionType),
+    };
+
+    if select_props.columns == vec!["*".to_string()] {
+        select_props.columns = get_column_names(&select_props)?;
+    }
 
     let query: String;
 
