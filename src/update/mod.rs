@@ -1,6 +1,6 @@
 use oracle_sql::oracle_build_update;
 
-use crate::{errors::Error, where_clause::WhereUpdate, SQLVariation};
+use crate::{data_types::{SQLDataTypes, ToSQLData}, errors::Error, where_clause::{utils::where_clause_value_format, WhereUpdate}, SQLVariation};
 
 pub mod oracle_sql;
 
@@ -21,15 +21,15 @@ pub struct UpdateSet {
 #[derive(Debug)]
 pub struct SetMatch {
     pub column: String,
-    pub value: String
+    pub value: SQLDataTypes
 }
 
 impl UpdateProps {
-    pub fn set(self, column: &str, new_value: &str) -> UpdateSet {
+    pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateSet {
         let set = vec![
             SetMatch {
                 column: column.to_string(),
-                value: new_value.to_string(),
+                value: new_value.fmt_data(),
             }
         ];
         UpdateSet {
@@ -42,24 +42,35 @@ impl UpdateProps {
 }
 
 pub trait UpdateBuilder {
-    fn set(self, column: &str, new_value: &str) -> Self;
-    fn filter(self, column: &str, value: &str) -> WhereUpdate;
+    fn set<T: ToSQLData>(self, column: &str, new_value: T) -> Self;
+    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
+    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
     fn build(self) -> Result<(), Error>;
 }
 
 impl UpdateBuilder for UpdateSet {
-    fn set(mut self, column: &str, new_value: &str) -> Self {
+    fn set<T: ToSQLData>(mut self, column: &str, new_value: T) -> Self {
         self.set_match.push(
             SetMatch {
                 column: column.to_string(),
-                value: new_value.to_string(),
+                value: new_value.fmt_data(),
             }
         );
         self
     }
 
-    fn filter(self, column: &str, value: &str) -> WhereUpdate {
-        let where_clause = format!("{} {}", column, value);
+    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate {
+        let value = where_clause_value_format(values);
+        let where_clause = format!("{} IN ({})", column, value);
+        WhereUpdate { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
+
+    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate {
+        let value = where_clause_value_format(values);
+        let where_clause = format!("{} NOT IN ({})", column, value);
         WhereUpdate { 
             query_type: self,
             clause: where_clause
