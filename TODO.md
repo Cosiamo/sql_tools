@@ -12,6 +12,7 @@
 - Create a single thread build method
 
 # Where Clause
-- change `.filter()` to `.where_in()` and `.where_not()`
-- change `.and()` `.or()` to  `.and()`/`.and_not()` and `.or()`/`.or_not()`
-- let the values types be the FormatData generic
+✅- change `.filter()` to `.where_in()` and `.where_not()`
+✅- change `.and()` `.or()` to  `.and()`/`.and_not()` and `.or()`/`.or_not()`
+✅- let the values types be the FormatData generic
+- Add a date range filter
