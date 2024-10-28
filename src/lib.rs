@@ -21,11 +21,12 @@ pub mod create;
 pub trait QueryBuilder {
     /// Creates a new [`SelectProps`] to start building out a select query.
     /// 
-    /// To make a simple select statement, you need to input the table or view name, as well as a vector containing the column names.
-    fn select(self, table: &str, columns: Vec<&str>) -> SelectProps;
-    fn update(self, table: &str) -> UpdateProps;
-    fn insert<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
-    fn create(self) -> CreateProps;
+    /// To make a simple select statement, you need to input the table or view name, 
+    /// as well as a vector containing the column names.
+    fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps;
+    fn update(&self, table: &str) -> UpdateProps;
+    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
+    fn create(&self) -> CreateProps;
 }
 
 #[derive(Debug)]

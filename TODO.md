@@ -1,5 +1,5 @@
 # QueryBuilder
-- Make every method a borrow self so one connection struct can be used multiple times
+✅- Make every method a borrow self so one connection struct can be used multiple times
 - Add SQLite support
 
 # Insert

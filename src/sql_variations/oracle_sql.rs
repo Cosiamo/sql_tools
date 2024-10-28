@@ -11,26 +11,26 @@ impl OracleConnect {
 }
 
 impl QueryBuilder for OracleConnect {
-    fn select(self, table: &str, columns: Vec<&str>) -> SelectProps {
+    fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
         let fmt_cols = columns.iter().map(|cols| {
             remove_invalid_chars(&cols.to_string())
         }).collect::<Vec<String>>();
         SelectProps {
-            connect: SQLVariation::Oracle(self),
+            connect: SQLVariation::Oracle(self.clone()),
             columns: fmt_cols,
             table: table.to_string(),
             clause: None,
         }
     }
     
-    fn update(self, table: &str) -> UpdateProps {
+    fn update(&self, table: &str) -> UpdateProps {
         UpdateProps {
-            connect: SQLVariation::Oracle(self),
+            connect: SQLVariation::Oracle(self.clone()),
             table: table.to_string(),
         }
     }
     
-    fn insert<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> InsertProps {
+    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> InsertProps {
         let mut grid = data.iter().map(|row|{
             row.iter().map(|cell| cell.fmt_data_borrowed()).collect::<Vec<SQLDataTypes>>()
         }).collect::<Vec<Vec<SQLDataTypes>>>();
@@ -40,16 +40,16 @@ impl QueryBuilder for OracleConnect {
         }).collect::<Vec<String>>();
         grid.remove(0);
         InsertProps {
-            connect: SQLVariation::Oracle(self),
+            connect: SQLVariation::Oracle(self.clone()),
             grid,
             table: table.to_string(),
             header,
         }
     }
     
-    fn create(self) -> CreateProps {
+    fn create(&self) -> CreateProps {
         CreateProps {
-            connect: SQLVariation::Oracle(self),
+            connect: SQLVariation::Oracle(self.clone()),
         }
     }
 }

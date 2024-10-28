@@ -1,6 +1,6 @@
 pub mod oracle_sql;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OracleConnect {
     pub connection_string: String,
     pub username: String,
