@@ -38,7 +38,7 @@ impl fmt::Display for SQLDataTypes {
 ///     NUMBER(i64)
 /// }
 ///
-/// impl FormatData for MyEnum {
+/// impl ToSQLData for MyEnum {
 ///     fn fmt_data(self) -> SQLDataTypes {
 ///         match self {
 ///             MyEnum::STRING(val) => SQLDataTypes::VARCHAR(val.into()),
@@ -55,7 +55,7 @@ impl fmt::Display for SQLDataTypes {
 ///
 /// struct MyType<'a>(&'a SomeForeignType);
 ///
-/// impl FormatData for MyType<'_> {
+/// impl ToSQLData for MyType<'_> {
 ///     fn fmt_data(self) -> SQLDataTypes {
 ///         match self {
 ///             MyType(SomeForeignType::Int(val)) => SQLDataTypes::INT(*val),

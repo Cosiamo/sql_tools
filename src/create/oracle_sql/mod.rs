@@ -2,12 +2,12 @@ use crate::{errors::Error, SQLVariation};
 
 use super::{CreateDataTypes, CreateTable};
 
-pub fn oracle_build_create_table(create_props: CreateTable) -> Result<(), Error> {
-    let conn_info = match create_props.connect {
+pub fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
+    let conn_info = match create_table.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
 
-    let cols_and_data_types = create_props.columns.iter().map(|col_props|{
+    let cols_and_data_types = create_table.columns.iter().map(|col_props|{
         match col_props.data_type {
             CreateDataTypes::VARCHAR(num) => format!("{} VARCHAR2({})", &col_props.name, num),
             CreateDataTypes::INT => format!("{} NUMBER", &col_props.name),
@@ -16,7 +16,7 @@ pub fn oracle_build_create_table(create_props: CreateTable) -> Result<(), Error>
         }
     }).collect::<Vec<String>>().join(", ");
 
-    let sql = format!("CREATE TABLE {} ({})", create_props.table, cols_and_data_types);
+    let sql = format!("CREATE TABLE {} ({})", create_table.table, cols_and_data_types);
     // println!("{}", sql);
     let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
     conn.execute(&sql, &[])?;
