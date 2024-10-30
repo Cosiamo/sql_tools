@@ -49,4 +49,9 @@ impl WhereUpdate {
         self.query_type.clause = Some(self.clause);
         self.query_type.build()
     }
+
+    pub fn build_return_count(mut self) -> Result<usize, Error> { 
+        self.query_type.clause = Some(self.clause);
+        self.query_type.build_return_count()
+    }
 }

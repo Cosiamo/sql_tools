@@ -46,6 +46,7 @@ pub trait UpdateBuilder {
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
     fn build(self) -> Result<(), Error>;
+    fn build_return_count(self) -> Result<usize, Error>;
 }
 
 impl UpdateBuilder for UpdateSet {
@@ -78,6 +79,15 @@ impl UpdateBuilder for UpdateSet {
     }
 
     fn build(self) -> Result<(), Error> {
+        match self.connect {
+            SQLVariation::Oracle(_) => {
+                oracle_build_update(self)?;
+                Ok(())
+            },
+        }
+    }
+
+    fn build_return_count(self) -> Result<usize, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_update(self),
         }

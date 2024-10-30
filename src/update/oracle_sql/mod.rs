@@ -2,7 +2,7 @@ use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
 
 use super::UpdateSet;
 
-pub fn oracle_build_update(update_set: UpdateSet)  -> Result<(), Error> {
+pub fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
     let conn_info = match update_set.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
@@ -11,7 +11,7 @@ pub fn oracle_build_update(update_set: UpdateSet)  -> Result<(), Error> {
     let set = update_set.set_match.iter().enumerate().map(|(idx, set_match)| {
         let fmt_data_types = match &set_match.value {
             SQLDataTypes::VARCHAR(val) => format!("'{}'", val),
-            SQLDataTypes::INT(val) => format!("{}", val),
+            SQLDataTypes::NUMBER(val) => format!("{}", val),
             SQLDataTypes::FLOAT(val) => format!("{}", val),
             SQLDataTypes::DATE(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
             SQLDataTypes::NULL => format!("''"),
@@ -23,14 +23,14 @@ pub fn oracle_build_update(update_set: UpdateSet)  -> Result<(), Error> {
         else { format!("{} = {},", set_match.column, fmt_data_types) }
     }).collect::<Vec<String>>().join(" ");
     
-    // let count_sql: String;
+    let count_sql: String;
     let query = match update_set.clause {
         Some(filters) => {
-            // count_sql = format!("SELECT COUNT(*) FROM {} WHERE {}", &update_set.table, &filters);
+            count_sql = format!("SELECT COUNT(*) FROM {} WHERE {}", &update_set.table, &filters);
             format!("UPDATE {} {} WHERE {}", &update_set.table, set, filters)
         },
         None => {
-            // count_sql = format!("SELECT COUNT(*) FROM {}", &update_set.table);
+            count_sql = format!("SELECT COUNT(*) FROM {}", &update_set.table);
             format!("UPDATE {} {}", &update_set.table, set)
         },
     };
@@ -39,9 +39,13 @@ pub fn oracle_build_update(update_set: UpdateSet)  -> Result<(), Error> {
     conn.execute(&query, &[]).unwrap();
     conn.commit()?;
     
-    // let stmt = conn.statement(&count_sql).build()?;
-    // let count = stmt_res(stmt, 1 as usize)?;
-    // count.iter().for_each(|c| c.iter().for_each(|t| println!("UPDATED {:?} ROWS", t)));
+    let mut count: usize = 0;
+    let mut stmt = conn.statement(&count_sql).build()?;
+    let query = stmt.query(&[])?;
+    for v in query {
+        let p = v?;
+        count = p.get::<usize, usize>(0)?;
+    };
 
-    Ok(())
+    Ok(count)
 }
