@@ -27,11 +27,11 @@ pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
             if col_type_indexes.is_date.contains(&idx) {
                 CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::DATE }
             } else if col_type_indexes.is_int.contains(&idx) {
-                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::INT }
+                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::NUMBER }
             } else if col_type_indexes.is_float.contains(&idx) {
                 CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::FLOAT }
             } else {
-                let size = if let Some(val) = col_type_indexes.varchar_size.get(&idx) { val } else { &(0 as usize) };
+                let size = if let Some(val) = col_type_indexes.varchar_size.get(&idx) { val } else { &(1 as usize) };
                 CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::VARCHAR(*size) }
             } 
         }).collect::<Vec<CreateColumns>>();

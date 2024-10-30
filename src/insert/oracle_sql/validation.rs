@@ -41,21 +41,13 @@ pub fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes,
     let mut is_float: Vec<usize> = Vec::new();
     let mut is_int: Vec<usize> = Vec::new();
     let mut is_date: Vec<usize> = Vec::new();
-    let mut varchar_size = HashMap::new();
+    let varchar_size = HashMap::new();
 
     for row in grid.iter() {
         for (x_idx, cell) in row.iter().enumerate() {
             match cell {
-                SQLDataTypes::VARCHAR(val) => {
-                    if let Some(existing_size) = varchar_size.get(&x_idx) {
-                        if val.len() > *existing_size {
-                            varchar_size.remove(&x_idx); 
-                            varchar_size.insert(x_idx, val.len()); 
-                        }
-                    } else { varchar_size.insert(x_idx, val.len()); }
-                    is_varchar.push(x_idx)
-                },
-                SQLDataTypes::INT(_) => is_int.push(x_idx),
+                SQLDataTypes::VARCHAR(_) => is_varchar.push(x_idx),
+                SQLDataTypes::NUMBER(_) => is_int.push(x_idx),
                 SQLDataTypes::FLOAT(_) => is_float.push(x_idx),
                 SQLDataTypes::DATE(_) => is_date.push(x_idx),
                 SQLDataTypes::NULL => continue,
@@ -63,13 +55,15 @@ pub fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes,
         }
     }
 
-    Ok(DatatypeIndexes {
+    let data_type_indexes = DatatypeIndexes {
         is_varchar,
         is_float,
         is_int,
         is_date,
         varchar_size,
-    }.find_uniques())
+    };
+
+    Ok(data_type_indexes.find_uniques().get_varchar_sizes(grid))
 }
 
 
@@ -101,5 +95,31 @@ impl DatatypeIndexes {
             is_date,
             varchar_size: self.varchar_size,
         }
+    }
+
+    pub(crate) fn get_varchar_sizes(mut self, grid: &Vec<Vec<SQLDataTypes>>) -> Self {
+        let mut varchar_size = HashMap::new();
+        for row in grid.iter() {
+            for (x_idx, cell) in row.iter().enumerate() {
+                if self.is_varchar.contains(&x_idx) {
+                    let val = match cell {
+                        SQLDataTypes::VARCHAR(val) => val.to_owned(),
+                        SQLDataTypes::NUMBER(val) => format!("{}", val),
+                        SQLDataTypes::FLOAT(val) => format!("{}", val),
+                        SQLDataTypes::DATE(val) => format!("{}", val),
+                        SQLDataTypes::NULL => format!(""),
+                    };
+                    if let Some(existing_size) = varchar_size.get(&x_idx) {
+                        if val.len() > *existing_size {
+                            varchar_size.remove(&x_idx); 
+                            varchar_size.insert(x_idx, val.len()); 
+                        }
+                    } else { varchar_size.insert(x_idx, val.len()); }
+                } else { continue; }
+            }
+        };
+
+        self.varchar_size = varchar_size;
+        self
     }
 }
