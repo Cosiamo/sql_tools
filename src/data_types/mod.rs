@@ -8,7 +8,7 @@ pub mod fromsql;
 #[derive(Debug, Clone, PartialEq)]
 pub enum SQLDataTypes {
     VARCHAR(String),
-    INT(i64),
+    NUMBER(i64),
     FLOAT(f64),
     DATE(NaiveDateTime),
     NULL,
@@ -18,7 +18,7 @@ impl fmt::Display for SQLDataTypes {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             SQLDataTypes::VARCHAR(val) => write!(f, "{}", val),
-            SQLDataTypes::INT(val) => write!(f, "{}", val),
+            SQLDataTypes::NUMBER(val) => write!(f, "{}", val),
             SQLDataTypes::FLOAT(val) => write!(f, "{}", val),
             SQLDataTypes::DATE(val) => write!(f, "{}", val),
             SQLDataTypes::NULL => write!(f, ""),

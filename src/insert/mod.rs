@@ -39,7 +39,7 @@ impl InsertBuilder for InsertProps {
                     let t = ByteRecord::from(vec![t]);
                     let csv = assign_bytes(vec![t]).unwrap();
                     let mat = match &csv[0][0] {
-                        CSVType::Int(val) => Ok(SQLDataTypes::INT(*val).clone()),
+                        CSVType::Int(val) => Ok(SQLDataTypes::NUMBER(*val).clone()),
                         CSVType::Float(val) => Ok(SQLDataTypes::FLOAT(*val).clone()),
                         CSVType::String(val) => Ok(SQLDataTypes::VARCHAR(val.clone()).clone()),
                         CSVType::Date(naive_date) => Ok(SQLDataTypes::DATE((*naive_date).into()).clone()),

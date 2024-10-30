@@ -18,8 +18,8 @@ impl FromSql for SQLDataTypes {
                 oracle::sql_type::OracleType::Rowid => SQLDataTypes::VARCHAR(val.get::<String>()?),
                 oracle::sql_type::OracleType::Raw(_) => SQLDataTypes::VARCHAR(val.get::<String>()?),
                 oracle::sql_type::OracleType::BinaryFloat => SQLDataTypes::FLOAT(val.get::<f64>()?),
-                oracle::sql_type::OracleType::BinaryDouble => SQLDataTypes::INT(val.get::<i64>()?),
-                oracle::sql_type::OracleType::Number(_, _) => SQLDataTypes::INT(val.get::<i64>()?),
+                oracle::sql_type::OracleType::BinaryDouble => SQLDataTypes::NUMBER(val.get::<i64>()?),
+                oracle::sql_type::OracleType::Number(_, _) => SQLDataTypes::NUMBER(val.get::<i64>()?),
                 oracle::sql_type::OracleType::Float(_) => SQLDataTypes::FLOAT(val.get::<f64>()?),
                 oracle::sql_type::OracleType::Date => SQLDataTypes::DATE(val.get::<NaiveDateTime>()?),
                 oracle::sql_type::OracleType::Timestamp(_) => SQLDataTypes::DATE(val.get::<NaiveDateTime>()?),
@@ -38,8 +38,8 @@ impl FromSql for SQLDataTypes {
                 oracle::sql_type::OracleType::LongRaw => SQLDataTypes::VARCHAR(val.get::<String>()?),
                 oracle::sql_type::OracleType::Json => SQLDataTypes::VARCHAR(val.get::<String>()?),
                 oracle::sql_type::OracleType::Xml => SQLDataTypes::VARCHAR(val.get::<String>()?),
-                oracle::sql_type::OracleType::Int64 =>  SQLDataTypes::INT(val.get::<i64>()?),
-                oracle::sql_type::OracleType::UInt64 =>  SQLDataTypes::INT(val.get::<i64>()?),
+                oracle::sql_type::OracleType::Int64 =>  SQLDataTypes::NUMBER(val.get::<i64>()?),
+                oracle::sql_type::OracleType::UInt64 =>  SQLDataTypes::NUMBER(val.get::<i64>()?),
             };
             Ok(t)
     }

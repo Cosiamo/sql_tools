@@ -25,7 +25,7 @@ pub struct CreateColumns {
 #[derive(Debug, Clone)]
 pub enum CreateDataTypes {
     VARCHAR(usize),
-    INT,
+    NUMBER,
     FLOAT,
     DATE,
 }
