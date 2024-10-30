@@ -1,3 +1,6 @@
+use std::sync::Arc;
+
+use indicatif::ProgressBar;
 use oracle::Batch;
 
 use crate::{data_types::SQLDataTypes, errors::Error};
@@ -16,6 +19,25 @@ pub fn iter_grid(mut batch: &mut Batch<'_>, data: Vec<Vec<SQLDataTypes>>) -> Res
             }
         })?;
         batch.append_row(&[])?;
+        Ok(())
+    })?;
+    batch.execute()?;
+    Ok(())
+}
+
+pub fn iter_grid_pb(mut batch: &mut Batch<'_>, data: Vec<Vec<SQLDataTypes>>, progress_bar: Arc<ProgressBar>) -> Result<(), Error> {
+    data.iter().try_for_each(|row| -> Result<(), Error> {
+        row.iter().enumerate().try_for_each(|(idx, cell)| -> Result<(), Error> {
+            match cell {
+                SQLDataTypes::VARCHAR(val) => bind_cell_to_batch(&mut batch, val, idx),
+                SQLDataTypes::NUMBER(val) => bind_cell_to_batch(&mut batch, val, idx),
+                SQLDataTypes::FLOAT(val) => bind_cell_to_batch(&mut batch, val, idx),
+                SQLDataTypes::DATE(val) => bind_cell_to_batch(&mut batch, val, idx),
+                SQLDataTypes::NULL => bind_cell_to_batch(&mut batch, &None::<String>, idx),
+            }
+        })?;
+        batch.append_row(&[])?;
+        progress_bar.inc(1u64);
         Ok(())
     })?;
     batch.execute()?;

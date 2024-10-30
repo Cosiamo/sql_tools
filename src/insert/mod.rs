@@ -1,6 +1,6 @@
 use csv::ByteRecord;
 use csv_perusal::{utils::assign_bytes, CSVType};
-use oracle_sql::oracle_build_insert;
+use oracle_sql::{oracle_build_insert, oracle_build_insert_with_pb};
 
 use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
 
@@ -23,11 +23,16 @@ impl InsertPropsFormatted {
     pub fn build(self) -> Result<(), Error> {
         self.insert_props.build()
     }
+
+    pub fn build_with_progress_bar(self) -> Result<(), Error> {
+        self.insert_props.build_with_progress_bar()
+    }
 }
 
 pub trait InsertBuilder {
     fn format_grid_strings(self) -> Result<InsertPropsFormatted, Error>;
     fn build(self) -> Result<(), Error>;
+    fn build_with_progress_bar(self) -> Result<(), Error>;
 }
 
 impl InsertBuilder for InsertProps {
@@ -68,6 +73,12 @@ impl InsertBuilder for InsertProps {
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_insert(self),
+        }
+    }
+
+    fn build_with_progress_bar(self) -> Result<(), Error> {
+        match self.connect {
+            SQLVariation::Oracle(_) => oracle_build_insert_with_pb(self),
         }
     }
 }
