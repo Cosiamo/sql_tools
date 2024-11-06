@@ -12,12 +12,12 @@ impl ToSQLData for &[u8] {
     fn fmt_data(self) -> SQLDataTypes {
         let clone_on_write_string = String::from_utf8_lossy(self);
         let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-        SQLDataTypes::VARCHAR(utf8_string)
+        SQLDataTypes::Varchar(utf8_string)
     }
     fn fmt_data_borrowed(&self) -> SQLDataTypes {
         let clone_on_write_string = String::from_utf8_lossy(self);
         let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-        SQLDataTypes::VARCHAR(utf8_string)
+        SQLDataTypes::Varchar(utf8_string)
     }
 }
 impl ToSQLData for Vec<u8> {
@@ -27,7 +27,7 @@ impl ToSQLData for Vec<u8> {
                 String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
             )
             .unwrap();
-        SQLDataTypes::VARCHAR(utf8_string)
+        SQLDataTypes::Varchar(utf8_string)
     }
     fn fmt_data_borrowed(&self) -> SQLDataTypes {
         let utf8_string = String::from_utf8(self.to_vec())
@@ -35,7 +35,7 @@ impl ToSQLData for Vec<u8> {
                 String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
             )
             .unwrap();
-        SQLDataTypes::VARCHAR(utf8_string)
+        SQLDataTypes::Varchar(utf8_string)
     }
 }
 impl ToSQLData for Option<&[u8]> {
@@ -44,7 +44,7 @@ impl ToSQLData for Option<&[u8]> {
             Some(val) => {
                 let clone_on_write_string = String::from_utf8_lossy(val);
                 let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-                SQLDataTypes::VARCHAR(utf8_string)
+                SQLDataTypes::Varchar(utf8_string)
             },
             None => SQLDataTypes::NULL,
         }
@@ -54,7 +54,7 @@ impl ToSQLData for Option<&[u8]> {
             Some(val) => {
                 let clone_on_write_string = String::from_utf8_lossy(val);
                 let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-                SQLDataTypes::VARCHAR(utf8_string)
+                SQLDataTypes::Varchar(utf8_string)
             },
             None => SQLDataTypes::NULL,
         }
@@ -69,7 +69,7 @@ impl ToSQLData for Option<Vec<u8>> {
                         String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
                     )
                     .unwrap();
-                SQLDataTypes::VARCHAR(utf8_string)
+                SQLDataTypes::Varchar(utf8_string)
             },
             None => SQLDataTypes::NULL,
         }
@@ -82,7 +82,7 @@ impl ToSQLData for Option<Vec<u8>> {
                         String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
                     )
                     .unwrap();
-                SQLDataTypes::VARCHAR(utf8_string)
+                SQLDataTypes::Varchar(utf8_string)
             },
             None => SQLDataTypes::NULL,
         }
@@ -97,15 +97,15 @@ macro_rules! impl_fmt_data {
         }
     };
 }
-impl_fmt_data!(&str, VARCHAR);
-impl_fmt_data!(String, VARCHAR);
-impl_fmt_data!(i8, NUMBER);
-impl_fmt_data!(i16, NUMBER);
-impl_fmt_data!(i32, NUMBER);
-impl_fmt_data!(i64, NUMBER);
-impl_fmt_data!(f32, FLOAT);
-impl_fmt_data!(f64, FLOAT);
-impl_fmt_data!(NaiveDateTime, DATE);
+impl_fmt_data!(&str, Varchar);
+impl_fmt_data!(String, Varchar);
+impl_fmt_data!(i8, Number);
+impl_fmt_data!(i16, Number);
+impl_fmt_data!(i32, Number);
+impl_fmt_data!(i64, Number);
+impl_fmt_data!(f32, Float);
+impl_fmt_data!(f64, Float);
+impl_fmt_data!(NaiveDateTime, Date);
 
 macro_rules! impl_fmt_data_option {
     ($data_type:ty, $enum_type:ident) => {
@@ -125,12 +125,12 @@ macro_rules! impl_fmt_data_option {
         }
     };
 }
-impl_fmt_data_option!(Option<&str>, VARCHAR);
-impl_fmt_data_option!(Option<String>, VARCHAR);
-impl_fmt_data_option!(Option<i8>, NUMBER);
-impl_fmt_data_option!(Option<i16>, NUMBER);
-impl_fmt_data_option!(Option<i32>, NUMBER);
-impl_fmt_data_option!(Option<i64>, NUMBER);
-impl_fmt_data_option!(Option<f32>, FLOAT);
-impl_fmt_data_option!(Option<f64>, FLOAT);
-impl_fmt_data_option!(Option<NaiveDateTime>, DATE);
+impl_fmt_data_option!(Option<&str>, Varchar);
+impl_fmt_data_option!(Option<String>, Varchar);
+impl_fmt_data_option!(Option<i8>, Number);
+impl_fmt_data_option!(Option<i16>, Number);
+impl_fmt_data_option!(Option<i32>, Number);
+impl_fmt_data_option!(Option<i64>, Number);
+impl_fmt_data_option!(Option<f32>, Float);
+impl_fmt_data_option!(Option<f64>, Float);
+impl_fmt_data_option!(Option<NaiveDateTime>, Date);

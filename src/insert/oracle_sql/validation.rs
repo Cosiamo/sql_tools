@@ -46,10 +46,10 @@ pub fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes,
     for row in grid.iter() {
         for (x_idx, cell) in row.iter().enumerate() {
             match cell {
-                SQLDataTypes::VARCHAR(_) => is_varchar.push(x_idx),
-                SQLDataTypes::NUMBER(_) => is_int.push(x_idx),
-                SQLDataTypes::FLOAT(_) => is_float.push(x_idx),
-                SQLDataTypes::DATE(_) => is_date.push(x_idx),
+                SQLDataTypes::Varchar(_) => is_varchar.push(x_idx),
+                SQLDataTypes::Number(_) => is_int.push(x_idx),
+                SQLDataTypes::Float(_) => is_float.push(x_idx),
+                SQLDataTypes::Date(_) => is_date.push(x_idx),
                 SQLDataTypes::NULL => continue,
             }
         }
@@ -103,10 +103,10 @@ impl DatatypeIndexes {
             for (x_idx, cell) in row.iter().enumerate() {
                 if self.is_varchar.contains(&x_idx) {
                     let val = match cell {
-                        SQLDataTypes::VARCHAR(val) => val.to_owned(),
-                        SQLDataTypes::NUMBER(val) => format!("{}", val),
-                        SQLDataTypes::FLOAT(val) => format!("{}", val),
-                        SQLDataTypes::DATE(val) => format!("{}", val),
+                        SQLDataTypes::Varchar(val) => val.to_owned(),
+                        SQLDataTypes::Number(val) => format!("{}", val),
+                        SQLDataTypes::Float(val) => format!("{}", val),
+                        SQLDataTypes::Date(val) => format!("{}", val),
                         SQLDataTypes::NULL => format!(""),
                     };
                     if let Some(existing_size) = varchar_size.get(&x_idx) {

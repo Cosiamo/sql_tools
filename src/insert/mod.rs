@@ -39,17 +39,17 @@ impl InsertBuilder for InsertProps {
     fn format_grid_strings(self) -> Result<InsertPropsFormatted, Error> {
         let grid = self.grid.iter().map(|row|{
             row.iter().map(|cell|{
-                if let SQLDataTypes::VARCHAR(t) = cell {
+                if let SQLDataTypes::Varchar(t) = cell {
                     // using my csv parser for right now, will rewrite in the future
                     let t = ByteRecord::from(vec![t]);
                     let csv = assign_bytes(vec![t]).unwrap();
                     let mat = match &csv[0][0] {
-                        CSVType::Int(val) => Ok(SQLDataTypes::NUMBER(*val).clone()),
-                        CSVType::Float(val) => Ok(SQLDataTypes::FLOAT(*val).clone()),
-                        CSVType::String(val) => Ok(SQLDataTypes::VARCHAR(val.clone()).clone()),
-                        CSVType::Date(naive_date) => Ok(SQLDataTypes::DATE((*naive_date).into()).clone()),
-                        CSVType::Time(naive_time) => Ok(SQLDataTypes::VARCHAR(naive_time.to_string()).clone()),
-                        CSVType::DateTime(naive_date_time) => Ok(SQLDataTypes::DATE(*naive_date_time).clone()),
+                        CSVType::Int(val) => Ok(SQLDataTypes::Number(*val).clone()),
+                        CSVType::Float(val) => Ok(SQLDataTypes::Float(*val).clone()),
+                        CSVType::String(val) => Ok(SQLDataTypes::Varchar(val.clone()).clone()),
+                        CSVType::Date(naive_date) => Ok(SQLDataTypes::Date((*naive_date).into()).clone()),
+                        CSVType::Time(naive_time) => Ok(SQLDataTypes::Varchar(naive_time.to_string()).clone()),
+                        CSVType::DateTime(naive_date_time) => Ok(SQLDataTypes::Date(*naive_date_time).clone()),
                         CSVType::Error(cell_error) => Err(cell_error),
                         CSVType::Empty => Ok(SQLDataTypes::NULL.clone()),
                     };

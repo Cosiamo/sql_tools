@@ -10,10 +10,10 @@ pub fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
     let set_match_len = &update_set.set_match.len();
     let set = update_set.set_match.iter().enumerate().map(|(idx, set_match)| {
         let fmt_data_types = match &set_match.value {
-            SQLDataTypes::VARCHAR(val) => format!("'{}'", val),
-            SQLDataTypes::NUMBER(val) => format!("{}", val),
-            SQLDataTypes::FLOAT(val) => format!("{}", val),
-            SQLDataTypes::DATE(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
+            SQLDataTypes::Varchar(val) => format!("'{}'", val),
+            SQLDataTypes::Number(val) => format!("{}", val),
+            SQLDataTypes::Float(val) => format!("{}", val),
+            SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
             SQLDataTypes::NULL => format!("''"),
         };
 
