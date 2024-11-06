@@ -27,10 +27,10 @@ Once you established a connection type, you can use the various methods in this 
 This is the enum that is used to apply the proper data type to the data that's being selected, updated, or inserted.
 ```rust
 pub enum SQLDataTypes {
-    VARCHAR(String),
-    NUMBER(i64),
-    FLOAT(f64),
-    DATE(chrono::NaiveDateTime), 
+    Varchar(String),
+    Number(i64),
+    Float(f64),
+    Date(chrono::NaiveDateTime), 
     NULL,
 }
 ```
