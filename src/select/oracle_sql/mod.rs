@@ -8,7 +8,7 @@ use super::SelectProps;
 
 pub mod utils;
 
-pub fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>, Error> {
+pub(crate) fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(connect) => connect,
         // _ => return Err(Error::WrongConnectionType),
@@ -28,7 +28,7 @@ pub fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>, Error
     Ok(header)
 }
 
-pub fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(ref connect) => connect,
         // _ => return Err(Error::WrongConnectionType),
@@ -108,7 +108,7 @@ pub fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<Vec<SQLD
     Ok(res)
 }
 
-pub fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
         // _ => return Err(Error::WrongConnectionType),

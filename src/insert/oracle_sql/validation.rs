@@ -4,7 +4,7 @@ use itertools::Itertools;
 
 use crate::{data_types::SQLDataTypes, errors::Error, sql_variations::OracleConnect};
 
-pub fn does_table_exist(table: &String, conn_info: &OracleConnect) -> Result<bool, Error> {
+pub(crate) fn does_table_exist(table: &String, conn_info: &OracleConnect) -> Result<bool, Error> {
     let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
     let mut existing_tables = conn
         .statement("SELECT table_name FROM user_tables")
@@ -34,7 +34,7 @@ pub struct VarcharProps {
     pub size: usize,
 }
 
-pub fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes, Error> {
+pub(crate) fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeIndexes, Error> {
     // get's the 'dominate' datatype from each column
     // weighted in order: VARCHAR2, FLOAT, INT, DATE
     let mut is_varchar: Vec<usize> = Vec::new();

@@ -2,7 +2,7 @@ use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
 
 use super::UpdateSet;
 
-pub fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
+pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
     let conn_info = match update_set.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };

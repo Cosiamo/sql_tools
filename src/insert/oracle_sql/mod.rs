@@ -13,7 +13,7 @@ pub mod validation;
 pub mod iter_grid;
 pub mod sql_fmt;
 
-pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
+pub(crate) fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
@@ -68,7 +68,7 @@ pub fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn oracle_build_insert_with_pb(mut insert_props: InsertProps) -> Result<(), Error> {
+pub(crate) fn oracle_build_insert_with_pb(mut insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };

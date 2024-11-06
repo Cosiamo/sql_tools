@@ -2,7 +2,7 @@ use crate::{errors::Error, SQLVariation};
 
 use super::{CreateDataTypes, CreateTable};
 
-pub fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
+pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
     let conn_info = match create_table.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
     };
