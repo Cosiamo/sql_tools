@@ -1,6 +1,6 @@
 use crate::data_types::{self, ToSQLData};
 
-pub fn where_clause_value_format<T: ToSQLData>(values: Vec<T>) -> String {
+pub(crate) fn where_clause_value_format<T: ToSQLData>(values: Vec<T>) -> String {
     values.iter().map(|cell| {
         match cell.fmt_data_borrowed() {
             data_types::SQLDataTypes::Varchar(val) => format!("'{}'", val),

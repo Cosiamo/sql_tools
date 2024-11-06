@@ -30,6 +30,9 @@ pub enum CreateDataTypes {
 }
 
 pub trait ModifyCreateTable {
+    /// Adds a column to the CREATE TABLE query.
     fn add_column(self, column: String, data_type: CreateDataTypes) -> Self;
+
+    /// Builds the query. 
     fn build(self) -> Result<(), Error>;
 }

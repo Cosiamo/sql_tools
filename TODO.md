@@ -9,6 +9,7 @@
 ⏸️- `.format_data()` to auto convert inserted data into appropriate data type
 - Single thread build method
 - Add a progress bar option
+- Add method that will catch if table does not exist then abort method
 
 # Select 
 - Single thread build method

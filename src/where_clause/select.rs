@@ -1,8 +1,8 @@
 use crate::{data_types::{SQLDataTypes, ToSQLData}, errors::Error, select::SelectBuilder};
 
-use super::{utils::where_clause_value_format, ClauseBuilder, WhereSelect};
+use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereSelect};
 
-impl ClauseBuilder for WhereSelect {
+impl WhereClauseBuilder for WhereSelect {
     fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let and = format!("{} IN ({})", column, value);

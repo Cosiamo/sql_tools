@@ -34,15 +34,15 @@ impl fmt::Display for SQLDataTypes {
 ///
 /// ```no_run
 /// enum MyEnum {
-///     STRING(String),
-///     NUMBER(i64)
+///     Name(String),
+///     Age(i64)
 /// }
 ///
 /// impl ToSQLData for MyEnum {
 ///     fn fmt_data(self) -> SQLDataTypes {
 ///         match self {
-///             MyEnum::STRING(val) => SQLDataTypes::VARCHAR(val.into()),
-///             MyEnum::NUMBER(val) => SQLDataTypes::INT(val.into()),
+///             MyEnum::Name(val) => SQLDataTypes::Varchar(val.into()),
+///             MyEnum::Age(val) => SQLDataTypes::Number(val.into()),
 ///         }
 ///     }
 /// }
@@ -58,9 +58,9 @@ impl fmt::Display for SQLDataTypes {
 /// impl ToSQLData for MyType<'_> {
 ///     fn fmt_data(self) -> SQLDataTypes {
 ///         match self {
-///             MyType(SomeForeignType::Int(val)) => SQLDataTypes::INT(*val),
-///             MyType(SomeForeignType::Float(val)) => SQLDataTypes::FLOAT(*val),
-///             MyType(SomeForeignType::String(val)) => SQLDataTypes::VARCHAR(val.to_owned()),
+///             MyType(SomeForeignType::Int(val)) => SQLDataTypes::Number(*val),
+///             MyType(SomeForeignType::Float(val)) => SQLDataTypes::Float(*val),
+///             MyType(SomeForeignType::String(val)) => SQLDataTypes::Varchar(val.to_owned()),
 ///             MyType(SomeForeignType::None) => SQLDataTypes::NULL,
 ///         }
 ///     }

@@ -1,8 +1,8 @@
 use crate::{data_types, errors::Error, update::UpdateBuilder};
 
-use super::{utils::where_clause_value_format, ClauseBuilder, WhereUpdate};
+use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereUpdate};
 
-impl ClauseBuilder for WhereUpdate {
+impl WhereClauseBuilder for WhereUpdate {
     fn and<T: data_types::ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let and = format!("{} IN ({})", column, value);
