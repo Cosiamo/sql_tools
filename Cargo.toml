@@ -2,6 +2,13 @@
 name = "sql_tools"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+description = "A crate that aims to make creating simple SQL queries easy."
+readme = "README.md"
+repository = "https://github.com/Cosiamo/sql_tools"
+keywords = ["sql", "oracle", "database", "concurrency", "parallelism"]
+categories = ["concurrency", "database", "database-implementations", "data-structures", "encoding"]
+exclude = ["TODO.md", ".vscode/*", ".gitignore"]
 
 [dependencies]
 oracle = { version = "0.6.2", features = ["chrono"]}
