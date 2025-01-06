@@ -1,4 +1,4 @@
-use crate::{create::CreateProps, data_types::{SQLDataTypes, ToSQLData}, Error, insert::InsertProps, select::SelectProps, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
+use crate::{create::CreateProps, data_types::{SQLDataTypes, ToSQLData}, insert::InsertProps, select::{OrderBy, SelectProps}, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
 
 impl OracleConnect {
     pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, crate::sql_variations::oracle_sql::Error> {
@@ -25,6 +25,7 @@ impl QueryBuilder for OracleConnect {
             columns: fmt_cols,
             table: table.to_string(),
             clause: None,
+            order_by: (None, OrderBy::None)
         }
     }
     

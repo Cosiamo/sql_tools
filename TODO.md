@@ -12,8 +12,9 @@
 - Add method that will catch if table does not exist then abort method
 
 # Select 
-- Single thread build method
+✅- Single thread build method
 - Add a progress bar option
+- Order by
 
 # CREATE
 - Create view method

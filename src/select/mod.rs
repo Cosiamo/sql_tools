@@ -9,6 +9,19 @@ pub struct SelectProps {
     pub columns: Vec<String>,
     pub table: String,
     pub clause: Option<String>,
+    pub order_by: (Option<String>, OrderBy),
+}
+
+#[derive(Debug)]
+pub enum OrderBy {
+    ASC,
+    DESC,
+    None,
+}
+
+#[derive(Debug)]
+pub struct Ordered {
+    select: SelectProps
 }
 
 pub trait SelectBuilder {
@@ -27,6 +40,12 @@ pub trait SelectBuilder {
     ///     .build()?;
     /// ```
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
+
+    /// Order By a column ascending
+    fn order_asc(self, column: &str) -> Ordered;
+
+    /// Order By a column descending
+    fn order_desc(self, column: &str) -> Ordered;
 
     /// Builds the query. 
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.

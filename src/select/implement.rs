@@ -1,6 +1,6 @@
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, where_clause::{utils::where_clause_value_format, WhereSelect}, SQLVariation};
 
-use super::{oracle_sql::{oracle_build_select, oracle_build_single_thread_select}, SelectBuilder, SelectProps};
+use super::{oracle_sql::{oracle_build_select, oracle_build_single_thread_select}, OrderBy, Ordered, SelectBuilder, SelectProps};
 
 impl SelectBuilder for SelectProps {
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect {
@@ -20,6 +20,16 @@ impl SelectBuilder for SelectProps {
             clause: where_clause
         }
     }
+    
+    fn order_asc(mut self, column: &str) -> Ordered {
+        self.order_by = (Some(column.to_string()), OrderBy::ASC);
+        Ordered { select: self }
+    }
+    
+    fn order_desc(mut self, column: &str) -> Ordered  {
+        self.order_by = (Some(column.to_string()), OrderBy::DESC);
+        Ordered { select: self }
+    }
 
     fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
@@ -31,5 +41,15 @@ impl SelectBuilder for SelectProps {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
         }
+    }
+}
+
+impl Ordered {
+    pub fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
+        self.select.build()
+    }
+    
+    pub fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+        self.select.build_single_thread()
     }
 }

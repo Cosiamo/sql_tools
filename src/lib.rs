@@ -26,6 +26,9 @@ pub enum Error {
     
     #[error("Wrong connection type passed to function: Contact maintainer")]
     WrongConnectionType,
+
+    #[error("No statement to order by")]
+    OrderByError,
 }
 
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.

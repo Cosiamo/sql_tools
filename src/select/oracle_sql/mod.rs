@@ -4,7 +4,7 @@ use utils::stmt_res;
 
 use crate::{data_types::SQLDataTypes, Error, SQLVariation};
 
-use super::SelectProps;
+use super::{OrderBy, SelectProps};
 
 pub mod utils;
 
@@ -38,7 +38,7 @@ pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<V
         select_props.columns = get_column_names(&select_props)?;
     }
 
-    let query: String;
+    let mut query: String;
 
     let count_sql: String;
     match select_props.clause {
@@ -50,6 +50,15 @@ pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<V
             count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
             query = format!("SELECT row_number() over (order by rowid) as rn, {} FROM {}", &select_props.columns.join(", "), &select_props.table);
         },
+    }
+    
+    match select_props.order_by {
+        (None, OrderBy::ASC) => return Err(Error::OrderByError),
+        (None, OrderBy::DESC) => return Err(Error::OrderByError),
+        (None, OrderBy::None) => query = query,
+        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
+        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
+        (Some(_), OrderBy::None) => query = query,
     }
 
     let mut count: Option<usize> = None;
@@ -113,10 +122,20 @@ pub(crate) fn oracle_build_single_thread_select(select_props: SelectProps) -> Re
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
         // _ => return Err(Error::WrongConnectionType),
     };
-    let query = match select_props.clause {
+    let mut query = match select_props.clause {
         Some(filters) => format!("SELECT {} FROM {} WHERE {}", &select_props.columns.join(", "), &select_props.table, filters),
         None => format!("SELECT {} FROM {}", &select_props.columns.join(", "), &select_props.table),
     };
+
+    match select_props.order_by {
+        (None, OrderBy::ASC) => return Err(Error::OrderByError),
+        (None, OrderBy::DESC) => return Err(Error::OrderByError),
+        (None, OrderBy::None) => query = query,
+        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
+        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
+        (Some(_), OrderBy::None) => query = query,
+    }
+
     let conn: oracle::Connection = oracle::Connection::connect(conn_info.username, conn_info.password, conn_info.connection_string).unwrap(); 
     let stmt = conn.statement(&query).build()?;
     stmt_res(stmt, select_props.columns.len())
