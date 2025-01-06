@@ -30,3 +30,6 @@
 - Time type (chrono::NaiveTime)
 - RowID
 - convert NUMBER to u64 or usize
+
+# Other
+✅- Test if connection works or not

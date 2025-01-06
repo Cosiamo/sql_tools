@@ -1,11 +1,16 @@
-use crate::{create::CreateProps, data_types::{ToSQLData, SQLDataTypes}, insert::InsertProps, select::SelectProps, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
+use crate::{create::CreateProps, data_types::{SQLDataTypes, ToSQLData}, errors::Error, insert::InsertProps, select::SelectProps, sql_variations::OracleConnect, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
 
 impl OracleConnect {
-    pub fn new(connection_string: &str, username: &str, password: &str) -> Self {
-        Self {
-            connection_string: connection_string.to_string(),
-            username: username.to_string(),
-            password: password.to_string(),
+    pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, crate::sql_variations::oracle_sql::Error> {
+        match oracle::Connection::connect(&username, &password, &connection_string) {
+            Ok(_) => Ok(
+                Self {
+                    connection_string: connection_string.to_string(),
+                    username: username.to_string(),
+                    password: password.to_string(),
+                }
+            ),
+            Err(e) => Err(Error::OracleError(e)),
         }
     }
 }
