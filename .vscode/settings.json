@@ -6,6 +6,7 @@
         "nthreads",
         "oratype",
         "rowid",
+        "thiserror",
         "tosql"
     ]
 }

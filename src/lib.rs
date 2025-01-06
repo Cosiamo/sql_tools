@@ -7,7 +7,6 @@ use sql_variations::OracleConnect;
 use select::SelectProps;
 use update::UpdateProps;
 
-pub mod errors;
 pub mod sql_variations;
 pub mod select;
 pub mod update;
@@ -16,6 +15,18 @@ pub mod where_clause;
 pub mod insert;
 pub mod data_types;
 pub mod create;
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error(transparent)]
+    OracleError(#[from] oracle::Error),
+
+    #[error("Could not find number of rows")]
+    CountError,
+    
+    #[error("Wrong connection type passed to function: Contact maintainer")]
+    WrongConnectionType,
+}
 
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.
 pub trait QueryBuilder {

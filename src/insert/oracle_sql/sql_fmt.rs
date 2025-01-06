@@ -1,6 +1,6 @@
 use oracle::Batch;
 
-use crate::errors::Error;
+use crate::Error;
 
 pub(crate) fn bind_cell_to_batch<T: oracle::sql_type::ToSql + std::fmt::Debug>(batch: &mut Batch<'_>, cell: &T, idx: usize) -> Result<(), Error> {
     match batch.set(idx + 1, cell) {

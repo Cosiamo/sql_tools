@@ -1,4 +1,4 @@
-use crate::{data_types::{SQLDataTypes, ToSQLData}, errors::Error, select::SelectBuilder};
+use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, select::SelectBuilder};
 
 use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereSelect};
 

@@ -5,7 +5,7 @@ use iter_grid::{divide_grid, iter_grid, iter_grid_pb};
 use sql_fmt::insert_stmt;
 use validation::{does_table_exist, get_col_indexes};
 
-use crate::{create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, data_types::SQLDataTypes, errors::Error, QueryBuilder, SQLVariation};
+use crate::{create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, data_types::SQLDataTypes, Error, QueryBuilder, SQLVariation};
 
 use super::InsertProps;
 

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use indicatif::ProgressBar;
 use oracle::Batch;
 
-use crate::{data_types::SQLDataTypes, errors::Error};
+use crate::{data_types::SQLDataTypes, Error};
 
 use super::sql_fmt::bind_cell_to_batch;
 

@@ -1,4 +1,4 @@
-use crate::{errors::Error, SQLVariation};
+use crate::{Error, SQLVariation};
 
 use super::{CreateDataTypes, CreateTable};
 

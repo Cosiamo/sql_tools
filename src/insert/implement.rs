@@ -1,7 +1,7 @@
 use csv::ByteRecord;
 use csv_perusal::{utils::assign_bytes, CSVType};
 
-use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, Error, SQLVariation};
 
 use super::{oracle_sql::{oracle_build_insert, oracle_build_insert_with_pb}, InsertBuilder, InsertProps, InsertPropsFormatted};
 

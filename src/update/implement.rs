@@ -1,4 +1,4 @@
-use crate::{data_types::ToSQLData, errors::Error, where_clause::{utils::where_clause_value_format, WhereUpdate}, SQLVariation};
+use crate::{data_types::ToSQLData, Error, where_clause::{utils::where_clause_value_format, WhereUpdate}, SQLVariation};
 
 use super::{oracle_sql::oracle_build_update, SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
 

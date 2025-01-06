@@ -2,7 +2,7 @@ use std::thread::{self, JoinHandle};
 
 use utils::stmt_res;
 
-use crate::{data_types::SQLDataTypes, errors::Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, Error, SQLVariation};
 
 use super::SelectProps;
 

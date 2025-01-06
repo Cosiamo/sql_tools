@@ -1,4 +1,4 @@
-use crate::{data_types, errors::Error, update::UpdateBuilder};
+use crate::{data_types, Error, update::UpdateBuilder};
 
 use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereUpdate};
 

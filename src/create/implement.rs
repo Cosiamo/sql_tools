@@ -1,4 +1,4 @@
-use crate::{errors::Error, SQLVariation};
+use crate::{Error, SQLVariation};
 
 use super::{oracle_sql::oracle_build_create_table, CreateColumns, CreateDataTypes, CreateProps, CreateTable, ModifyCreateTable};
 
