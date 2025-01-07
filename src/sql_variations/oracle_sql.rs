@@ -17,9 +17,7 @@ impl OracleConnect {
 
 impl QueryBuilder for OracleConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let fmt_cols = columns.iter().map(|cols| {
-            remove_invalid_chars(&cols.to_string())
-        }).collect::<Vec<String>>();
+        let fmt_cols = columns.iter().map(|cols| { cols.to_string() }).collect::<Vec<String>>();
         SelectProps {
             connect: SQLVariation::Oracle(self.clone()),
             columns: fmt_cols,
