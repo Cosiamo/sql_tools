@@ -14,7 +14,7 @@
 # Select 
 ✅- Single thread build method
 - Add a progress bar option
-- Order by
+✅- Order by
 
 # CREATE
 - Create view method
@@ -31,6 +31,7 @@
 - Time type (chrono::NaiveTime)
 - RowID
 - convert NUMBER to u64 or usize
+- .to_num(), .to_float(), .to_date(), etc...
 
 # Other
 ✅- Test if connection works or not
