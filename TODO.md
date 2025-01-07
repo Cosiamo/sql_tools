@@ -35,3 +35,6 @@
 
 # Other
 ✅- Test if connection works or not
+- Redo how the parallel select works
+    - COUNT operations do not properly count
+    - Does not return correct order (not as important)

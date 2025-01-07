@@ -23,7 +23,8 @@ impl QueryBuilder for OracleConnect {
             columns: fmt_cols,
             table: table.to_string(),
             clause: None,
-            order_by: (None, OrderBy::None)
+            order_by: (None, OrderBy::None),
+            group_by: None,
         }
     }
     

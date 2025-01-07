@@ -51,6 +51,7 @@ pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<V
             query = format!("SELECT row_number() over (order by rowid) as rn, {} FROM {}", &select_props.columns.join(", "), &select_props.table);
         },
     }
+    query = if let Some(group_by) = select_props.group_by { format!("{} GROUP BY {}, rowid", query, group_by.join(", ")) } else { query };
     
     match select_props.order_by {
         (None, OrderBy::ASC) => return Err(Error::OrderByError),
@@ -126,6 +127,8 @@ pub(crate) fn oracle_build_single_thread_select(select_props: SelectProps) -> Re
         Some(filters) => format!("SELECT {} FROM {} WHERE {}", &select_props.columns.join(", "), &select_props.table, filters),
         None => format!("SELECT {} FROM {}", &select_props.columns.join(", "), &select_props.table),
     };
+
+    query = if let Some(group_by) = select_props.group_by { format!("{} GROUP BY {}", query, group_by.join(", ")) } else { query };
 
     match select_props.order_by {
         (None, OrderBy::ASC) => return Err(Error::OrderByError),

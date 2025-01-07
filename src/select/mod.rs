@@ -1,7 +1,10 @@
+use group_by::Grouped;
+
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, where_clause::WhereSelect, SQLVariation};
 
 pub mod oracle_sql;
 pub mod implement;
+pub mod group_by;
 
 #[derive(Debug)]
 pub struct SelectProps {
@@ -10,6 +13,7 @@ pub struct SelectProps {
     pub table: String,
     pub clause: Option<String>,
     pub order_by: (Option<String>, OrderBy),
+    pub group_by: Option<Vec<String>>,
 }
 
 #[derive(Debug)]
@@ -20,9 +24,7 @@ pub enum OrderBy {
 }
 
 #[derive(Debug)]
-pub struct Ordered {
-    select: SelectProps
-}
+pub struct Ordered { select: SelectProps }
 
 pub trait SelectBuilder {
     /// Adds a WHERE clause to your query.
@@ -46,6 +48,9 @@ pub trait SelectBuilder {
 
     /// Order By a column descending
     fn order_desc(self, column: &str) -> Ordered;
+
+    /// Group By column(s)
+    fn group_by(self, columns: Vec<&str>) -> Grouped;
 
     /// Builds the query. 
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.

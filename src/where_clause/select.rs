@@ -1,4 +1,4 @@
-use crate::{data_types::{SQLDataTypes, ToSQLData}, select::{Ordered, SelectBuilder}, Error};
+use crate::{data_types::{SQLDataTypes, ToSQLData}, select::{group_by::Grouped, Ordered, SelectBuilder}, Error};
 
 use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereSelect};
 
@@ -53,6 +53,11 @@ impl WhereSelect {
     pub fn order_desc(mut self, column: &str) -> Ordered {
         self.query_type.clause = Some(self.clause);
         self.query_type.order_desc(column)
+    }
+
+    pub fn group_by(mut self, columns: Vec<&str>) -> Grouped {
+        self.query_type.group_by = Some(columns.iter().map(|col| { col.to_string() }).collect::<Vec<String>>());
+        self.query_type.group_by(columns)
     }
 
     pub fn build(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
