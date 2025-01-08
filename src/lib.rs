@@ -1,5 +1,6 @@
 #![doc = include_str!("../README.md")]
 
+use alter::AlterProps;
 use create::CreateProps;
 use data_types::ToSQLData;
 use insert::InsertProps;
@@ -15,6 +16,7 @@ pub mod where_clause;
 pub mod insert;
 pub mod data_types;
 pub mod create;
+pub mod alter;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -39,7 +41,7 @@ pub trait QueryBuilder {
     /// If you want to select all, simply input `vec!["*"]`. 
     /// You can add a [`where_clause::WhereSelect`] to filter out the rows you want, just like writing a SQL query.
     /// ```no_run
-    /// let conn = OracleConnect::new(connection_string, username, password).unwrap();
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let data: Vec<Vec<SQLDataTypes>> = conn
     ///     .select("regional_sales", vec!["product_id", "revenue", "sale_date"])
     ///     .where_in("product_id", vec!["1001", "4567"])
@@ -60,7 +62,7 @@ pub trait QueryBuilder {
     /// Updates a table's column(s) based on criteria set in the optional [where clauses](#where). 
     /// Updates can return Ok() or the number of rows that were updated.
     /// ```no_run
-    /// let conn = OracleConnect::new(connection_string, username, password).unwrap();
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.update("global_sales")
     ///     .set("continent", "North America")
     ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
@@ -80,7 +82,7 @@ pub trait QueryBuilder {
     /// Can take any type that has the [`ToSQLData`](#tosqldata) trait implemented. 
     /// If the table does not exist, it will automatically create a new table (will have an abort option in a future update).
     /// ```no_run
-    /// let conn = OracleConnect::new(connection_string, username, password).unwrap();
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let data: Vec<Vec<&str>> = vec![
     ///     vec!["Column_A", "Column_B", "Column_C"],
     ///     vec!["a1", "b1", "c1"],
@@ -95,16 +97,16 @@ pub trait QueryBuilder {
     /// 
     /// Creates a table using a vector of the `CreateColumns` struct and the `CreateDataTypes` to apply the correct types to the new columns.
     /// ```no_run
-    /// let conn = OracleConnect::new(connection_string, username, password).unwrap();
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let columns = vec![
-    ///         CreateColumns{ name: "Column_A".to_string(), data_type: CreateDataTypes::VARCHAR(20 as usize) },
-    ///         CreateColumns{ name: "Column_B".to_string(), data_type: CreateDataTypes::NUMBER },
-    ///         CreateColumns{ name: "Column_C".to_string(), data_type: CreateDataTypes::FLOAT },
-    ///     ];
+    ///     CreateColumns{ name: "Column_A".to_string(), data_type: CreateDataTypes::VARCHAR(20 as usize) },
+    ///     CreateColumns{ name: "Column_B".to_string(), data_type: CreateDataTypes::NUMBER },
+    ///     CreateColumns{ name: "Column_C".to_string(), data_type: CreateDataTypes::FLOAT },
+    /// ];
     ///
-    ///     conn.create()
-    ///         .table("my_table", columns)
-    ///         .build()?;
+    /// conn.create()
+    ///     .table("my_table", columns)
+    ///     .build()?;
     /// ```
     ///
     /// You can add a column after you initiated the create table process.
@@ -119,6 +121,17 @@ pub trait QueryBuilder {
     /// my_table.build()?;
     /// ```
     fn create(&self) -> CreateProps;
+
+    /// Creates a new [`AlterProps`] to start the process of altering a table or column(s).
+    /// 
+    /// ```no_run
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// conn.alter()
+    ///     .table("local_sales")
+    ///     .rename("regional_sales")
+    ///     .build()?;
+    /// ```
+    fn alter(&self) -> AlterProps;
 }
 
 #[derive(Debug)]

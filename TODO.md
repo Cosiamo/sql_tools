@@ -15,6 +15,7 @@
 ✅- Single thread build method
 - Add a progress bar option
 ✅- Order by
+- .distinct() method
 
 # CREATE
 - Create view method
@@ -38,3 +39,4 @@
 - Redo how the parallel select works
     - COUNT operations do not properly count
     - Does not return correct order (not as important)
+- Add ALTER
