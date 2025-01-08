@@ -21,6 +21,22 @@ impl SelectBuilder for SelectProps {
         }
     }
     
+    fn where_null(self, column: &str) -> WhereSelect {
+        let where_clause = format!("{column} IS NULL");
+        WhereSelect { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
+    
+    fn where_not_null(self, column: &str) -> WhereSelect {
+        let where_clause = format!("{column} IS NOT NULL");
+        WhereSelect { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
+    
     fn order_asc(mut self, column: &str) -> Ordered {
         self.order_by = (Some(column.to_string()), OrderBy::ASC);
         Ordered { select: self }

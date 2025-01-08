@@ -43,6 +43,12 @@ pub trait SelectBuilder {
     /// ```
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
 
+    /// Selects where a column is NULL.
+    fn where_null(self, column: &str) -> WhereSelect;
+
+    /// Selects where a column is not NULL.
+    fn where_not_null(self, column: &str) -> WhereSelect;
+
     /// Order By a column ascending
     fn order_asc(self, column: &str) -> Ordered;
 

@@ -36,6 +36,12 @@ pub trait WhereClauseBuilder {
     /// ```
     fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
 
+    /// AND IS NULL
+    fn and_null(self, column: &str) -> Self;
+
+    /// AND IS NOT NULL
+    fn and_not_null(self, column: &str) -> Self;
+
     /// Adds a 'OR' to a WHERE clause.
     /// ```no_run
     /// let data: Vec<Vec<SQLDataTypes>> = conn
@@ -83,4 +89,10 @@ pub trait WhereClauseBuilder {
     /// OR country NOT IN ('United States', 'Brazil');
     /// ```
     fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
+    
+    /// OR IS NULL
+    fn or_null(self, column: &str) -> Self;
+
+    /// OR IS NOT NULL
+    fn or_not_null(self, column: &str) -> Self;
 }

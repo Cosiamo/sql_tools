@@ -42,6 +42,42 @@ impl WhereClauseBuilder for WhereUpdate {
             clause,
         }
     }
+    
+    fn and_null(self, column: &str) -> Self {
+        let and = format!("{column} IS NULL");
+        let clause = format!("{} AND {and}", self.clause);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
+    
+    fn and_not_null(self, column: &str) -> Self {
+        let and = format!("{column} IS NOT NULL");
+        let clause = format!("{} AND {and}", self.clause);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
+    
+    fn or_null(self, column: &str) -> Self {
+        let or = format!("{column} IS NULL");
+        let clause = format!("{} AND {or}", self.clause);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
+    
+    fn or_not_null(self, column: &str) -> Self {
+        let or = format!("{column} IS NOT NULL");
+        let clause = format!("{} AND {or}", self.clause);
+        Self { 
+            query_type: self.query_type,
+            clause,
+        }
+    }
 }
 
 impl WhereUpdate {

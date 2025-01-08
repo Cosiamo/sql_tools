@@ -39,4 +39,5 @@
 - Redo how the parallel select works
     - COUNT operations do not properly count
     - Does not return correct order (not as important)
-- Add ALTER
+✅- Add ALTER
+- Add dual method so you can manipulate vector grids with sql
