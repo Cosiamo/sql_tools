@@ -79,7 +79,7 @@ pub trait QueryBuilder {
     /// Creates a new [`InsertProps`] to start building out an insert query.
     /// 
     /// Inserts a grid (two-dimensional vector) of data into your database. 
-    /// Can take any type that has the [`ToSQLData`](#tosqldata) trait implemented. 
+    /// Can take any type that has the [`ToSQLData`] trait implemented. 
     /// If the table does not exist, it will automatically create a new table (will have an abort option in a future update).
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
