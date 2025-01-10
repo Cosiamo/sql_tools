@@ -6,13 +6,15 @@ pub mod utils;
 
 /// Contains the SELECT statement properties, [`select::SelectProps`], 
 /// as well as the WHERE clause.
+#[derive(Debug)]
 pub struct WhereSelect {
     pub query_type: SelectProps,
     pub clause: String,
 }
 
-/// Contains the UPDATE statement properties, [`update::UpdateSet`], 
+/// Contains the UPDATE statement properties, [UpdateSet](`update::UpdateSet`), 
 /// as well as the WHERE clause.
+#[derive(Debug)]
 pub struct WhereUpdate {
     pub query_type: UpdateSet,
     pub clause: String,

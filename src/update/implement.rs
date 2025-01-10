@@ -1,6 +1,6 @@
 use crate::{data_types::ToSQLData, Error, where_clause::{utils::where_clause_value_format, WhereUpdate}, SQLVariation};
 
-use super::{oracle_sql::oracle_build_update, SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
+use super::{oracle_sql::{batch_update_oracle, oracle_build_update}, SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
 
 impl UpdateProps {
     pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateSet {
@@ -61,5 +61,12 @@ impl UpdateBuilder for UpdateSet {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_update(self),
         }
+    }
+}
+
+pub fn batch_update(updates: Vec<WhereUpdate>) -> Result<(), Error> {
+    let connect = &updates[0].query_type.connect;
+    match connect {
+        SQLVariation::Oracle(_) => batch_update_oracle(updates),
     }
 }
