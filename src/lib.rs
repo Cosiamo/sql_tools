@@ -31,6 +31,9 @@ pub enum Error {
 
     #[error("No statement to order by")]
     OrderByError,
+
+    #[error("Incorrect data type returned")]
+    SQLDataTypesError
 }
 
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.

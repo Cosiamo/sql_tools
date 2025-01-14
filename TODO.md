@@ -33,6 +33,7 @@
 - RowID
 - convert NUMBER to u64 or usize
 - .to_num(), .to_float(), .to_date(), etc...
+- Make ToSQLData accept borrowed values
 
 # Other
 ✅- Test if connection works or not
