@@ -3,7 +3,7 @@ use csv_perusal::{utils::assign_bytes, CSVType};
 
 use crate::{data_types::SQLDataTypes, Error, SQLVariation};
 
-use super::{oracle_sql::{oracle_build_insert, oracle_build_insert_with_pb}, InsertBuilder, InsertProps, InsertPropsFormatted};
+use super::{oracle_sql::{oracle_build_insert, oracle_build_insert_with_pb}, sqlite::sqlite_build_insert, InsertBuilder, InsertProps, InsertPropsFormatted};
 
 impl InsertPropsFormatted {
     pub fn build(self) -> Result<(), Error> {
@@ -53,12 +53,14 @@ impl InsertBuilder for InsertProps {
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_insert(self),
+            SQLVariation::SQLite(_) => sqlite_build_insert(self),
         }
     }
 
     fn build_with_progress_bar(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_insert_with_pb(self),
+            SQLVariation::SQLite(sqlite_connect) => todo!(),
         }
     }
 }

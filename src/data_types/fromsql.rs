@@ -1,16 +1,15 @@
 use chrono::NaiveDateTime;
-use oracle::sql_type::FromSql;
+use rusqlite::types::{ToSqlOutput, Value};
 
 use super::SQLDataTypes;
 
-
-impl FromSql for SQLDataTypes {
+impl oracle::sql_type::FromSql for SQLDataTypes {
     fn from_sql(val: &oracle::SqlValue) -> oracle::Result<Self>
     where
         Self: Sized {
             if val.is_null()? { return Ok(SQLDataTypes::NULL) }
 
-            let t = match val.oracle_type()? {
+            Ok(match val.oracle_type()? {
                 oracle::sql_type::OracleType::Varchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
                 oracle::sql_type::OracleType::NVarchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
                 oracle::sql_type::OracleType::Char(_) => SQLDataTypes::Varchar(val.get::<String>()?),
@@ -40,7 +39,36 @@ impl FromSql for SQLDataTypes {
                 oracle::sql_type::OracleType::Xml => SQLDataTypes::Varchar(val.get::<String>()?),
                 oracle::sql_type::OracleType::Int64 =>  SQLDataTypes::Number(val.get::<i64>()?),
                 oracle::sql_type::OracleType::UInt64 =>  SQLDataTypes::Number(val.get::<i64>()?),
-            };
-            Ok(t)
+            })
+    }
+}
+
+impl rusqlite::types::FromSql for SQLDataTypes {
+    fn column_result(val: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+        Ok(match val {
+            rusqlite::types::ValueRef::Null => SQLDataTypes::NULL,
+            rusqlite::types::ValueRef::Integer(val) => SQLDataTypes::Number(val),
+            rusqlite::types::ValueRef::Real(val) => SQLDataTypes::Float(val),
+            rusqlite::types::ValueRef::Text(val) => {
+                let v = String::from_utf8_lossy(val);
+                SQLDataTypes::Varchar(v.to_string())
+            },
+            rusqlite::types::ValueRef::Blob(val) => {
+                let v = String::from_utf8_lossy(val);
+                SQLDataTypes::Varchar(v.to_string())
+            },
+        })
+    }
+}
+
+impl rusqlite::types::ToSql for SQLDataTypes {
+    fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+        Ok(match self {
+            SQLDataTypes::Varchar(val) => ToSqlOutput::Owned(Value::Text(val.to_string())),
+            SQLDataTypes::Number(val) => ToSqlOutput::Owned(Value::Integer(*val)),
+            SQLDataTypes::Float(val) => ToSqlOutput::Owned(Value::Real(*val)),
+            SQLDataTypes::Date(val) => ToSqlOutput::Owned(Value::Text(val.to_string())),
+            SQLDataTypes::NULL => ToSqlOutput::Owned(Value::Null),
+        })
     }
 }

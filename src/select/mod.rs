@@ -5,6 +5,7 @@ use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, where_clause::WhereSel
 pub mod oracle_sql;
 pub mod implement;
 pub mod group_by;
+pub mod sqlite;
 
 #[derive(Debug)]
 pub struct SelectProps {

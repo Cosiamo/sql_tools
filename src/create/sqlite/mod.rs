@@ -1,11 +1,13 @@
+use rusqlite::Connection;
+
 use crate::{Error, SQLVariation};
 
 use super::{CreateDataTypes, CreateTable};
 
-pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
-    let conn_info = match create_table.connect {
-        SQLVariation::Oracle(oracle_connect) => oracle_connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+pub(crate) fn sqlite_build_create_table(create_table: CreateTable) -> Result<(), Error> {
+    let conn_info = match &create_table.connect {
+        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLVariation::SQLite(connect) => connect,
     };
 
     let cols_and_data_types = create_table.columns.iter().map(|col_props|{
@@ -21,8 +23,7 @@ pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(),
     }).collect::<Vec<String>>().join(", ");
 
     let sql = format!("CREATE TABLE {} ({})", create_table.table, cols_and_data_types);
-    let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
-    conn.execute(&sql, &[])?;
-    conn.commit()?;
+    let conn = Connection::open(&conn_info.path)?;
+    conn.execute(&sql, ())?;
     Ok(())
 }

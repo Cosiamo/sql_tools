@@ -1,6 +1,6 @@
 use crate::{Error, SQLVariation};
 
-use super::{oracle_sql::oracle_build_create_table, CreateColumns, CreateDataTypes, CreateProps, CreateTable, ModifyCreateTable};
+use super::{oracle_sql::oracle_build_create_table, sqlite::sqlite_build_create_table, CreateColumns, CreateDataTypes, CreateProps, CreateTable, ModifyCreateTable};
 
 impl CreateProps {
     pub fn table(self, table: &str, columns: Vec<CreateColumns>) -> CreateTable {
@@ -21,6 +21,7 @@ impl ModifyCreateTable for CreateTable {
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_create_table(self),
+            SQLVariation::SQLite(_) => sqlite_build_create_table(self),
         }
     }
 }

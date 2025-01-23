@@ -16,6 +16,7 @@ pub mod sql_fmt;
 pub(crate) fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let username_conn = conn_info.username.to_owned();
     let password_conn = conn_info.password.to_owned();
@@ -71,6 +72,7 @@ pub(crate) fn oracle_build_insert(mut insert_props: InsertProps) -> Result<(), E
 pub(crate) fn oracle_build_insert_with_pb(mut insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let username_conn = conn_info.username.to_owned();
     let password_conn = conn_info.password.to_owned();

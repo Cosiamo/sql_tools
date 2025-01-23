@@ -92,6 +92,7 @@ impl Altered {
     pub fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(conn) => alter(conn, self.query),
+            SQLVariation::SQLite(sqlite_connect) => todo!(),
         }
     }
 }

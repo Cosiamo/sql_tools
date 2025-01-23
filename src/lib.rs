@@ -4,7 +4,7 @@ use alter::AlterProps;
 use create::CreateProps;
 use data_types::ToSQLData;
 use insert::InsertProps;
-use sql_variations::OracleConnect;
+use sql_variations::{OracleConnect, SQLiteConnect};
 use select::SelectProps;
 use update::UpdateProps;
 
@@ -22,6 +22,12 @@ pub mod alter;
 pub enum Error {
     #[error(transparent)]
     OracleError(#[from] oracle::Error),
+    
+    #[error(transparent)]
+    SQLiteError(#[from] rusqlite::Error),
+    
+    #[error("Table doesn't exist")]
+    TableDoesNotExist,
 
     #[error("Could not find number of rows")]
     CountError,
@@ -33,7 +39,10 @@ pub enum Error {
     OrderByError,
 
     #[error("Incorrect data type returned")]
-    SQLDataTypesError
+    SQLDataTypesError,
+    
+    #[error("Incorrect SQL variation passed to method")]
+    SQLVariationError,
 }
 
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.
@@ -141,4 +150,5 @@ pub trait QueryBuilder {
 /// The various types of SQL connections 
 pub enum SQLVariation {
     Oracle(OracleConnect),
+    SQLite(SQLiteConnect),
 }

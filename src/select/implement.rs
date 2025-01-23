@@ -1,6 +1,6 @@
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, where_clause::{utils::where_clause_value_format, WhereSelect}, SQLVariation};
 
-use super::{group_by::Grouped, oracle_sql::{oracle_build_select, oracle_build_single_thread_select}, OrderBy, Ordered, SelectBuilder, SelectProps};
+use super::{group_by::Grouped, oracle_sql::{oracle_build_select, oracle_build_single_thread_select}, sqlite::build_select_sqlite, OrderBy, Ordered, SelectBuilder, SelectProps};
 
 impl SelectBuilder for SelectProps {
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect {
@@ -55,12 +55,14 @@ impl SelectBuilder for SelectProps {
     fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_select(self),
+            SQLVariation::SQLite(sqlite_connect) => todo!(),
         }
     }
     
     fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
+            SQLVariation::SQLite(_) => build_select_sqlite(self),
         }
     }
 }

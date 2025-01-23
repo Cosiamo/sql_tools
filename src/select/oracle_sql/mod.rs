@@ -8,10 +8,10 @@ use super::{OrderBy, SelectProps};
 
 pub mod utils;
 
-pub(crate) fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>, Error> {
+pub(crate) fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<String>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(connect) => connect,
-        // _ => return Err(Error::WrongConnectionType),
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let sql = format!("SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'", select_props.table.to_ascii_uppercase());
     let conn: oracle::Connection = oracle::Connection::connect(conn_info.username.clone(), conn_info.password.clone(), conn_info.connection_string.clone())?;
@@ -31,11 +31,11 @@ pub(crate) fn get_column_names(select_props: &SelectProps) -> Result<Vec<String>
 pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(ref connect) => connect,
-        // _ => return Err(Error::WrongConnectionType),
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
 
     if select_props.columns == vec!["*".to_string()] {
-        select_props.columns = get_column_names(&select_props)?;
+        select_props.columns = get_column_names_oracle(&select_props)?;
     }
 
     let mut query: String;
@@ -121,7 +121,7 @@ pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<V
 pub(crate) fn oracle_build_single_thread_select(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match select_props.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
-        // _ => return Err(Error::WrongConnectionType),
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let mut query = match select_props.clause {
         Some(filters) => format!("SELECT {} FROM {} WHERE {}", &select_props.columns.join(", "), &select_props.table, filters),

@@ -54,12 +54,14 @@ impl UpdateBuilder for UpdateSet {
                 oracle_build_update(self)?;
                 Ok(())
             },
+            SQLVariation::SQLite(sqlite_connect) => todo!(),
         }
     }
 
     fn build_return_count(self) -> Result<usize, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_update(self),
+            SQLVariation::SQLite(sqlite_connect) => todo!(),
         }
     }
 }
@@ -68,5 +70,6 @@ pub fn batch_update(updates: Vec<WhereUpdate>) -> Result<(), Error> {
     let connect = &updates[0].query_type.connect;
     match connect {
         SQLVariation::Oracle(_) => batch_update_oracle(updates),
+        SQLVariation::SQLite(sqlite_connect) => todo!(),
     }
 }

@@ -5,6 +5,7 @@ use super::UpdateSet;
 pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
     let conn_info = match update_set.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     
     let set_match_len = &update_set.set_match.len();
@@ -56,6 +57,7 @@ pub fn batch_update_oracle(updates: Vec<WhereUpdate>) -> Result<(), Error> {
     // let table = &updates[0].query_type.table;
     let conn_info = match connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
     };
 
     let sql = updates.iter().map(|update| {
