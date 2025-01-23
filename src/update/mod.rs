@@ -1,6 +1,7 @@
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, where_clause::WhereUpdate, SQLVariation};
 
 pub mod oracle_sql;
+pub mod sqlite;
 pub mod implement;
 
 #[derive(Debug)]

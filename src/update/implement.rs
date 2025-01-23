@@ -1,6 +1,6 @@
 use crate::{data_types::ToSQLData, Error, where_clause::{utils::where_clause_value_format, WhereUpdate}, SQLVariation};
 
-use super::{oracle_sql::{batch_update_oracle, oracle_build_update}, SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
+use super::{oracle_sql::{batch_update_oracle, oracle_build_update}, sqlite::sqlite_build_update, SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
 
 impl UpdateProps {
     pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateSet {
@@ -54,14 +54,17 @@ impl UpdateBuilder for UpdateSet {
                 oracle_build_update(self)?;
                 Ok(())
             },
-            SQLVariation::SQLite(sqlite_connect) => todo!(),
+            SQLVariation::SQLite(_) => {
+                sqlite_build_update(self)?;
+                Ok(())
+            },
         }
     }
 
     fn build_return_count(self) -> Result<usize, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_update(self),
-            SQLVariation::SQLite(sqlite_connect) => todo!(),
+            SQLVariation::SQLite(_) => sqlite_build_update(self),
         }
     }
 }
