@@ -1,4 +1,4 @@
-use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereUpdate}, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::sqlite_build_update}, Error, SQLVariation};
+use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereUpdate}, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::{batch_update_sqlite, sqlite_build_update}}, Error, SQLVariation};
 
 use super::{SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
 
@@ -76,6 +76,6 @@ pub fn batch_update(updates: Vec<WhereUpdate>) -> Result<(), Error> {
     let connect = &updates[0].query_type.connect;
     match connect {
         SQLVariation::Oracle(_) => batch_update_oracle(updates),
-        SQLVariation::SQLite(sqlite_connect) => todo!(),
+        SQLVariation::SQLite(_) => batch_update_sqlite(updates),
     }
 }
