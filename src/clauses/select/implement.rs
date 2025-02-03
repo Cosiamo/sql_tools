@@ -1,4 +1,4 @@
-use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereSelect}, data_types::{SQLDataTypes, ToSQLData}, variations::{oracle::select::{oracle_build_select, oracle_build_single_thread_select}, sqlite::select::build_select_sqlite}, Error, SQLVariation};
+use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereSelect}, data_types::{SQLDataTypes, ToSQLData}, variations::{oracle::select::{oracle_build_select, oracle_build_single_thread_select}, sqlite::select::{build_select_sqlite, build_select_sqlite_single_thread}}, Error, SQLVariation};
 
 use super::{group_by::Grouped, OrderBy, Ordered, SelectBuilder, SelectProps};
 
@@ -55,14 +55,14 @@ impl SelectBuilder for SelectProps {
     fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_select(self),
-            SQLVariation::SQLite(sqlite_connect) => todo!(),
+            SQLVariation::SQLite(_) => build_select_sqlite(self),
         }
     }
     
     fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
-            SQLVariation::SQLite(_) => build_select_sqlite(self),
+            SQLVariation::SQLite(_) => build_select_sqlite_single_thread(self),
         }
     }
 }
