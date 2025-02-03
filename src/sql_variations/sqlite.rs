@@ -1,4 +1,4 @@
-use crate::{alter::AlterProps, create::CreateProps, data_types::{SQLDataTypes, ToSQLData}, insert::InsertProps, select::{OrderBy, SelectProps}, update::UpdateProps, utils::remove_invalid_chars, QueryBuilder, SQLVariation};
+use crate::{alter::AlterProps, create::CreateProps, data_types::{SQLDataTypes, ToSQLData}, insert::InsertProps, select::{OrderBy, SelectBuilder, SelectProps}, update::UpdateProps, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
 
 use super::SQLiteConnect;
 
@@ -7,6 +7,20 @@ impl SQLiteConnect {
         SQLiteConnect {
             path: path.to_string(),
         }
+    }
+
+    pub fn table_info(&self, table: &str) -> Result<Vec<String>, Error> {
+        if self.path == "" { return Err(Error::TableDoesNotExist) };
+
+        let connection = SQLiteConnect::new_path(&self.path);
+        let exists_sql = format!("PRAGMA_TABLE_INFO('{}')", table);
+        let exists = connection.select(&exists_sql, vec!["name"])
+            .build_single_thread()?;
+
+        if exists.len() == 0 { return Err(Error::TableDoesNotExist) };
+
+        let res = exists[0].iter().map(|cell| cell.to_string()).collect::<Vec<String>>();
+        Ok(res)
     }
 }
 

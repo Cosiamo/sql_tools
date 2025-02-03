@@ -26,6 +26,9 @@ pub enum Error {
     #[error(transparent)]
     SQLiteError(#[from] rusqlite::Error),
     
+    #[error("Data does not exists")]
+    NoData,
+    
     #[error("Table doesn't exist")]
     TableDoesNotExist,
 
