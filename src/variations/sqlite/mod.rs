@@ -2,6 +2,7 @@ use crate::{clauses::{alter::AlterProps, create::CreateProps, insert::InsertProp
 
 use super::SQLiteConnect;
 
+pub mod alter;
 pub mod create;
 pub mod insert;
 pub mod select;

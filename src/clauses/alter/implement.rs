@@ -1,4 +1,4 @@
-use crate::{clauses::create::CreateDataTypes, variations::oracle::alter::alter, Error, SQLVariation};
+use crate::{clauses::create::CreateDataTypes, variations::{oracle::alter::alter, sqlite::alter::alter_sqlite}, Error, SQLVariation};
 
 use super::{AlterBuilder, AlterColumns, AlterProps, AlterTable, AlterTableBuilder, Altered};
 
@@ -92,7 +92,7 @@ impl Altered {
     pub fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(conn) => alter(conn, self.query),
-            SQLVariation::SQLite(sqlite_connect) => todo!(),
+            SQLVariation::SQLite(conn) => alter_sqlite(conn, self.query),
         }
     }
 }
