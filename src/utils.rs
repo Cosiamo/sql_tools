@@ -1,4 +1,4 @@
-use crate::{select::SelectBuilder, sql_variations::OracleConnect, Error, QueryBuilder};
+use crate::{clauses::select::SelectBuilder, variations::OracleConnect, Error, QueryBuilder};
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
     input

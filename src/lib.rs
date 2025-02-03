@@ -1,22 +1,13 @@
 #![doc = include_str!("../README.md")]
 
-use alter::AlterProps;
-use create::CreateProps;
+use clauses::{alter::AlterProps, create::CreateProps, insert::InsertProps, select::SelectProps, update::UpdateProps};
 use data_types::ToSQLData;
-use insert::InsertProps;
-use sql_variations::{OracleConnect, SQLiteConnect};
-use select::SelectProps;
-use update::UpdateProps;
+use variations::{OracleConnect, SQLiteConnect};
 
-pub mod sql_variations;
-pub mod select;
-pub mod update;
+pub mod variations;
 pub mod utils;
-pub mod where_clause;
-pub mod insert;
 pub mod data_types;
-pub mod create;
-pub mod alter;
+pub mod clauses;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
