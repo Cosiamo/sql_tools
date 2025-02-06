@@ -1,7 +1,7 @@
 use csv::ByteRecord;
 use csv_perusal::{utils::assign_bytes, CSVType};
 
-use crate::{data_types::SQLDataTypes, variations::{oracle::insert::{oracle_build_insert, oracle_build_insert_with_pb}, sqlite::insert::{sqlite_build_insert, sqlite_build_insert_pb}}, Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, variations::{oracle::insert::oracle_build_insert, sqlite::insert::{sqlite_build_insert, sqlite_build_insert_pb}}, Error, SQLVariation};
 
 use super::{InsertBuilder, InsertProps, InsertPropsFormatted};
 
@@ -52,14 +52,14 @@ impl InsertBuilder for InsertProps {
     
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_insert(self),
+            SQLVariation::Oracle(_) => oracle_build_insert(self, false),
             SQLVariation::SQLite(_) => sqlite_build_insert(self),
         }
     }
 
     fn build_with_progress_bar(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_insert_with_pb(self),
+            SQLVariation::Oracle(_) => oracle_build_insert(self, true),
             SQLVariation::SQLite(_) => sqlite_build_insert_pb(self),
         }
     }

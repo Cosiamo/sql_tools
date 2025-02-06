@@ -10,7 +10,14 @@ pub struct InsertProps {
     pub table: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
+pub struct DatatypeIndices {
+    pub is_varchar: Vec<usize>,
+    pub is_float: Vec<usize>,
+    pub is_int: Vec<usize>,
+    pub is_date: Vec<usize>,
+}
+
 pub struct InsertPropsFormatted {
     pub insert_props: InsertProps,
 }

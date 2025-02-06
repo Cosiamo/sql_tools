@@ -1,5 +1,6 @@
 pub mod oracle;
 pub mod sqlite;
+pub mod utils;
 
 #[derive(Debug, Clone)]
 pub struct OracleConnect {
