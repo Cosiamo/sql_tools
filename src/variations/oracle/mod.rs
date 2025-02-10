@@ -1,4 +1,20 @@
-use crate::{clauses::{alter::AlterProps, create::CreateProps, insert::InsertProps, select::{OrderBy, SelectProps}, update::UpdateProps}, data_types::{SQLDataTypes, ToSQLData}, utils::remove_invalid_chars, variations::OracleConnect, Error, QueryBuilder, SQLVariation};
+use crate::{
+    clauses::{
+        alter::AlterProps, create::CreateProps, 
+        insert::InsertProps, 
+        select::{
+            OrderBy, SelectProps
+        }, update::UpdateProps
+    }, 
+    data_types::{
+        SQLDataTypes, ToSQLData
+    }, 
+    utils::remove_invalid_chars, 
+    variations::OracleConnect, 
+    Error, 
+    QueryBuilder, 
+    SQLVariation
+};
 
 pub mod alter;
 pub mod create;
@@ -41,7 +57,8 @@ impl QueryBuilder for OracleConnect {
         }
     }
     
-    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> InsertProps {
+    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
+        if data.len() < 2 { return Err(Error::NoHeading) }
         let mut grid = data.iter().map(|row|{
             row.iter().map(|cell| cell.fmt_data_borrowed()).collect::<Vec<SQLDataTypes>>()
         }).collect::<Vec<Vec<SQLDataTypes>>>();
@@ -50,12 +67,12 @@ impl QueryBuilder for OracleConnect {
             remove_invalid_chars(&res)
         }).collect::<Vec<String>>();
         grid.remove(0);
-        InsertProps {
+        Ok(InsertProps {
             connect: SQLVariation::Oracle(self.clone()),
             grid,
             table: table.to_string(),
             header,
-        }
+        })
     }
     
     fn create(&self) -> CreateProps {

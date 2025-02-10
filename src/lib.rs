@@ -19,6 +19,9 @@ pub enum Error {
     
     #[error("Data does not exists")]
     NoData,
+
+    #[error("Insert is either missing a heading or missing the rows to insert")]
+    NoHeading,
     
     #[error("Table doesn't exist")]
     TableDoesNotExist,
@@ -95,9 +98,9 @@ pub trait QueryBuilder {
     ///     vec!["a2", "b2", "c2"],
     ///     vec!["a3", "b3", "c3"],
     /// ];
-    /// conn.insert("my_table", data).build()?;
+    /// conn.insert("my_table", data)?.build()?;
     /// ```
-    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> InsertProps;
+    fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error>;
 
     /// Creates a new [`CreateProps`] to start building a create query.
     /// 

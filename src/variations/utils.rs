@@ -8,22 +8,26 @@ pub(crate) fn get_dt_indices(data: &Vec<Vec<SQLDataTypes>>) -> DatatypeIndices {
     let mut is_int: Vec<usize> = Vec::new();
     let mut is_date: Vec<usize> = Vec::new();
 
-    for y_idx in 1..data.len() {
-        println!("IDX:{y_idx} DI: {:?}", &data[y_idx]);
-        for x_idx in 0..data[y_idx].len() {
-            let cell = &data[y_idx][x_idx];
-            if y_idx > 0 && cell == &SQLDataTypes::Number(0) {
-                if let SQLDataTypes::Float(_) = &data[y_idx - 1usize][x_idx] {
-                    is_float.push(x_idx);
-                    continue
+    if data.len() == 1 {
+        match data[0][0] {
+            SQLDataTypes::Varchar(_) => is_varchar.push(0),
+            SQLDataTypes::Number(_) => is_int.push(0),
+            SQLDataTypes::Float(_) => is_float.push(0),
+            SQLDataTypes::Date(_) => is_date.push(0),
+            SQLDataTypes::NULL => is_varchar.push(0),
+        }
+    } else {
+        for y_idx in 1..data.len() {
+            println!("IDX:{y_idx} DI: {:?}", &data[y_idx]);
+            for x_idx in 0..data[y_idx].len() {
+                let cell = &data[y_idx][x_idx];
+                match cell {
+                    SQLDataTypes::Varchar(_) => is_varchar.push(x_idx),
+                    SQLDataTypes::Number(_) => is_int.push(x_idx),
+                    SQLDataTypes::Float(_) => is_float.push(x_idx),
+                    SQLDataTypes::Date(_) => is_date.push(x_idx),
+                    SQLDataTypes::NULL => continue,
                 }
-            }
-            match cell {
-                SQLDataTypes::Varchar(_) => is_varchar.push(x_idx),
-                SQLDataTypes::Number(_) => is_int.push(x_idx),
-                SQLDataTypes::Float(_) => is_float.push(x_idx),
-                SQLDataTypes::Date(_) => is_date.push(x_idx),
-                SQLDataTypes::NULL => continue,
             }
         }
     }
