@@ -49,27 +49,35 @@ pub(crate) fn oracle_build_insert(mut insert_props: InsertProps, use_pb: bool) -
 
     let datatype_indices = get_dt_indices(&insert_props.grid);
 
-    let mut handles: Vec<JoinHandle<Result<(), Error>>> = Vec::new();
-    for n in 0..nthreads {
-        let data: Vec<Vec<SQLDataTypes>>;
-        if n + 1 < nthreads { data = divide_grid(&mut insert_props.grid, num); } else { data = insert_props.grid.to_owned(); }
-        let query = insert_stmt(insert_props.header.len(), &insert_props.table, &insert_props.header.join(", "));
-        let username = username_conn.clone();
-        let password = password_conn.clone();
-        let connection_string = connection_string_conn.clone();
-        let datatype_indices = datatype_indices.clone();
-        let pb = Arc::clone(&pb);
-        handles.push(thread::spawn(move || {
-            let conn: oracle::Connection = oracle::Connection::connect(username, password, connection_string).unwrap(); 
-            let mut batch = conn.batch(&query, data.len()).build()?;
-            iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
-            conn.commit()?;
-            Ok(())
-        }))
-    }
+    if len < &nthreads {let query = insert_stmt(insert_props.header.len(), &insert_props.table, &insert_props.header.join(", "));
+    let data = insert_props.grid;
+        let conn: oracle::Connection = oracle::Connection::connect(username_conn, password_conn, connection_string_conn).unwrap(); 
+        let mut batch = conn.batch(&query, data.len()).build()?;
+        iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
+        conn.commit()?;
+    } else {
+        let mut handles: Vec<JoinHandle<Result<(), Error>>> = Vec::new();
+        for n in 0..nthreads {
+            let data: Vec<Vec<SQLDataTypes>>;
+            if n + 1 < nthreads { data = divide_grid(&mut insert_props.grid, num); } else { data = insert_props.grid.to_owned(); }
+            let query = insert_stmt(insert_props.header.len(), &insert_props.table, &insert_props.header.join(", "));
+            let username = username_conn.clone();
+            let password = password_conn.clone();
+            let connection_string = connection_string_conn.clone();
+            let datatype_indices = datatype_indices.clone();
+            let pb = Arc::clone(&pb);
+            handles.push(thread::spawn(move || {
+                let conn: oracle::Connection = oracle::Connection::connect(username, password, connection_string).unwrap(); 
+                let mut batch = conn.batch(&query, data.len()).build()?;
+                iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
+                conn.commit()?;
+                Ok(())
+            }))
+        }
 
-    for handle in handles {
-        handle.join().unwrap()?;
+        for handle in handles {
+            handle.join().unwrap()?;
+        }
     }
 
     Ok(())
