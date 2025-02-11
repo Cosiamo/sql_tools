@@ -62,6 +62,7 @@ pub trait SelectBuilder {
     /// Builds the query. 
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.
     /// If you're using a single core sever, it's recommended to use [`build_single_thread`](`SelectBuilder::build_single_thread`).
+    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`) (will either fix or remove it as an option in a future update).
     fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error>;
 
     /// Builds the query only using one thread.

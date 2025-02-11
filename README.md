@@ -86,7 +86,7 @@ let data: Vec<Vec<&str>> = vec![
     vec!["P-003", "11/04/2024", "39.99"],
 ];
 
-conn.insert("sales_data", data)
+conn.insert("sales_data", data)?
     // Will convert the "date_sold" column into chrono::NaiveDateTime
     // and the "price" column into f64.
     .format_grid_strings()?
@@ -148,11 +148,11 @@ struct MyType<'a>(&'a SomeForeignType);
 
 impl ToSQLData for MyType<'_> {
     fn fmt_data(self) -> SQLDataTypes {
-        match self {
-            MyType(SomeForeignType::Int(val)) => SQLDataTypes::Number(*val),
-            MyType(SomeForeignType::Float(val)) => SQLDataTypes::Float(*val),
-            MyType(SomeForeignType::String(val)) => SQLDataTypes::Varchar(val.to_owned()),
-            MyType(SomeForeignType::None) => SQLDataTypes::NULL,
+        match self.0 {
+            SomeForeignType::Int(val) => SQLDataTypes::Number(*val),
+            SomeForeignType::Float(val) => SQLDataTypes::Float(*val),
+            SomeForeignType::String(val) => SQLDataTypes::Varchar(val.to_owned()),
+            SomeForeignType::None => SQLDataTypes::NULL,
         }
     }
 }

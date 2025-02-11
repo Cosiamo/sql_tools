@@ -3,7 +3,8 @@ use core::fmt;
 use chrono::NaiveDateTime;
 
 pub mod implement;
-pub mod fromsql;
+pub mod sqlite;
+pub mod oracle;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SQLDataTypes {
