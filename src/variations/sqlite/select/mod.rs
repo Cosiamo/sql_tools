@@ -30,6 +30,13 @@ pub(crate) fn build_select_sqlite_single_thread(select_props: SelectProps) -> Re
         (Some(_), OrderBy::None) => query = query,
     }
 
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} LIMIT {}", query, limit);
+        if let Some(offset) = select_props.limit.offset {
+            query = format!("{} OFFSET {}", query, offset)
+        }
+    };
+
     let mut stmt = conn.prepare(&query)?;
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();
@@ -74,6 +81,13 @@ pub(crate) fn build_select_sqlite(select_props: SelectProps) -> Result<Vec<Vec<S
         (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
         (Some(_), OrderBy::None) => query = query,
     }
+    
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} LIMIT {}", query, limit);
+        if let Some(offset) = select_props.limit.offset {
+            query = format!("{} OFFSET {}", query, offset)
+        }
+    };
     
     let mut count: Option<usize> = None;
     let mut stmt = conn.prepare(&count_sql)?;

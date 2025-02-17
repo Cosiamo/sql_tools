@@ -62,6 +62,13 @@ pub(crate) fn oracle_build_select(mut select_props: SelectProps) -> Result<Vec<V
         (Some(_), OrderBy::None) => query = query,
     }
 
+    if let Some(offset) = select_props.limit.offset {
+        query = format!("{} OFFSET {} ROWS", query, offset)
+    }
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} FETCH NEXT {} ONLY", query, limit);
+    };
+
     let mut count: Option<usize> = None;
     let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
     let count_query = conn.query(&count_sql, &[])?;
@@ -138,6 +145,13 @@ pub(crate) fn oracle_build_single_thread_select(select_props: SelectProps) -> Re
         (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
         (Some(_), OrderBy::None) => query = query,
     }
+    
+    if let Some(offset) = select_props.limit.offset {
+        query = format!("{} OFFSET {} ROWS", query, offset)
+    }
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} FETCH NEXT {} ONLY", query, limit);
+    };
 
     let conn: oracle::Connection = oracle::Connection::connect(conn_info.username, conn_info.password, conn_info.connection_string).unwrap(); 
     let stmt = conn.statement(&query).build()?;

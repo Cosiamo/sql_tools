@@ -1,4 +1,4 @@
-use crate::{clauses::select::{group_by::Grouped, Ordered, SelectBuilder}, data_types::{SQLDataTypes, ToSQLData}, Error};
+use crate::{clauses::select::{group_by::Grouped, Ordered, SelectBuilder, SelectProps}, data_types::{SQLDataTypes, ToSQLData}, Error};
 
 use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereSelect};
 
@@ -94,6 +94,11 @@ impl WhereSelect {
     pub fn group_by(mut self, columns: Vec<&str>) -> Grouped {
         self.query_type.group_by = Some(columns.iter().map(|col| { col.to_string() }).collect::<Vec<String>>());
         self.query_type.group_by(columns)
+    }
+
+    pub fn limit(mut self, limit: usize, offset: Option<usize>) -> SelectProps {
+        self.query_type.clause = Some(self.clause);
+        self.query_type.limit(limit, offset)
     }
 
     pub fn build(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 

@@ -1,4 +1,4 @@
-use crate::{clauses::{alter::AlterProps, create::CreateProps, insert::InsertProps, select::{OrderBy, SelectBuilder, SelectProps}, update::UpdateProps}, data_types::{SQLDataTypes, ToSQLData}, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
+use crate::{clauses::{alter::AlterProps, create::CreateProps, insert::InsertProps, select::{Limit, OrderBy, SelectBuilder, SelectProps}, update::UpdateProps}, data_types::{SQLDataTypes, ToSQLData}, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
 
 use super::SQLiteConnect;
 
@@ -40,6 +40,10 @@ impl QueryBuilder for SQLiteConnect {
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,
+            limit: Limit {
+                limit: None,
+                offset: None,
+            },
         }
     }
 

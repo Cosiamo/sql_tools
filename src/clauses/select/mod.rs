@@ -15,6 +15,7 @@ pub struct SelectProps {
     pub clause: Option<String>,
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
+    pub limit: Limit,
 }
 
 #[derive(Debug)]
@@ -22,6 +23,12 @@ pub enum OrderBy {
     ASC,
     DESC,
     None,
+}
+
+#[derive(Debug)]
+pub struct Limit {
+    pub limit: Option<usize>,
+    pub offset: Option<usize>,
 }
 
 #[derive(Debug)]
@@ -59,10 +66,13 @@ pub trait SelectBuilder {
     /// Group By column(s)
     fn group_by(self, columns: Vec<&str>) -> Grouped;
 
+    fn limit(self, limit: usize, offset: Option<usize>) -> Self;
+
     /// Builds the query. 
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.
     /// If you're using a single core sever, it's recommended to use [`build_single_thread`](`SelectBuilder::build_single_thread`).
-    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`) (will either fix or remove it as an option in a future update).
+    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`) 
+    /// (will either fix or remove it as an option in a future update).
     fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error>;
 
     /// Builds the query only using one thread.

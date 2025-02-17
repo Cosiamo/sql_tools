@@ -3,7 +3,7 @@ use crate::{
         alter::AlterProps, create::CreateProps, 
         insert::InsertProps, 
         select::{
-            OrderBy, SelectProps
+            Limit, OrderBy, SelectProps
         }, update::UpdateProps
     }, 
     data_types::{
@@ -47,6 +47,10 @@ impl QueryBuilder for OracleConnect {
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,
+            limit: Limit {
+                limit: None,
+                offset: None,
+            },
         }
     }
     
