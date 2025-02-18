@@ -23,7 +23,7 @@ pub(crate) fn oracle_build_insert(mut insert_props: InsertProps, use_pb: bool) -
     let connection_string_conn = conn_info.connection_string.to_owned();
     
     let table_exist = does_table_exist(&insert_props.table, &conn_info)?;
-    if !table_exist {
+    if !table_exist && insert_props.create {
         let col_type_indexes = get_col_indexes(&insert_props.grid)?;
         let columns = &insert_props.header.iter().enumerate().map(|(idx, cell)|{
             if col_type_indexes.is_date.contains(&idx) {
@@ -38,7 +38,7 @@ pub(crate) fn oracle_build_insert(mut insert_props: InsertProps, use_pb: bool) -
             } 
         }).collect::<Vec<CreateColumns>>();
         conn_info.create().table(&insert_props.table, columns.to_vec()).build()?;
-    }
+    } else if !table_exist && !insert_props.create { return Err(Error::TableDoesNotExist) }
 
     let len = &insert_props.grid.len();
     let nthreads = num_cpus::get();

@@ -1,8 +1,6 @@
 use crate::{
     clauses::{
-        alter::AlterProps, create::CreateProps, 
-        insert::InsertProps, 
-        select::{
+        alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::{
             Limit, OrderBy, SelectProps
         }, update::UpdateProps
     }, 
@@ -76,6 +74,7 @@ impl QueryBuilder for OracleConnect {
             grid,
             table: table.to_string(),
             header,
+            create: false,
         })
     }
     
@@ -88,6 +87,14 @@ impl QueryBuilder for OracleConnect {
     fn alter(&self) -> AlterProps {
         AlterProps {
             connect: SQLVariation::Oracle(self.clone()),
+        }
+    }
+
+    fn delete(&self, table: &str) -> DeleteProps {
+        DeleteProps {
+            connect: SQLVariation::Oracle(self.clone()),
+            table: String::from(table),
+            clause: None,
         }
     }
 }

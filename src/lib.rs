@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use clauses::{alter::AlterProps, create::CreateProps, insert::InsertProps, select::SelectProps, update::UpdateProps};
+use clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::SelectProps, update::UpdateProps};
 use data_types::ToSQLData;
 use variations::{OracleConnect, SQLiteConnect};
 
@@ -142,6 +142,9 @@ pub trait QueryBuilder {
     ///     .build()?;
     /// ```
     fn alter(&self) -> AlterProps;
+
+    /// A Delete statement
+    fn delete(&self, table: &str) -> DeleteProps;
 }
 
 #[derive(Debug)]

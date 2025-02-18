@@ -45,6 +45,7 @@ impl InsertBuilder for InsertProps {
                     header: self.header,
                     grid,
                     table: self.table,
+                    create: self.create,
                 }
             }
         )
@@ -62,5 +63,10 @@ impl InsertBuilder for InsertProps {
             SQLVariation::Oracle(_) => oracle_build_insert(self, true),
             SQLVariation::SQLite(_) => sqlite_build_insert_pb(self),
         }
+    }
+    
+    fn create_table(mut self) -> Self {
+        self.create = true;
+        self
     }
 }
