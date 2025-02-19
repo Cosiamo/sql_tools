@@ -26,7 +26,9 @@ impl SQLiteConnect {
 
         if exists.len() == 0 { return Err(Error::TableDoesNotExist) };
 
-        let res = exists[0].iter().map(|cell| cell.to_string()).collect::<Vec<String>>();
+        let res = exists.iter().map(|row| {
+            row.iter().map(|cell| cell.to_string()).collect::<Vec<String>>().join("")
+        }).collect::<Vec<String>>();
         Ok(res)
     }
 }

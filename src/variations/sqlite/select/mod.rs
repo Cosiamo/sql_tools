@@ -6,11 +6,15 @@ use crate::{clauses::select::OrderBy, data_types::SQLDataTypes, Error, SQLVariat
 
 use super::SelectProps;
 
-pub(crate) fn build_select_sqlite_single_thread(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn build_select_sqlite_single_thread(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
     };
+    
+    if select_props.columns == vec!["*".to_string()] {
+        select_props.columns = conn_info.table_info(&select_props.table)?;
+    }
     
     let conn = Connection::open(&conn_info.path.clone())?;
     
@@ -50,11 +54,15 @@ pub(crate) fn build_select_sqlite_single_thread(select_props: SelectProps) -> Re
     Ok(res)
 }
 
-pub(crate) fn build_select_sqlite(select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
     };
+    
+    if select_props.columns == vec!["*".to_string()] {
+        select_props.columns = conn_info.table_info(&select_props.table)?;
+    }
     
     let conn = Connection::open(&conn_info.path.clone())?;
 
