@@ -17,8 +17,15 @@ impl FromSql for SQLDataTypes {
                 OracleType::Rowid => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::Raw(_) => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::BinaryFloat => SQLDataTypes::Float(val.get::<f64>()?),
-                OracleType::BinaryDouble => SQLDataTypes::Number(val.get::<i64>()?),
-                OracleType::Number(_, _) => SQLDataTypes::Number(val.get::<i64>()?),
+                OracleType::BinaryDouble => SQLDataTypes::Float(val.get::<f64>()?),
+                OracleType::Number(_, _) => {
+                    let buff = val.get::<String>()?;
+                    if buff.contains(".") {
+                        SQLDataTypes::Float(val.get::<f64>()?)
+                    } else {
+                        SQLDataTypes::Number(val.get::<i64>()?)
+                    }
+                },
                 OracleType::Float(_) => SQLDataTypes::Float(val.get::<f64>()?),
                 OracleType::Date => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
                 OracleType::Timestamp(_) => SQLDataTypes::Varchar(val.get::<String>()?),
@@ -37,8 +44,22 @@ impl FromSql for SQLDataTypes {
                 OracleType::LongRaw => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::Json => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::Xml => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Int64 =>  SQLDataTypes::Number(val.get::<i64>()?),
-                OracleType::UInt64 =>  SQLDataTypes::Number(val.get::<i64>()?),
+                OracleType::Int64 => {
+                    let buff = val.get::<String>()?;
+                    if buff.contains(".") {
+                        SQLDataTypes::Float(val.get::<f64>()?)
+                    } else {
+                        SQLDataTypes::Number(val.get::<i64>()?)
+                    }
+                },
+                OracleType::UInt64 => {
+                    let buff = val.get::<String>()?;
+                    if buff.contains(".") {
+                        SQLDataTypes::Float(val.get::<f64>()?)
+                    } else {
+                        SQLDataTypes::Number(val.get::<i64>()?)
+                    }
+                },
             })
     }
 }
