@@ -51,7 +51,7 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
                 SQLDataTypes::Number(val) => format!("{val}"),
                 SQLDataTypes::Float(val) => format!("{val}"),
                 SQLDataTypes::Date(val) => format!("'{}'", val.to_string()),
-                SQLDataTypes::NULL => format!(""),
+                SQLDataTypes::NULL => format!("NULL"),
             }
         }).collect::<Vec<String>>();
         let sql = format!("INSERT INTO {} ({}) VALUES ({})", insert_props.table, insert_props.header.join(", "), values.join(", "));
