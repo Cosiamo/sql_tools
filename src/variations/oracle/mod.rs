@@ -19,6 +19,7 @@ pub mod create;
 pub mod insert;
 pub mod select;
 pub mod update;
+pub mod delete;
 
 impl OracleConnect {
     pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, Error> {

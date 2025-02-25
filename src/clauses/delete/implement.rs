@@ -1,11 +1,11 @@
-use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereDelete}, data_types::ToSQLData, variations::sqlite::delete::sqlite_delete, Error, SQLVariation};
+use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereDelete}, data_types::ToSQLData, variations::{oracle::delete::oracle_build_delete, sqlite::delete::sqlite_delete}, Error, SQLVariation};
 
 use super::{DeleteBuilder, DeleteProps};
 
 impl DeleteBuilder for DeleteProps {
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => todo!(),
+            SQLVariation::Oracle(_) => oracle_build_delete(self),
             SQLVariation::SQLite(_) => sqlite_delete(self),
         }
     }
