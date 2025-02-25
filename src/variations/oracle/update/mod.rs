@@ -46,16 +46,17 @@ pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error
     };
 
     let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
-    conn.execute(&query, &[]).unwrap();
-    conn.commit()?;
     
     let mut count: usize = 0;
     let mut stmt = conn.statement(&count_sql).build()?;
-    let query = stmt.query(&[])?;
-    for v in query {
+    let stmt_query = stmt.query(&[])?;
+    for v in stmt_query {
         let p = v?;
         count = p.get::<usize, usize>(0)?;
     };
+    
+    conn.execute(&query, &[]).unwrap();
+    conn.commit()?;
 
     Ok(count)
 }
