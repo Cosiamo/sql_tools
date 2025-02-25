@@ -21,7 +21,8 @@ pub struct UpdateSet {
 #[derive(Debug)]
 pub struct SetMatch {
     pub column: String,
-    pub value: SQLDataTypes
+    pub value: SQLDataTypes,
+    pub query: bool,
 }
 
 pub trait UpdateBuilder {
@@ -35,6 +36,9 @@ pub trait UpdateBuilder {
     ///     .build()?; 
     /// ``` 
     fn set<T: ToSQLData>(self, column: &str, new_value: T) -> Self;
+
+    /// Sets a column equal to the result of a SELECT query.
+    fn set_query(self, column: &str, query: &str) -> Self;
 
     /// Adds a WHERE clause to your query.
     /// ```no_run
@@ -65,6 +69,12 @@ pub trait UpdateBuilder {
     /// WHERE name NOT IN ('John Doe');
     /// ```
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
+
+    /// Selects where a column is NULL.
+    fn where_null(self, column: &str) -> WhereUpdate;
+
+    /// Selects where a column is not NULL.
+    fn where_not_null(self, column: &str) -> WhereUpdate;
 
     /// Builds the query.
     fn build(self) -> Result<(), Error>;

@@ -80,7 +80,24 @@ pub(crate) fn sqlite_build_insert_pb(insert_props: InsertProps) -> Result<(), Er
     let exists = connection.select(&exists_sql, vec!["name"])
         .build_single_thread().unwrap();
 
-    if exists.len() == 0 { return Err(Error::TableDoesNotExist) }
+    if exists.len() == 0 && !insert_props.create { 
+        return Err(Error::TableDoesNotExist)
+    } else if exists.len() == 0 && insert_props.create {
+        let col_type_indexes = get_col_indexes(&insert_props.grid)?;
+        let columns = &insert_props.header.iter().enumerate().map(|(idx, cell)|{
+            if col_type_indexes.is_date.contains(&idx) {
+                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::DATE }
+            } else if col_type_indexes.is_int.contains(&idx) {
+                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::NUMBER }
+            } else if col_type_indexes.is_float.contains(&idx) {
+                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::FLOAT }
+            } else {
+                let size = if let Some(val) = col_type_indexes.varchar_size.get(&idx) { val } else { &(1 as usize) };
+                CreateColumns{ name: cell.to_string(), data_type: CreateDataTypes::VARCHAR(*size) }
+            } 
+        }).collect::<Vec<CreateColumns>>();
+        conn_info.create().table(&insert_props.table, columns.to_vec()).build()?;
+    }
 
     let mut values = Vec::new();
     for idx in 0..insert_props.grid.len() {

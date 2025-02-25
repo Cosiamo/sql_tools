@@ -7,20 +7,31 @@ pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error
     };
     
     let set_match_len = &update_set.set_match.len();
-    let set = update_set.set_match.iter().enumerate().map(|(idx, set_match)| {
-        let fmt_data_types = match &set_match.value {
-            SQLDataTypes::Varchar(val) => format!("'{}'", val),
-            SQLDataTypes::Number(val) => format!("{}", val),
-            SQLDataTypes::Float(val) => format!("{}", val),
-            SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
-            SQLDataTypes::NULL => format!("''"),
-        };
+    let set_vec = update_set.set_match.iter().enumerate().map(|(idx, set_match)| {
+        let fmt_data_types: String;
+        if set_match.query {
+            fmt_data_types = if let SQLDataTypes::Varchar(val) = &set_match.value { 
+                format!("({val})") 
+            } else { 
+                return Err(Error::UpdateSetQuery)
+            };
+        } else {
+            fmt_data_types = match &set_match.value {
+                SQLDataTypes::Varchar(val) => format!("'{}'", val),
+                SQLDataTypes::Number(val) => format!("{}", val),
+                SQLDataTypes::Float(val) => format!("{}", val),
+                SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
+                SQLDataTypes::NULL => format!("''"),
+            };
+        }
 
-        if set_match_len == &1 { format!("SET {} = {}", set_match.column, fmt_data_types) }
-        else if idx == 0 { format!("SET {} = {},", set_match.column, fmt_data_types) }
-        else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
-        else { format!("{} = {},", set_match.column, fmt_data_types) }
-    }).collect::<Vec<String>>().join(" ");
+        if set_match_len == &1 { Ok(format!("SET {} = {}", set_match.column, fmt_data_types)) }
+        else if idx == 0 { Ok(format!("SET {} = {},", set_match.column, fmt_data_types)) }
+        else if &idx == &(set_match_len - 1) { Ok(format!("{} = {}", set_match.column, fmt_data_types)) }
+        else { Ok(format!("{} = {},", set_match.column, fmt_data_types)) }
+    }).collect::<Result<Vec<String>, Error>>()?;
+
+    let set = set_vec.join(" ");
     
     let count_sql: String;
     let query = match update_set.clause {

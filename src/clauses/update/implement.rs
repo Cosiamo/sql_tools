@@ -11,6 +11,23 @@ impl UpdateProps {
             SetMatch {
                 column: column.to_string(),
                 value: new_value.fmt_data(),
+                query: false,
+            }
+        ];
+        UpdateSet {
+            connect: self.connect,
+            set_match: set,
+            table: self.table,
+            clause: None,
+        }
+    }
+
+    pub fn set_query(self, column: &str, query: &str) -> UpdateSet {
+        let set = vec![
+            SetMatch {
+                column: column.to_string(),
+                value: query.fmt_data(),
+                query: true,
             }
         ];
         UpdateSet {
@@ -28,6 +45,18 @@ impl UpdateBuilder for UpdateSet {
             SetMatch {
                 column: column.to_string(),
                 value: new_value.fmt_data(),
+                query: false,
+            }
+        );
+        self
+    }
+
+    fn set_query(mut self, column: &str, query: &str) -> Self {
+        self.set_match.push(
+            SetMatch {
+                column: column.to_string(),
+                value: query.fmt_data(),
+                query: true,
             }
         );
         self
@@ -45,6 +74,22 @@ impl UpdateBuilder for UpdateSet {
     fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate {
         let value = where_clause_value_format(values);
         let where_clause = format!("{} NOT IN ({})", column, value);
+        WhereUpdate { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
+
+    fn where_null(self, column: &str) -> WhereUpdate {
+        let where_clause = format!("{column} IS NULL");
+        WhereUpdate { 
+            query_type: self,
+            clause: where_clause
+        }
+    }
+    
+    fn where_not_null(self, column: &str) -> WhereUpdate {
+        let where_clause = format!("{column} IS NOT NULL");
         WhereUpdate { 
             query_type: self,
             clause: where_clause

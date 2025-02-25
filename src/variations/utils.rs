@@ -18,7 +18,6 @@ pub(crate) fn get_dt_indices(data: &Vec<Vec<SQLDataTypes>>) -> DatatypeIndices {
         }
     } else {
         for y_idx in 1..data.len() {
-            println!("IDX:{y_idx} DI: {:?}", &data[y_idx]);
             for x_idx in 0..data[y_idx].len() {
                 let cell = &data[y_idx][x_idx];
                 match cell {

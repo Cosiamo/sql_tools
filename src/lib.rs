@@ -40,6 +40,9 @@ pub enum Error {
     
     #[error("Incorrect SQL variation passed to method")]
     SQLVariationError,
+    
+    #[error("Update using set_query method is not valid")]
+    UpdateSetQuery,
 }
 
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.
