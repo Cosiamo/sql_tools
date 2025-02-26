@@ -146,7 +146,15 @@ pub trait QueryBuilder {
     /// ```
     fn alter(&self) -> AlterProps;
 
-    /// A Delete statement
+    /// Creates a new [`DeleteProps`] which allows you delete rows based on criteria passed in the where methods added to the struct.
+    /// Will delete everything in the table if no where clause added.
+    /// 
+    /// ```no_run
+    /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// conn.delete("my_table")
+    ///     .where_null("Column_A")
+    ///     .build()?
+    /// ```
     fn delete(&self, table: &str) -> DeleteProps;
 }
 

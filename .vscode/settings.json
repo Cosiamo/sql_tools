@@ -8,6 +8,7 @@
         "rowid",
         "rusqlite",
         "thiserror",
-        "tosql"
+        "tosql",
+        "Varchar"
     ]
 }

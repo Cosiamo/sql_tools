@@ -1,17 +1,18 @@
 # SQL Tools
-A rust crate meant to make creating SQL queries easy. The goal is to have multiple different versions of SQL (SQLite, Postgres, etc..) however it's only Oracle SQL right now. The original crate I made that this is an evolution of is [oracle_sql_tools](https://crates.io/crates/oracle_sql_tools).
+A rust crate meant to make SQL queries simple and communication between various SQL versions easy. The goal is to have most major variations of SQL compatible with this crate, however only Oracle SQL and SQLite are available right now. This is an evolution of [oracle_sql_tools](https://crates.io/crates/oracle_sql_tools).
 
 # How To Use
 In your `cargo.toml` file:
 ```toml
 [dependencies]
-sql_tools = "0.1.0"
+sql_tools = "0.1.6"
 # chrono is required if you're working with dates 
 chrono = "0.4.26" 
 ```
 
 To start using SQL Tools, you need a new connection.
 ```rust
+// Oracle SQL
 use sql_tools::sql_variations::OracleConnect;
 
 let username = "new_user";
@@ -19,12 +20,18 @@ let password = "password123!";
 let connection_string = "my-secure.connection/database";
 
 let conn = OracleConnect::new(connection_string, username, password);
+
+// SQLite 
+use sql_tools::sql_variations::SQLiteConnect;
+
+let path = "<PATH_TO_DB_FILE>";
+let conn = SQLiteConnect::new_path(path);
 ```
 
-Once you established a connection type, you can use the various methods in this crate to interact with your database. These options are [select](#select), [update](#update), [insert](#insert), and [create](#create).
+Once you established a connection type, you can use the various methods in this crate to interact with your database. These options are [select](#select), [update](#update), [insert](#insert), [create](#create), [delete](delete), and [alter](#alter).
 
 ## SQLDataTypes
-This is the enum that is used to apply the proper data type to the data that's being selected, updated, or inserted.
+This is the enum that is used to apply the proper type to the data that's being selected, updated, or inserted.
 ```rust
 pub enum SQLDataTypes {
     Varchar(String),
@@ -64,7 +71,7 @@ let count: usize = conn
 ```
 
 ## INSERT
-Inserts a grid (two-dimensional vector) of data into your database. Can take any type that has the [`ToSQLData`](#tosqldata) trait implemented. If the table does not exist, it will automatically create a new table (will have an abort option in a future update).
+Inserts a grid (two-dimensional vector) of data into your database. Can take any type that has the [`ToSQLData`](#tosqldata) trait implemented. 
 ```rust
 let conn = OracleConnect::new(connection_string, username, password).unwrap();
 let data: Vec<Vec<&str>> = vec![
@@ -74,7 +81,12 @@ let data: Vec<Vec<&str>> = vec![
     vec!["a3", "b3", "c3"],
 ];
 
-conn.insert("my_table", data).build()?;
+conn.insert("my_table", data)?.build()?;
+```
+
+If the table does not exist, you can add the `create_table()` method to automatically create the table.
+```rust
+conn.insert("my_table", data)?.create_table().build()?;
 ```
 
 If you have a grid of strings that have integers, dates, etc.. that you want to be formatted properly before being inserted into a table then you want to add the `.format_grid_strings()` method.
@@ -118,6 +130,54 @@ if add_date_col == true {
 }
 
 my_table.build()?;
+```
+
+## DELETE
+Deletes rows in a table based on the where methods added to the `DeleteProps`. If no where methods are added, it will delete all data in the table.
+```rust
+conn.delete("employee_data")
+    .where_in("status", vec!["terminated"])
+    .build()?;
+```
+
+## ALTER
+Alters a table by renaming it or adding, modifying, dropping, or renaming a column.
+```rust
+// renaming a table
+conn.alter()
+    .table("local_sales")
+    .rename("regional_sales")
+    .build()?;
+
+// Adding a column
+let column = AlterColumns {
+    name: String::from("title"),
+    data_type: CreateDataTypes::VARCHAR(10),
+    default: Some(String::from("PMO")),
+    not_null: true,
+};
+conn.alter()
+    .table("employees")
+    .add(vec![column])
+    .build()?;
+
+// Modifying a column (very similar to adding)
+conn.alter()
+    .table("employees")
+    .modify(vec![column])
+    .build()?; 
+
+// Dropping a column
+conn.alter()
+    .table("sales")
+    .drop("description")
+    .build()?;
+
+// Renaming a column
+conn.alter()
+    .table("sales")
+    .rename_column("salesman", "employee")
+    .build()?;
 ```
 
 ## ToSQLData

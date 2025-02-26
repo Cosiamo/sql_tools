@@ -45,9 +45,9 @@ pub trait AlterTableBuilder {
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let column = AlterColumns {
-    ///     name: "title".to_string(),
+    ///     name: String::from("title"),
     ///     data_type: CreateDataTypes::VARCHAR(10),
-    ///     default: Some("PMO".to_string()),
+    ///     default: Some(String::from("PMO")),
     ///     not_null: true,
     /// };
     /// conn.alter()
@@ -67,9 +67,9 @@ pub trait AlterTableBuilder {
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let column = AlterColumns {
-    ///     name: "title".to_string(),
+    ///     name: String::from("title"),
     ///     data_type: CreateDataTypes::VARCHAR(10),
-    ///     default: Some("PMO".to_string()),
+    ///     default: Some(String::from("PMO")),
     ///     not_null: true,
     /// };
     /// conn.alter()
