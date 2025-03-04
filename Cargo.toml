@@ -1,6 +1,6 @@
 [package]
 name = "sql_tools"
-version = "0.1.6"
+version = "0.2.0"
 edition = "2021"
 license = "MIT"
 description = "A crate that aims to make creating simple SQL queries easy."
@@ -12,13 +12,14 @@ exclude = ["TODO.md", ".vscode/*", ".gitignore"]
 
 [dependencies]
 oracle = { version = "0.6.3", features = ["chrono"]}
-chrono = "0.4.39"
+chrono = {version = "0.4.40", features = ["serde"]}
 serde = { version = "1.0.197", features = ["derive"] }
 itertools = "0.12.1"
 thiserror = "1.0.58"
 num_cpus = "1.0"
 proc-macro2 = "1.0.79"
 indicatif = "0.17.6"
-csv = "1.3.0"
-csv_perusal = "0.8.2"
 rusqlite = { version = "0.32.0", features = ["bundled"] }
+regex = "1.9.6"
+memchr = { version = "2", default-features = false }
+once_cell = "1.18.0"

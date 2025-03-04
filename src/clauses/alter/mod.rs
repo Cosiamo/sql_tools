@@ -106,7 +106,7 @@ pub trait AlterTableBuilder {
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.alter()
     ///     .table("sales")
-    ///     .rename("salesman", "employee")
+    ///     .rename_column("salesman", "employee")
     ///     .build()?;
     /// ```
     /// 
