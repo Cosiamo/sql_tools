@@ -28,9 +28,9 @@ impl FromSql for SQLDataTypes {
                 },
                 OracleType::Float(_) => SQLDataTypes::Float(val.get::<f64>()?),
                 OracleType::Date => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
-                OracleType::Timestamp(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::TimestampTZ(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::TimestampLTZ(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+                OracleType::Timestamp(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+                OracleType::TimestampTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+                OracleType::TimestampLTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
                 OracleType::IntervalDS(_, _) => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::IntervalYM(_) => SQLDataTypes::Varchar(val.get::<String>()?),
                 OracleType::CLOB => SQLDataTypes::Varchar(val.get::<String>()?),
@@ -71,6 +71,10 @@ impl ToSql for SQLDataTypes {
             SQLDataTypes::Number(val) => val.oratype(conn),
             SQLDataTypes::Float(val) => val.oratype(conn),
             SQLDataTypes::Date(val) => val.oratype(conn),
+            // Null match is practically worthless (real integration at batch_bind in insert).
+            // Spent hours trying to find a clever way integrate NULL type with OracleType
+            // but they structured it in a way that they need an Option<T> but it couldn't return None::<ToSql>
+            // because there's a ToSqlNull trait which is a pain in the ass to implement for an enum.
             SQLDataTypes::NULL => "".oratype(conn),
         }
     }
