@@ -88,6 +88,17 @@ impl ToSQLData for Option<Vec<u8>> {
         }
     }
 }
+impl ToSQLData for usize {
+    fn fmt_data(self) -> SQLDataTypes {
+        let buff = self as i64;
+        SQLDataTypes::Number(buff)
+    }
+
+    fn fmt_data_borrowed(&self) -> SQLDataTypes {
+        let buff = *self as i64;
+        SQLDataTypes::Number(buff)
+    }
+}
 
 macro_rules! impl_fmt_data {
     ($data_type:ty, $enum_type:ident) => {
