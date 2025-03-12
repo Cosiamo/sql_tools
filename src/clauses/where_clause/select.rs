@@ -101,12 +101,12 @@ impl WhereSelect {
         self.query_type.limit(limit, offset)
     }
 
-    pub fn build(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
+    pub fn build(mut self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> { 
         self.query_type.clause = Some(self.clause);
         self.query_type.build()
     }
     
-    pub fn build_single_thread(mut self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    pub fn build_single_thread(mut self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         self.query_type.clause = Some(self.clause);
         self.query_type.build_single_thread()
     }

@@ -52,14 +52,14 @@ impl SelectBuilder for SelectProps {
         Grouped { select: self }
     }
 
-    fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_select(self),
             SQLVariation::SQLite(_) => build_select_sqlite(self),
         }
     }
     
-    fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
             SQLVariation::SQLite(_) => build_select_sqlite_single_thread(self),
@@ -76,11 +76,11 @@ impl SelectBuilder for SelectProps {
 }
 
 impl Ordered {
-    pub fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
+    pub fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> { 
         self.select.build()
     }
     
-    pub fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    pub fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         self.select.build_single_thread()
     }
 }

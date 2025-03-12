@@ -14,11 +14,11 @@ impl Grouped {
         self.select.order_desc(column)
     }
 
-    pub fn build(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> { 
+    pub fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> { 
         self.select.build()
     }
     
-    pub fn build_single_thread(self) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+    pub fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         self.select.build_single_thread()
     }
 }

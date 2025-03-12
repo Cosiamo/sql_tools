@@ -6,7 +6,7 @@ use crate::{clauses::select::OrderBy, data_types::SQLDataTypes, Error, SQLVariat
 
 use super::SelectProps;
 
-pub(crate) fn build_select_sqlite_single_thread(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn build_select_sqlite_single_thread(mut select_props: SelectProps) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
@@ -46,15 +46,15 @@ pub(crate) fn build_select_sqlite_single_thread(mut select_props: SelectProps) -
     let mut res = Vec::new();
     while let Some(row) = rows.next()? {
         let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
-            row.get::<usize, SQLDataTypes>(idx).unwrap()
-        }).collect::<Vec<SQLDataTypes>>();
+            Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap())
+        }).collect::<Vec<Box<SQLDataTypes>>>();
         res.push(p)
     }
 
     Ok(res)
 }
 
-pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<Vec<SQLDataTypes>>, Error> {
+pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = match &select_props.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
@@ -111,7 +111,7 @@ pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<V
     let nthreads = num_cpus::get();
     let num = (len / nthreads + if len % nthreads == 0 { 0 } else { 1 }) as f32;
 
-    let mut handles: Vec<JoinHandle<Result<Vec<Vec<SQLDataTypes>>, Error>>> = Vec::new();
+    let mut handles: Vec<JoinHandle<Result<Vec<Vec<Box<SQLDataTypes>>>, Error>>> = Vec::new();
 
     let mut c: usize = 0;
     let mut prev: usize = 0;
@@ -138,9 +138,9 @@ pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<V
                 // let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
                 //     row.get::<usize, SQLDataTypes>(idx).unwrap()
                 // }).collect::<Vec<SQLDataTypes>>();
-                let mut p: Vec<SQLDataTypes> = Vec::new();
+                let mut p = Vec::new();
                 for idx in 0..col_len {
-                    p.push(row.get::<usize, SQLDataTypes>(idx).unwrap())
+                    p.push(Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
                 }
                 res.push(p)
             }
@@ -156,7 +156,7 @@ pub(crate) fn build_select_sqlite(mut select_props: SelectProps) -> Result<Vec<V
         let res = handle.iter_mut().map(|row|{
             let _ = row.remove(0);
             row.to_owned()
-        }).collect::<Vec<Vec<SQLDataTypes>>>();
+        }).collect::<Vec<Vec<Box<SQLDataTypes>>>>();
         group.push(res);
     }
     let res = group.concat();
