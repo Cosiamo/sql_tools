@@ -5,7 +5,7 @@ use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereDelete};
 impl WhereClauseBuilder for WhereDelete {
     fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let and = format!("{} IN ({})", column, value);
+        let and = format!("{column} IN ({value})");
         let clause = format!("{} AND {}", self.clause, and);
         Self { 
             query_type: self.query_type,
@@ -15,7 +15,7 @@ impl WhereClauseBuilder for WhereDelete {
 
     fn or<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let or = format!("{} IN ({})", column, value);
+        let or = format!("{column} IN ({value})");
         let clause = format!("{} OR {}", self.clause, or);
         Self { 
             query_type: self.query_type,
@@ -25,7 +25,7 @@ impl WhereClauseBuilder for WhereDelete {
     
     fn and_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let and = format!("{} NOT IN ({})", column, value);
+        let and = format!("{column} NOT IN ({value})");
         let clause = format!("{} AND {}", self.clause, and);
         Self { 
             query_type: self.query_type,
@@ -35,7 +35,7 @@ impl WhereClauseBuilder for WhereDelete {
     
     fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let or = format!("{} NOT IN ({})", column, value);
+        let or = format!("{column} NOT IN ({value})");
         let clause = format!("{} OR {}", self.clause, or);
         Self { 
             query_type: self.query_type,
