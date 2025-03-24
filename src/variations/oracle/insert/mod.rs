@@ -49,8 +49,9 @@ pub(crate) fn oracle_build_insert(mut insert_props: InsertProps, use_pb: bool) -
 
     let datatype_indices = get_dt_indices(&insert_props.grid);
 
-    if len < &nthreads {let query = insert_stmt(insert_props.header.len(), &insert_props.table, &insert_props.header.join(", "));
-    let data = insert_props.grid;
+    if len < &nthreads {
+        let query = insert_stmt(insert_props.header.len(), &insert_props.table, &insert_props.header.join(", "));
+        let data = insert_props.grid;
         let conn: oracle::Connection = oracle::Connection::connect(username_conn, password_conn, connection_string_conn).unwrap(); 
         let mut batch = conn.batch(&query, data.len()).build()?;
         iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;

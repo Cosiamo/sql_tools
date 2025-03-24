@@ -29,6 +29,10 @@ pub fn iter_grid (
                 } else {
                     return bind_cell_to_batch(&mut batch, &None::<String>, idx)
                 }
+            } else if datatype_indices.is_varchar.contains(&idx) {
+                let buffer = cell.to_string();
+                let new_val = SQLDataTypes::Varchar(buffer);
+                bind_cell_to_batch(&mut batch, &new_val, idx)
             } else {
                 bind_cell_to_batch(&mut batch, cell, idx)
             }
