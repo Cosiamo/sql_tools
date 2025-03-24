@@ -9,44 +9,31 @@ pub mod datetime;
 
 impl SQLDataTypes {
     pub fn format_data_types(&mut self) -> &mut SQLDataTypes {
-        if let SQLDataTypes::Varchar(val) = self {
-            if val.trim().len() == 0 {
-                *self = SQLDataTypes::NULL;
-            } else if !contains_number(val) {
+        let val = if let SQLDataTypes::Varchar(val) = self { 
+            val 
+        } else {
+            return self
+        };
+        if val.trim().len() == 0 {
+            *self = SQLDataTypes::NULL;
+            return self
+        } 
+        if !contains_number(val) {
+            return self
+        } 
+        if let Ok(int) = val.parse::<i64>() {
+            *self = SQLDataTypes::Number(int);
+            return self
+        }
+        if let Ok(float) = val.parse::<f64>() {
+            *self = SQLDataTypes::Float(float);
+            return self
+        }
+        if contains_number(val) && is_dt(val) {
+            if let Some(val) = date_match(val) {
+                *self = val;
                 return self
-            // If I want to convert percentages and currency to floats,
-            // this is where I should add that functionality.
-            // (Remove symbols)
-            } else if val.trim().replace(".", "").chars().all(char::is_numeric) {
-                if val.contains(".") {
-                    // Add else here if data format == mm.dd.YYYY
-                    if let Ok(float) = val.parse::<f64>() {
-                        *self = SQLDataTypes::Float(float)
-                    }
-                } else {
-                    if let Ok(int) = val.parse::<i64>() {
-                        *self = SQLDataTypes::Number(int)
-                    }
-                }
-            } else if contains_number(val) && is_dt(val) {
-                if let Ok(dt) = datetime_conversion(val) {
-                    *self = SQLDataTypes::Date(dt)
-                } else {
-                    if let Ok(date) = date_conversion(val) {
-                        let dt = date
-                            .and_hms_milli_opt(0, 0, 0, 0)
-                            .unwrap();
-                        *self = SQLDataTypes::Date(dt)
-                    } else {
-                        if let Ok(date) = date_w_abbrv_conversion(val) {
-                            let dt = date
-                                .and_hms_milli_opt(0, 0, 0, 0)
-                                .unwrap();
-                            *self = SQLDataTypes::Date(dt)
-                        }
-                    }
-                }
-            } 
+            }
         } 
         return self
     }
@@ -54,11 +41,7 @@ impl SQLDataTypes {
 
 fn contains_number(input: &mut String) -> bool {
     let is_num = input.trim().chars().map(|char|{
-        if char.is_ascii_digit() {
-            return true;
-        } else {
-            return false;
-        }
+        char.is_ascii_digit()
     }).collect::<Vec<bool>>();
     if is_num.contains(&true) {
         return true;
@@ -75,4 +58,23 @@ fn is_dt(input: &mut String) -> bool {
     } else {
         return false
     }
+}
+
+fn date_match(val: &mut String) -> Option<SQLDataTypes> {
+    if let Ok(dt) = datetime_conversion(val) {
+        return Some(SQLDataTypes::Date(dt))
+    } 
+    if let Ok(date) = date_conversion(val) {
+        let dt = date
+            .and_hms_milli_opt(0, 0, 0, 0)
+            .unwrap();
+        return Some(SQLDataTypes::Date(dt))
+    } 
+    if let Ok(date) = date_w_abbrv_conversion(val) {
+        let dt = date
+            .and_hms_milli_opt(0, 0, 0, 0)
+            .unwrap();
+        return Some(SQLDataTypes::Date(dt))
+    }
+    None
 }
