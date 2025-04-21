@@ -3,13 +3,13 @@ use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation};
 pub mod implement;
 
 #[derive(Debug)]
-pub struct UpdateProps {
+pub struct UpdateInitialization {
     pub connect: SQLVariation,
     pub table: String,
 }
 
 #[derive(Debug)]
-pub struct UpdateSet {
+pub struct UpdateProps {
     pub connect: SQLVariation,
     pub set_match: Vec<SetMatch>,
     pub table: String,

@@ -1,8 +1,8 @@
-use crate::{clauses::update::UpdateSet, data_types};
+use crate::{clauses::update::UpdateProps, data_types};
 
 use super::{utils::where_clause_value_format, WhereClauseBuilder};
 
-impl WhereClauseBuilder for UpdateSet {
+impl WhereClauseBuilder for UpdateProps {
     fn and<T: data_types::ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let and = format!("{column} IN ({value})");

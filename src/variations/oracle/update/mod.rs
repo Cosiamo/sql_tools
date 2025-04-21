@@ -1,6 +1,6 @@
-use crate::{clauses::update::UpdateSet, data_types::SQLDataTypes, Error, SQLVariation};
+use crate::{clauses::update::UpdateProps, data_types::SQLDataTypes, Error, SQLVariation};
 
-pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
+pub(crate) fn oracle_build_update(update_set: UpdateProps)  -> Result<usize, Error> {
     let conn_info = match update_set.connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
         SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
@@ -62,7 +62,7 @@ pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error
 }
 
 
-pub fn batch_update_oracle(updates: Vec<UpdateSet>) -> Result<(), Error> {
+pub fn batch_update_oracle(updates: Vec<UpdateProps>) -> Result<(), Error> {
     let connect = &updates[0].connect;
     // let table = &updates[0].query_type.table;
     let conn_info = match connect {

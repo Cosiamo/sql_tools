@@ -1,6 +1,6 @@
 #![doc = include_str!("../README.md")]
 
-use clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::SelectProps, update::UpdateProps};
+use clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::SelectProps, update::UpdateInitialization};
 use data_types::ToSQLData;
 use variations::{OracleConnect, SQLiteConnect};
 
@@ -86,7 +86,7 @@ pub trait QueryBuilder {
     ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
     ///     .build_return_count()?;
     /// ```
-    fn update(&self, table: &str) -> UpdateProps;
+    fn update(&self, table: &str) -> UpdateInitialization;
 
     /// Creates a new [`InsertProps`] to start building out an insert query.
     /// 

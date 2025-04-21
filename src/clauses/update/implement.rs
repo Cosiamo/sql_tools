@@ -1,9 +1,9 @@
 use crate::{clauses::where_clause::utils::where_clause_value_format, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::{batch_update_sqlite, sqlite_build_update}}, Error, SQLVariation};
 
-use super::{SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
+use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
 
-impl UpdateProps {
-    pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateSet {
+impl UpdateInitialization {
+    pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateProps {
         let set = vec![
             SetMatch {
                 column: column.to_string(),
@@ -11,7 +11,7 @@ impl UpdateProps {
                 query: false,
             }
         ];
-        UpdateSet {
+        UpdateProps {
             connect: self.connect,
             set_match: set,
             table: self.table,
@@ -19,7 +19,7 @@ impl UpdateProps {
         }
     }
 
-    pub fn set_query(self, column: &str, query: &str) -> UpdateSet {
+    pub fn set_query(self, column: &str, query: &str) -> UpdateProps {
         let set = vec![
             SetMatch {
                 column: column.to_string(),
@@ -27,7 +27,7 @@ impl UpdateProps {
                 query: true,
             }
         ];
-        UpdateSet {
+        UpdateProps {
             connect: self.connect,
             set_match: set,
             table: self.table,
@@ -36,7 +36,7 @@ impl UpdateProps {
     }
 }
 
-impl UpdateBuilder for UpdateSet {
+impl UpdateBuilder for UpdateProps {
     fn set<T: ToSQLData>(mut self, column: &str, new_value: T) -> Self {
         self.set_match.push(
             SetMatch {
@@ -106,7 +106,7 @@ impl UpdateBuilder for UpdateSet {
     }
 }
 
-pub fn batch_update(updates: Vec<UpdateSet>) -> Result<(), Error> {
+pub fn batch_update(updates: Vec<UpdateProps>) -> Result<(), Error> {
     let connect = &updates[0].connect;
     match connect {
         SQLVariation::Oracle(_) => batch_update_oracle(updates),

@@ -2,7 +2,7 @@ use crate::{
     clauses::{
         alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::{
             Limit, OrderBy, SelectProps
-        }, update::UpdateProps
+        }, update::UpdateInitialization
     }, 
     data_types::{
         SQLDataTypes, ToSQLData
@@ -53,8 +53,8 @@ impl QueryBuilder for OracleConnect {
         }
     }
     
-    fn update(&self, table: &str) -> UpdateProps {
-        UpdateProps {
+    fn update(&self, table: &str) -> UpdateInitialization {
+        UpdateInitialization {
             connect: SQLVariation::Oracle(self.clone()),
             table: table.to_string(),
         }

@@ -1,4 +1,4 @@
-use crate::{clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::{Limit, OrderBy, SelectBuilder, SelectProps}, update::UpdateProps}, data_types::{SQLDataTypes, ToSQLData}, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
+use crate::{clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::{Limit, OrderBy, SelectBuilder, SelectProps}, update::UpdateInitialization}, data_types::{SQLDataTypes, ToSQLData}, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation};
 
 use super::SQLiteConnect;
 
@@ -50,8 +50,8 @@ impl QueryBuilder for SQLiteConnect {
         }
     }
 
-    fn update(&self, table: &str) -> UpdateProps {
-        UpdateProps {
+    fn update(&self, table: &str) -> UpdateInitialization {
+        UpdateInitialization {
             connect: SQLVariation::SQLite(self.clone()),
             table: table.to_string(),
         }

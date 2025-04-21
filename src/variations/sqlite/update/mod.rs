@@ -1,8 +1,8 @@
 use rusqlite::Connection;
 
-use crate::{clauses::update::UpdateSet, data_types::SQLDataTypes, Error, SQLVariation};
+use crate::{clauses::update::UpdateProps, data_types::SQLDataTypes, Error, SQLVariation};
 
-pub(crate) fn sqlite_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
+pub(crate) fn sqlite_build_update(update_set: UpdateProps)  -> Result<usize, Error> {
     let conn_info = match &update_set.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
@@ -50,7 +50,7 @@ pub(crate) fn sqlite_build_update(update_set: UpdateSet)  -> Result<usize, Error
     Ok(res[0])
 }
 
-pub fn batch_update_sqlite(updates: Vec<UpdateSet>) -> Result<(), Error> {
+pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
     let connect = &updates[0].connect;
     // let table = &updates[0].query_type.table;
     let conn_info = match connect {
