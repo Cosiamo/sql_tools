@@ -1,113 +1,65 @@
-use crate::{clauses::select::{group_by::Grouped, Ordered, SelectBuilder, SelectProps}, data_types::{SQLDataTypes, ToSQLData}, Error};
+use crate::{clauses::select::SelectProps, data_types::ToSQLData};
 
-use super::{utils::where_clause_value_format, WhereClauseBuilder, WhereSelect};
+use super::{utils::where_clause_value_format, WhereClauseBuilder};
 
-impl WhereClauseBuilder for WhereSelect {
-    fn and<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+impl WhereClauseBuilder for SelectProps {
+    fn and<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let and = format!("{} IN ({})", column, value);
-        let clause = format!("{} AND {}", self.clause, and);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} AND {and}") } else { format!("{and}") };
+        self.clause = Some(clause);
+        self
     }
 
-    fn or<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+    fn or<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let or = format!("{} IN ({})", column, value);
-        let clause = format!("{} OR {}", self.clause, or);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} OR {or}") } else { format!("{or}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn and_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+    fn and_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let and = format!("{} NOT IN ({})", column, value);
-        let clause = format!("{} AND {}", self.clause, and);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} AND {and}") } else { format!("{and}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self {
+    fn or_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let or = format!("{} NOT IN ({})", column, value);
-        let clause = format!("{} OR {}", self.clause, or);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} OR {or}") } else { format!("{or}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn and_null(self, column: &str) -> Self {
+    fn and_null(mut self, column: &str) -> Self {
         let and = format!("{column} IS NULL");
-        let clause = format!("{} AND {and}", self.clause);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} AND {and}") } else { format!("{and}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn and_not_null(self, column: &str) -> Self {
+    fn and_not_null(mut self, column: &str) -> Self {
         let and = format!("{column} IS NOT NULL");
-        let clause = format!("{} AND {and}", self.clause);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} AND {and}") } else { format!("{and}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn or_null(self, column: &str) -> Self {
+    fn or_null(mut self, column: &str) -> Self {
         let or = format!("{column} IS NULL");
-        let clause = format!("{} AND {or}", self.clause);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
+        let clause = if let Some(existing) = self.clause { format!("{existing} OR {or}") } else { format!("{or}") };
+        self.clause = Some(clause);
+        self
     }
     
-    fn or_not_null(self, column: &str) -> Self {
+    fn or_not_null(mut self, column: &str) -> Self {
         let or = format!("{column} IS NOT NULL");
-        let clause = format!("{} AND {or}", self.clause);
-        Self { 
-            query_type: self.query_type,
-            clause,
-        }
-    }
-}
-
-impl WhereSelect {
-    pub fn order_asc(mut self, column: &str) -> Ordered {
-        self.query_type.clause = Some(self.clause);
-        self.query_type.order_asc(column)
-    }
-    
-    pub fn order_desc(mut self, column: &str) -> Ordered {
-        self.query_type.clause = Some(self.clause);
-        self.query_type.order_desc(column)
-    }
-
-    pub fn group_by(mut self, columns: Vec<&str>) -> Grouped {
-        self.query_type.group_by = Some(columns.iter().map(|col| { col.to_string() }).collect::<Vec<String>>());
-        self.query_type.group_by(columns)
-    }
-
-    pub fn limit(mut self, limit: usize, offset: Option<usize>) -> SelectProps {
-        self.query_type.clause = Some(self.clause);
-        self.query_type.limit(limit, offset)
-    }
-
-    pub fn build(mut self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> { 
-        self.query_type.clause = Some(self.clause);
-        self.query_type.build()
-    }
-    
-    pub fn build_single_thread(mut self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-        self.query_type.clause = Some(self.clause);
-        self.query_type.build_single_thread()
+        let clause = if let Some(existing) = self.clause { format!("{existing} OR {or}") } else { format!("{or}") };
+        self.clause = Some(clause);
+        self
     }
 }

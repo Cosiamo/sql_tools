@@ -2,8 +2,6 @@ use group_by::Grouped;
 
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation};
 
-use super::where_clause::WhereSelect;
-
 pub mod implement;
 pub mod group_by;
 
@@ -41,7 +39,7 @@ pub trait SelectBuilder {
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .build()?;
     /// ```
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
+    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
     
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
@@ -49,13 +47,13 @@ pub trait SelectBuilder {
     ///     .where_not("quarter", vec!["Q1", "Q4"])
     ///     .build()?;
     /// ```
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereSelect;
+    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
 
     /// Selects where a column is NULL.
-    fn where_null(self, column: &str) -> WhereSelect;
+    fn where_null(self, column: &str) -> Self;
 
     /// Selects where a column is not NULL.
-    fn where_not_null(self, column: &str) -> WhereSelect;
+    fn where_not_null(self, column: &str) -> Self;
 
     /// Order By a column ascending
     fn order_asc(self, column: &str) -> Ordered;

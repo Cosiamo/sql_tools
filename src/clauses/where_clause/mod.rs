@@ -1,19 +1,11 @@
 use crate::data_types::ToSQLData;
 
-use super::{delete::DeleteProps, select::SelectProps, update::UpdateSet};
+use super::{delete::DeleteProps, update::UpdateSet};
 
 pub mod select;
 pub mod update;
 pub mod utils;
 pub mod delete;
-
-/// Contains the SELECT statement properties, [`select::SelectProps`], 
-/// as well as the WHERE clause.
-#[derive(Debug)]
-pub struct WhereSelect {
-    pub query_type: SelectProps,
-    pub clause: String,
-}
 
 /// Contains the UPDATE statement properties, [UpdateSet](`update::UpdateSet`), 
 /// as well as the WHERE clause.
