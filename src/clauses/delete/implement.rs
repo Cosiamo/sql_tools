@@ -1,4 +1,4 @@
-use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereDelete}, data_types::ToSQLData, variations::{oracle::delete::oracle_build_delete, sqlite::delete::sqlite_delete}, Error, SQLVariation};
+use crate::{clauses::where_clause::utils::where_clause_value_format, data_types::ToSQLData, variations::{oracle::delete::oracle_build_delete, sqlite::delete::sqlite_delete}, Error, SQLVariation};
 
 use super::{DeleteBuilder, DeleteProps};
 
@@ -10,37 +10,29 @@ impl DeleteBuilder for DeleteProps {
         }
     }
     
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereDelete {
+    fn where_in<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let where_clause = format!("{} IN ({})", column, value);
-        WhereDelete { 
-            query_type: self,
-            clause: where_clause
-        }
+        let where_clause = format!("{column} IN ({value})");
+        self.clause = Some(where_clause);
+        self
     }
     
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereDelete {
+    fn where_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let where_clause = format!("{} NOT IN ({})", column, value);
-        WhereDelete { 
-            query_type: self,
-            clause: where_clause
-        }
+        let where_clause = format!("{column} NOT IN ({value})");
+        self.clause = Some(where_clause);
+        self
     }
     
-    fn where_null(self, column: &str) -> WhereDelete {
+    fn where_null(mut self, column: &str) -> Self {
         let where_clause = format!("{column} IS NULL");
-        WhereDelete { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
     
-    fn where_not_null(self, column: &str) -> WhereDelete {
+    fn where_not_null(mut self, column: &str) -> Self {
         let where_clause = format!("{column} IS NOT NULL");
-        WhereDelete { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
 }

@@ -1,17 +1,9 @@
 use crate::data_types::ToSQLData;
 
-use super::delete::DeleteProps;
-
 pub mod select;
 pub mod update;
 pub mod utils;
 pub mod delete;
-
-#[derive(Debug)]
-pub struct WhereDelete {
-    pub query_type: DeleteProps,
-    pub clause: String,
-}
 
 /// Trait to add a WHERE clause to a SQL statement.
 pub trait WhereClauseBuilder {
