@@ -1,4 +1,4 @@
-use crate::{clauses::{update::UpdateSet, where_clause::WhereUpdate}, data_types::SQLDataTypes, Error, SQLVariation};
+use crate::{clauses::update::UpdateSet, data_types::SQLDataTypes, Error, SQLVariation};
 
 pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error> {
     let conn_info = match update_set.connect {
@@ -62,8 +62,8 @@ pub(crate) fn oracle_build_update(update_set: UpdateSet)  -> Result<usize, Error
 }
 
 
-pub fn batch_update_oracle(updates: Vec<WhereUpdate>) -> Result<(), Error> {
-    let connect = &updates[0].query_type.connect;
+pub fn batch_update_oracle(updates: Vec<UpdateSet>) -> Result<(), Error> {
+    let connect = &updates[0].connect;
     // let table = &updates[0].query_type.table;
     let conn_info = match connect {
         SQLVariation::Oracle(oracle_connect) => oracle_connect,
@@ -72,8 +72,8 @@ pub fn batch_update_oracle(updates: Vec<WhereUpdate>) -> Result<(), Error> {
 
     let sql = updates.iter().map(|update| {
         // println!("{:#?}", update);
-        let set_match_len = &update.query_type.set_match.len();
-        let set = update.query_type.set_match.iter().enumerate().map(|(idx, set_match)| {
+        let set_match_len = &update.set_match.len();
+        let set = update.set_match.iter().enumerate().map(|(idx, set_match)| {
             let fmt_data_types = match &set_match.value {
                 SQLDataTypes::Varchar(val) => format!("'{}'", val),
                 SQLDataTypes::Number(val) => format!("{}", val),
@@ -87,7 +87,10 @@ pub fn batch_update_oracle(updates: Vec<WhereUpdate>) -> Result<(), Error> {
             else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
             else { format!("{} = {},", set_match.column, fmt_data_types) }
         }).collect::<Vec<String>>().join(" ");
-        format!("UPDATE {} {} WHERE {}", &update.query_type.table, set, &update.clause)
+        match &update.clause {
+            Some(clause) => format!("UPDATE {} {} WHERE {}", &update.table, set, clause),
+            None => format!("UPDATE {} {}", &update.table, set),
+        }
     }).collect::<Vec<String>>().join("; ");
 
     let query = format!("BEGIN {sql}; END;");

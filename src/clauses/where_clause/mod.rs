@@ -1,19 +1,11 @@
 use crate::data_types::ToSQLData;
 
-use super::{delete::DeleteProps, update::UpdateSet};
+use super::delete::DeleteProps;
 
 pub mod select;
 pub mod update;
 pub mod utils;
 pub mod delete;
-
-/// Contains the UPDATE statement properties, [UpdateSet](`update::UpdateSet`), 
-/// as well as the WHERE clause.
-#[derive(Debug)]
-pub struct WhereUpdate {
-    pub query_type: UpdateSet,
-    pub clause: String,
-}
 
 #[derive(Debug)]
 pub struct WhereDelete {

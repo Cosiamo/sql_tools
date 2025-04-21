@@ -1,7 +1,5 @@
 use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation};
 
-use super::where_clause::WhereUpdate;
-
 pub mod implement;
 
 #[derive(Debug)]
@@ -53,7 +51,7 @@ pub trait UpdateBuilder {
     /// SET passed = 'false'
     /// WHERE name NOT IN ('John Doe');
     /// ```
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
+    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
     
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
@@ -68,13 +66,13 @@ pub trait UpdateBuilder {
     /// SET passed = 'true'
     /// WHERE name NOT IN ('John Doe');
     /// ```
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate;
+    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
 
     /// Selects where a column is NULL.
-    fn where_null(self, column: &str) -> WhereUpdate;
+    fn where_null(self, column: &str) -> Self;
 
     /// Selects where a column is not NULL.
-    fn where_not_null(self, column: &str) -> WhereUpdate;
+    fn where_not_null(self, column: &str) -> Self;
 
     /// Builds the query.
     fn build(self) -> Result<(), Error>;

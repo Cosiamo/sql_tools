@@ -1,9 +1,6 @@
-use crate::{clauses::where_clause::{utils::where_clause_value_format, WhereUpdate}, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::{batch_update_sqlite, sqlite_build_update}}, Error, SQLVariation};
+use crate::{clauses::where_clause::utils::where_clause_value_format, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::{batch_update_sqlite, sqlite_build_update}}, Error, SQLVariation};
 
 use super::{SetMatch, UpdateBuilder, UpdateProps, UpdateSet};
-
-
-
 
 impl UpdateProps {
     pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateSet {
@@ -62,38 +59,30 @@ impl UpdateBuilder for UpdateSet {
         self
     }
 
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate {
+    fn where_in<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let where_clause = format!("{} IN ({})", column, value);
-        WhereUpdate { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
 
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> WhereUpdate {
+    fn where_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
         let where_clause = format!("{} NOT IN ({})", column, value);
-        WhereUpdate { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
 
-    fn where_null(self, column: &str) -> WhereUpdate {
+    fn where_null(mut self, column: &str) -> Self {
         let where_clause = format!("{column} IS NULL");
-        WhereUpdate { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
     
-    fn where_not_null(self, column: &str) -> WhereUpdate {
+    fn where_not_null(mut self, column: &str) -> Self {
         let where_clause = format!("{column} IS NOT NULL");
-        WhereUpdate { 
-            query_type: self,
-            clause: where_clause
-        }
+        self.clause = Some(where_clause);
+        self
     }
 
     fn build(self) -> Result<(), Error> {
@@ -117,8 +106,8 @@ impl UpdateBuilder for UpdateSet {
     }
 }
 
-pub fn batch_update(updates: Vec<WhereUpdate>) -> Result<(), Error> {
-    let connect = &updates[0].query_type.connect;
+pub fn batch_update(updates: Vec<UpdateSet>) -> Result<(), Error> {
+    let connect = &updates[0].connect;
     match connect {
         SQLVariation::Oracle(_) => batch_update_oracle(updates),
         SQLVariation::SQLite(_) => batch_update_sqlite(updates),
