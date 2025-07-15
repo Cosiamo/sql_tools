@@ -17,7 +17,7 @@ pub struct CreateProps {
 #[derive(Debug, Clone)]
 pub struct CreateColumns {
     pub name: String,
-    pub data_type: CreateDataTypes
+    pub data_type: CreateDataTypes,
 }
 
 #[derive(Debug, Clone)]
@@ -32,6 +32,6 @@ pub trait ModifyCreateTable {
     /// Adds a column to the CREATE TABLE query.
     fn add_column(self, column: String, data_type: CreateDataTypes) -> Self;
 
-    /// Builds the query. 
+    /// Builds the query.
     fn build(self) -> Result<(), Error>;
 }

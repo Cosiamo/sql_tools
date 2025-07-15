@@ -1,4 +1,7 @@
-use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    data_types::{SQLDataTypes, ToSQLData},
+};
 
 pub mod implement;
 
@@ -31,8 +34,8 @@ pub trait UpdateBuilder {
     /// ```no_run
     /// conn.update("quarterly_earnings")
     ///     .set("predicted_earnings", 1000000)
-    ///     .build()?; 
-    /// ``` 
+    ///     .build()?;
+    /// ```
     fn set<T: ToSQLData>(self, column: &str, new_value: T) -> Self;
 
     /// Sets a column equal to the result of a SELECT query.
@@ -52,7 +55,7 @@ pub trait UpdateBuilder {
     /// WHERE name NOT IN ('John Doe');
     /// ```
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-    
+
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
     /// conn.update("test_grades")

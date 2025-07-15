@@ -1,4 +1,4 @@
-use crate::{data_types::ToSQLData, Error, SQLVariation};
+use crate::{Error, SQLVariation, data_types::ToSQLData};
 
 pub mod implement;
 
@@ -11,7 +11,7 @@ pub struct DeleteProps {
 
 pub trait DeleteBuilder {
     fn build(self) -> Result<(), Error>;
-    
+
     /// Adds a WHERE clause to your query.
     /// ```no_run
     /// conn.delete("quarterly_earnings", vec!["revenue", "profit"])
@@ -19,7 +19,7 @@ pub trait DeleteBuilder {
     ///     .build()?;
     /// ```
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-    
+
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
     /// conn.delete("quarterly_earnings", vec!["revenue", "profit"])

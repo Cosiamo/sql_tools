@@ -1,34 +1,37 @@
 #![doc = include_str!("../README.md")]
 
-use clauses::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::SelectProps, update::UpdateInitialization};
+use clauses::{
+    alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
+    select::SelectProps, update::UpdateInitialization,
+};
 use data_types::ToSQLData;
 use variations::{OracleConnect, SQLiteConnect};
 
-pub mod variations;
-pub mod utils;
-pub mod data_types;
 pub mod clauses;
+pub mod data_types;
+pub mod utils;
+pub mod variations;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error(transparent)]
     OracleError(#[from] oracle::Error),
-    
+
     #[error(transparent)]
     SQLiteError(#[from] rusqlite::Error),
-    
+
     #[error("Data does not exists")]
     NoData,
 
     #[error("Insert is either missing a heading or missing the rows to insert")]
     NoHeading,
-    
+
     #[error("Table doesn't exist")]
     TableDoesNotExist,
 
     #[error("Could not find number of rows")]
     CountError,
-    
+
     #[error("Wrong connection type passed to function: Contact maintainer")]
     WrongConnectionType,
 
@@ -37,10 +40,10 @@ pub enum Error {
 
     #[error("Incorrect data type returned")]
     SQLDataTypesError,
-    
+
     #[error("Incorrect SQL variation passed to method")]
     SQLVariationError,
-    
+
     #[error("Update using set_query method is not valid")]
     UpdateSetQuery,
 }
@@ -48,9 +51,9 @@ pub enum Error {
 /// Trait used for the SQL Database types found in [`SQLVariation`] to implement basic SQL queries.
 pub trait QueryBuilder {
     /// Creates a new [`SelectProps`] to start building out a select query.
-    /// 
-    /// For the select method, you add the table you want to select from, then the columns in a vector. 
-    /// If you want to select all, simply input `vec!["*"]`. 
+    ///
+    /// For the select method, you add the table you want to select from, then the columns in a vector.
+    /// If you want to select all, simply input `vec!["*"]`.
     /// You can add a [`where_clause::WhereSelect`] to filter out the rows you want, just like writing a SQL query.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
@@ -70,8 +73,8 @@ pub trait QueryBuilder {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps;
 
     /// Creates a new [`UpdateProps`] to start building out an update query.
-    /// 
-    /// Updates a table's column(s) based on criteria set in the optional [where clauses](#where). 
+    ///
+    /// Updates a table's column(s) based on criteria set in the optional [where clauses](#where).
     /// Updates can return Ok() or the number of rows that were updated.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
@@ -89,9 +92,9 @@ pub trait QueryBuilder {
     fn update(&self, table: &str) -> UpdateInitialization;
 
     /// Creates a new [`InsertProps`] to start building out an insert query.
-    /// 
-    /// Inserts a grid (two-dimensional vector) of data into your database. 
-    /// Can take any type that has the [`ToSQLData`] trait implemented. 
+    ///
+    /// Inserts a grid (two-dimensional vector) of data into your database.
+    /// Can take any type that has the [`ToSQLData`] trait implemented.
     /// If the table does not exist, it will automatically create a new table (will have an abort option in a future update).
     /// The first row should be the header.
     /// ```no_run
@@ -107,7 +110,7 @@ pub trait QueryBuilder {
     fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error>;
 
     /// Creates a new [`CreateProps`] to start building a create query.
-    /// 
+    ///
     /// Creates a table using a vector of the `CreateColumns` struct and the `CreateDataTypes` to apply the correct types to the new columns.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
@@ -136,7 +139,7 @@ pub trait QueryBuilder {
     fn create(&self) -> CreateProps;
 
     /// Creates a new [`AlterProps`] to start the process of altering a table or column(s).
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.alter()
@@ -148,7 +151,7 @@ pub trait QueryBuilder {
 
     /// Creates a new [`DeleteProps`] which allows you delete rows based on criteria passed in the where methods added to the struct.
     /// Will delete everything in the table if no where clause added.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.delete("my_table")
@@ -159,7 +162,7 @@ pub trait QueryBuilder {
 }
 
 #[derive(Debug)]
-/// The various types of SQL connections 
+/// The various types of SQL connections
 pub enum SQLVariation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),

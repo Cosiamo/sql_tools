@@ -1,9 +1,9 @@
 use crate::data_types::ToSQLData;
 
+pub mod delete;
 pub mod select;
 pub mod update;
 pub mod utils;
-pub mod delete;
 
 /// Trait to add a WHERE clause to a SQL statement.
 pub trait WhereClauseBuilder {
@@ -60,7 +60,7 @@ pub trait WhereClauseBuilder {
     /// AND country NOT IN ('France', 'Spain');
     /// ```
     fn and_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-    
+
     /// Adds a 'OR NOT' to a WHERE clause.
     /// ```no_run
     /// let data: Vec<Vec<SQLDataTypes>> = conn
@@ -76,7 +76,7 @@ pub trait WhereClauseBuilder {
     /// OR country NOT IN ('United States', 'Brazil');
     /// ```
     fn or_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-    
+
     /// OR IS NULL
     fn or_null(self, column: &str) -> Self;
 

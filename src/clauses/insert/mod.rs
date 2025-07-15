@@ -1,7 +1,7 @@
-use crate::{data_types::SQLDataTypes, Error, SQLVariation};
+use crate::{Error, SQLVariation, data_types::SQLDataTypes};
 
-pub mod implement;
 pub mod data_conversion;
+pub mod implement;
 
 #[derive(Debug)]
 pub struct InsertProps {
@@ -31,7 +31,7 @@ pub trait InsertBuilder {
     /// Will Create the input table if it does not exist.
     fn create_table(self) -> Self;
 
-    /// Builds the query. 
+    /// Builds the query.
     fn build(self) -> Result<(), Error>;
 
     /// Builds the query and uses [indicatif](`indicatif::ProgressBar`) to add a progress bar to the terminal.

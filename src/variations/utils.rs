@@ -36,28 +36,41 @@ pub(crate) fn get_dt_indices(data: &Vec<Vec<SQLDataTypes>>) -> DatatypeIndices {
         is_float,
         is_int,
         is_date,
-    }.find_uniques()
+    }
+    .find_uniques()
 }
 
 impl DatatypeIndices {
     pub(crate) fn find_uniques(mut self) -> Self {
         let is_varchar = self.is_varchar.into_iter().unique().collect::<Vec<usize>>();
         for x_idx in is_varchar.iter() {
-            if self.is_float.contains(x_idx) { self.is_float.retain(|v| *v != *x_idx); }
-            else if self.is_int.contains(x_idx) { self.is_int.retain(|v| *v != *x_idx); }
-            else if self.is_date.contains(x_idx) { self.is_date.retain(|v| *v != *x_idx); }
-            else { continue }
-        };
+            if self.is_float.contains(x_idx) {
+                self.is_float.retain(|v| *v != *x_idx);
+            } else if self.is_int.contains(x_idx) {
+                self.is_int.retain(|v| *v != *x_idx);
+            } else if self.is_date.contains(x_idx) {
+                self.is_date.retain(|v| *v != *x_idx);
+            } else {
+                continue;
+            }
+        }
         let is_float = self.is_float.into_iter().unique().collect::<Vec<usize>>();
         for x_idx in is_float.iter() {
-            if self.is_int.contains(x_idx) { self.is_int.retain(|v| *v != *x_idx); }
-            else if self.is_date.contains(x_idx) { self.is_date.retain(|v| *v != *x_idx); }
-            else { continue }
+            if self.is_int.contains(x_idx) {
+                self.is_int.retain(|v| *v != *x_idx);
+            } else if self.is_date.contains(x_idx) {
+                self.is_date.retain(|v| *v != *x_idx);
+            } else {
+                continue;
+            }
         }
         let is_int = self.is_int.into_iter().unique().collect::<Vec<usize>>();
         for x_idx in is_int.iter() {
-            if self.is_date.contains(x_idx) { self.is_date.retain(|v| *v != *x_idx); }
-            else { continue }
+            if self.is_date.contains(x_idx) {
+                self.is_date.retain(|v| *v != *x_idx);
+            } else {
+                continue;
+            }
         }
         let is_date = self.is_date.into_iter().unique().collect::<Vec<usize>>();
         Self {

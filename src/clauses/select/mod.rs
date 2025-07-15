@@ -1,9 +1,12 @@
 use group_by::Grouped;
 
-use crate::{data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    data_types::{SQLDataTypes, ToSQLData},
+};
 
-pub mod implement;
 pub mod group_by;
+pub mod implement;
 
 #[derive(Debug)]
 pub struct SelectProps {
@@ -30,7 +33,9 @@ pub struct Limit {
 }
 
 #[derive(Debug)]
-pub struct Ordered { select: SelectProps }
+pub struct Ordered {
+    select: SelectProps,
+}
 
 pub trait SelectBuilder {
     /// Adds a WHERE clause to your query.
@@ -40,7 +45,7 @@ pub trait SelectBuilder {
     ///     .build()?;
     /// ```
     fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-    
+
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
     /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
@@ -66,10 +71,10 @@ pub trait SelectBuilder {
 
     fn limit(self, limit: usize, offset: Option<usize>) -> Self;
 
-    /// Builds the query. 
+    /// Builds the query.
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.
     /// If you're using a single core sever, it's recommended to use [`build_single_thread`](`SelectBuilder::build_single_thread`).
-    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`) 
+    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`)
     /// (will either fix or remove it as an option in a future update).
     fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
 

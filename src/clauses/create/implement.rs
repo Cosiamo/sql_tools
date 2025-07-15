@@ -1,4 +1,9 @@
-use crate::{variations::{oracle::create::oracle_build_create_table, sqlite::create::sqlite_build_create_table}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    variations::{
+        oracle::create::oracle_build_create_table, sqlite::create::sqlite_build_create_table,
+    },
+};
 
 use super::{CreateColumns, CreateDataTypes, CreateProps, CreateTable, ModifyCreateTable};
 
@@ -14,7 +19,10 @@ impl CreateProps {
 
 impl ModifyCreateTable for CreateTable {
     fn add_column(mut self, column: String, data_type: CreateDataTypes) -> Self {
-        self.columns.push(CreateColumns{ name: column, data_type });
+        self.columns.push(CreateColumns {
+            name: column,
+            data_type,
+        });
         self
     }
 

@@ -1,8 +1,8 @@
 use rusqlite::Connection;
 
-use crate::{clauses::update::UpdateProps, data_types::SQLDataTypes, Error, SQLVariation};
+use crate::{Error, SQLVariation, clauses::update::UpdateProps, data_types::SQLDataTypes};
 
-pub(crate) fn sqlite_build_update(update_set: UpdateProps)  -> Result<usize, Error> {
+pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
     let conn_info = match &update_set.connect {
         SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLVariation::SQLite(connect) => connect,
@@ -23,19 +23,22 @@ pub(crate) fn sqlite_build_update(update_set: UpdateProps)  -> Result<usize, Err
         else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
         else { format!("{} = {},", set_match.column, fmt_data_types) }
     }).collect::<Vec<String>>().join(" ");
-    
+
     let count_sql: String;
     let query = match update_set.clause {
         Some(filters) => {
-            count_sql = format!("SELECT COUNT(*) FROM {} WHERE {}", &update_set.table, &filters);
+            count_sql = format!(
+                "SELECT COUNT(*) FROM {} WHERE {}",
+                &update_set.table, &filters
+            );
             format!("UPDATE {} {} WHERE {}", &update_set.table, set, filters)
-        },
+        }
         None => {
             count_sql = format!("SELECT COUNT(*) FROM {}", &update_set.table);
             format!("UPDATE {} {}", &update_set.table, set)
-        },
+        }
     };
-    
+
     let conn = Connection::open(&conn_info.path.clone())?;
     conn.execute(&query, [])?;
     let mut stmt = conn.prepare(&count_sql)?;
@@ -45,7 +48,9 @@ pub(crate) fn sqlite_build_update(update_set: UpdateProps)  -> Result<usize, Err
         res.push(row.get(0).unwrap())
     }
 
-    if res.len() == 0 { return Err(Error::CountError); }
+    if res.len() == 0 {
+        return Err(Error::CountError);
+    }
 
     Ok(res[0])
 }
@@ -68,7 +73,7 @@ pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
                 SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
                 SQLDataTypes::NULL => format!("''"),
             };
-    
+
             if set_match_len == &1 { format!("SET {} = {}", set_match.column, fmt_data_types) }
             else if idx == 0 { format!("SET {} = {},", set_match.column, fmt_data_types) }
             else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
@@ -82,7 +87,7 @@ pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
 
     let query = format!("BEGIN; {sql}; COMMIT;");
 
-    let conn = Connection::open(&conn_info.path)?; 
+    let conn = Connection::open(&conn_info.path)?;
     conn.execute_batch(&query)?;
 
     Ok(())

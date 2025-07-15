@@ -1,16 +1,22 @@
-use crate::{clauses::where_clause::utils::where_clause_value_format, data_types::ToSQLData, variations::{oracle::update::{batch_update_oracle, oracle_build_update}, sqlite::update::{batch_update_sqlite, sqlite_build_update}}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    clauses::where_clause::utils::where_clause_value_format,
+    data_types::ToSQLData,
+    variations::{
+        oracle::update::{batch_update_oracle, oracle_build_update},
+        sqlite::update::{batch_update_sqlite, sqlite_build_update},
+    },
+};
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
 
 impl UpdateInitialization {
     pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateProps {
-        let set = vec![
-            SetMatch {
-                column: column.to_string(),
-                value: new_value.fmt_data(),
-                query: false,
-            }
-        ];
+        let set = vec![SetMatch {
+            column: column.to_string(),
+            value: new_value.fmt_data(),
+            query: false,
+        }];
         UpdateProps {
             connect: self.connect,
             set_match: set,
@@ -20,13 +26,11 @@ impl UpdateInitialization {
     }
 
     pub fn set_query(self, column: &str, query: &str) -> UpdateProps {
-        let set = vec![
-            SetMatch {
-                column: column.to_string(),
-                value: query.fmt_data(),
-                query: true,
-            }
-        ];
+        let set = vec![SetMatch {
+            column: column.to_string(),
+            value: query.fmt_data(),
+            query: true,
+        }];
         UpdateProps {
             connect: self.connect,
             set_match: set,
@@ -38,24 +42,20 @@ impl UpdateInitialization {
 
 impl UpdateBuilder for UpdateProps {
     fn set<T: ToSQLData>(mut self, column: &str, new_value: T) -> Self {
-        self.set_match.push(
-            SetMatch {
-                column: column.to_string(),
-                value: new_value.fmt_data(),
-                query: false,
-            }
-        );
+        self.set_match.push(SetMatch {
+            column: column.to_string(),
+            value: new_value.fmt_data(),
+            query: false,
+        });
         self
     }
 
     fn set_query(mut self, column: &str, query: &str) -> Self {
-        self.set_match.push(
-            SetMatch {
-                column: column.to_string(),
-                value: query.fmt_data(),
-                query: true,
-            }
-        );
+        self.set_match.push(SetMatch {
+            column: column.to_string(),
+            value: query.fmt_data(),
+            query: true,
+        });
         self
     }
 
@@ -78,7 +78,7 @@ impl UpdateBuilder for UpdateProps {
         self.clause = Some(where_clause);
         self
     }
-    
+
     fn where_not_null(mut self, column: &str) -> Self {
         let where_clause = format!("{column} IS NOT NULL");
         self.clause = Some(where_clause);
@@ -90,11 +90,11 @@ impl UpdateBuilder for UpdateProps {
             SQLVariation::Oracle(_) => {
                 oracle_build_update(self)?;
                 Ok(())
-            },
+            }
             SQLVariation::SQLite(_) => {
                 sqlite_build_update(self)?;
                 Ok(())
-            },
+            }
         }
     }
 

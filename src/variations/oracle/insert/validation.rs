@@ -2,10 +2,15 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{data_types::SQLDataTypes, variations::OracleConnect, Error};
+use crate::{Error, data_types::SQLDataTypes, variations::OracleConnect};
 
 pub(crate) fn does_table_exist(table: &String, conn_info: &OracleConnect) -> Result<bool, Error> {
-    let conn: oracle::Connection = oracle::Connection::connect(&conn_info.username, &conn_info.password, &conn_info.connection_string).unwrap(); 
+    let conn: oracle::Connection = oracle::Connection::connect(
+        &conn_info.username,
+        &conn_info.password,
+        &conn_info.connection_string,
+    )
+    .unwrap();
     let mut existing_tables = conn
         .statement("SELECT table_name FROM user_tables")
         .build()?;
@@ -66,26 +71,37 @@ pub(crate) fn get_col_indexes(grid: &Vec<Vec<SQLDataTypes>>) -> Result<DatatypeI
     Ok(data_type_indexes.find_uniques().get_varchar_sizes(grid))
 }
 
-
 impl DatatypeIndexes {
     pub(crate) fn find_uniques(mut self) -> Self {
         let is_varchar = self.is_varchar.into_iter().unique().collect::<Vec<usize>>();
         for x_index in is_varchar.iter() {
-            if self.is_float.contains(x_index) { self.is_float.retain(|v| *v != *x_index); }
-            else if self.is_int.contains(x_index) { self.is_int.retain(|v| *v != *x_index); }
-            else if self.is_date.contains(x_index) { self.is_date.retain(|v| *v != *x_index); }
-            else { continue }
-        };
+            if self.is_float.contains(x_index) {
+                self.is_float.retain(|v| *v != *x_index);
+            } else if self.is_int.contains(x_index) {
+                self.is_int.retain(|v| *v != *x_index);
+            } else if self.is_date.contains(x_index) {
+                self.is_date.retain(|v| *v != *x_index);
+            } else {
+                continue;
+            }
+        }
         let is_float = self.is_float.into_iter().unique().collect::<Vec<usize>>();
         for x_index in is_float.iter() {
-            if self.is_int.contains(x_index) { self.is_int.retain(|v| *v != *x_index); }
-            else if self.is_date.contains(x_index) { self.is_date.retain(|v| *v != *x_index); }
-            else { continue }
+            if self.is_int.contains(x_index) {
+                self.is_int.retain(|v| *v != *x_index);
+            } else if self.is_date.contains(x_index) {
+                self.is_date.retain(|v| *v != *x_index);
+            } else {
+                continue;
+            }
         }
         let is_int = self.is_int.into_iter().unique().collect::<Vec<usize>>();
         for x_index in is_int.iter() {
-            if self.is_date.contains(x_index) { self.is_date.retain(|v| *v != *x_index); }
-            else { continue }
+            if self.is_date.contains(x_index) {
+                self.is_date.retain(|v| *v != *x_index);
+            } else {
+                continue;
+            }
         }
         let is_date = self.is_date.into_iter().unique().collect::<Vec<usize>>();
         Self {
@@ -111,13 +127,17 @@ impl DatatypeIndexes {
                     };
                     if let Some(existing_size) = varchar_size.get(&x_idx) {
                         if val.len() > *existing_size {
-                            varchar_size.remove(&x_idx); 
-                            varchar_size.insert(x_idx, val.len()); 
+                            varchar_size.remove(&x_idx);
+                            varchar_size.insert(x_idx, val.len());
                         }
-                    } else { varchar_size.insert(x_idx, val.len()); }
-                } else { continue; }
+                    } else {
+                        varchar_size.insert(x_idx, val.len());
+                    }
+                } else {
+                    continue;
+                }
             }
-        };
+        }
 
         self.varchar_size = varchar_size;
         self

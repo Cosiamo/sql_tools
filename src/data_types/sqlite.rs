@@ -11,11 +11,11 @@ impl rusqlite::types::FromSql for SQLDataTypes {
             rusqlite::types::ValueRef::Text(val) => {
                 let v = String::from_utf8_lossy(val);
                 SQLDataTypes::Varchar(v.to_string())
-            },
+            }
             rusqlite::types::ValueRef::Blob(val) => {
                 let v = String::from_utf8_lossy(val);
                 SQLDataTypes::Varchar(v.to_string())
-            },
+            }
         })
     }
 }

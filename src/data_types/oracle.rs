@@ -6,61 +6,64 @@ use super::SQLDataTypes;
 impl FromSql for SQLDataTypes {
     fn from_sql(val: &oracle::SqlValue) -> oracle::Result<Self>
     where
-        Self: Sized {
-            if val.is_null()? { return Ok(SQLDataTypes::NULL) }
+        Self: Sized,
+    {
+        if val.is_null()? {
+            return Ok(SQLDataTypes::NULL);
+        }
 
-            Ok(match val.oracle_type()? {
-                OracleType::Varchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::NVarchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Char(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::NChar(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Rowid => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Raw(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::BinaryFloat => SQLDataTypes::Float(val.get::<f64>()?),
-                OracleType::BinaryDouble => SQLDataTypes::Float(val.get::<f64>()?),
-                OracleType::Number(_, _) => {
-                    let buff = val.get::<String>()?;
-                    if buff.contains(".") {
-                        SQLDataTypes::Float(val.get::<f64>()?)
-                    } else {
-                        SQLDataTypes::Number(val.get::<i64>()?)
-                    }
-                },
-                OracleType::Float(_) => SQLDataTypes::Float(val.get::<f64>()?),
-                OracleType::Date => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
-                OracleType::Timestamp(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
-                OracleType::TimestampTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
-                OracleType::TimestampLTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
-                OracleType::IntervalDS(_, _) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::IntervalYM(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::CLOB => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::NCLOB => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::BLOB => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::BFILE => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::RefCursor => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Boolean => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Object(_) => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Long => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::LongRaw => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Json => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Xml => SQLDataTypes::Varchar(val.get::<String>()?),
-                OracleType::Int64 => {
-                    let buff = val.get::<String>()?;
-                    if buff.contains(".") {
-                        SQLDataTypes::Float(val.get::<f64>()?)
-                    } else {
-                        SQLDataTypes::Number(val.get::<i64>()?)
-                    }
-                },
-                OracleType::UInt64 => {
-                    let buff = val.get::<String>()?;
-                    if buff.contains(".") {
-                        SQLDataTypes::Float(val.get::<f64>()?)
-                    } else {
-                        SQLDataTypes::Number(val.get::<i64>()?)
-                    }
-                },
-            })
+        Ok(match val.oracle_type()? {
+            OracleType::Varchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::NVarchar2(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Char(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::NChar(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Rowid => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Raw(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::BinaryFloat => SQLDataTypes::Float(val.get::<f64>()?),
+            OracleType::BinaryDouble => SQLDataTypes::Float(val.get::<f64>()?),
+            OracleType::Number(_, _) => {
+                let buff = val.get::<String>()?;
+                if buff.contains(".") {
+                    SQLDataTypes::Float(val.get::<f64>()?)
+                } else {
+                    SQLDataTypes::Number(val.get::<i64>()?)
+                }
+            }
+            OracleType::Float(_) => SQLDataTypes::Float(val.get::<f64>()?),
+            OracleType::Date => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+            OracleType::Timestamp(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+            OracleType::TimestampTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+            OracleType::TimestampLTZ(_) => SQLDataTypes::Date(val.get::<NaiveDateTime>()?),
+            OracleType::IntervalDS(_, _) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::IntervalYM(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::CLOB => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::NCLOB => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::BLOB => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::BFILE => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::RefCursor => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Boolean => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Object(_) => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Long => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::LongRaw => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Json => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Xml => SQLDataTypes::Varchar(val.get::<String>()?),
+            OracleType::Int64 => {
+                let buff = val.get::<String>()?;
+                if buff.contains(".") {
+                    SQLDataTypes::Float(val.get::<f64>()?)
+                } else {
+                    SQLDataTypes::Number(val.get::<i64>()?)
+                }
+            }
+            OracleType::UInt64 => {
+                let buff = val.get::<String>()?;
+                if buff.contains(".") {
+                    SQLDataTypes::Float(val.get::<f64>()?)
+                } else {
+                    SQLDataTypes::Number(val.get::<i64>()?)
+                }
+            }
+        })
     }
 }
 

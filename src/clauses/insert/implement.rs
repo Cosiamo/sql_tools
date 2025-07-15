@@ -1,4 +1,10 @@
-use crate::{variations::{oracle::insert::oracle_build_insert, sqlite::insert::{sqlite_build_insert, sqlite_build_insert_pb}}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    variations::{
+        oracle::insert::oracle_build_insert,
+        sqlite::insert::{sqlite_build_insert, sqlite_build_insert_pb},
+    },
+};
 
 use super::{InsertBuilder, InsertProps, InsertPropsFormatted};
 
@@ -20,19 +26,17 @@ impl InsertBuilder for InsertProps {
             }
         }
 
-        Ok(
-            InsertPropsFormatted {
-                insert_props: InsertProps {
-                    connect: self.connect,
-                    header: self.header,
-                    grid: self.grid,
-                    table: self.table,
-                    create: self.create,
-                }
-            }
-        )
+        Ok(InsertPropsFormatted {
+            insert_props: InsertProps {
+                connect: self.connect,
+                header: self.header,
+                grid: self.grid,
+                table: self.table,
+                create: self.create,
+            },
+        })
     }
-    
+
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLVariation::Oracle(_) => oracle_build_insert(self, false),
@@ -46,7 +50,7 @@ impl InsertBuilder for InsertProps {
             SQLVariation::SQLite(_) => sqlite_build_insert_pb(self),
         }
     }
-    
+
     fn create_table(mut self) -> Self {
         self.create = true;
         self

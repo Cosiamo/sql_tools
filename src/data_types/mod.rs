@@ -3,8 +3,8 @@ use core::fmt;
 use chrono::NaiveDateTime;
 
 pub mod implement;
-pub mod sqlite;
 pub mod oracle;
+pub mod sqlite;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SQLDataTypes {
@@ -31,7 +31,7 @@ impl fmt::Display for SQLDataTypes {
 ///
 /// Already implemented for `&[u8]`, `Vec<u8>`, `&str`, 'String', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64', and [`chrono::NaiveDateTime`], as well as, their Option<> variants
 ///
-/// To implement a local enum: 
+/// To implement a local enum:
 ///
 /// ```no_run
 /// enum MyEnum {
@@ -67,8 +67,8 @@ impl fmt::Display for SQLDataTypes {
 ///     }
 /// }
 /// ```
-/// 
-pub trait ToSQLData { 
-    fn fmt_data(self) -> SQLDataTypes; 
+///
+pub trait ToSQLData {
+    fn fmt_data(self) -> SQLDataTypes;
     fn fmt_data_borrowed(&self) -> SQLDataTypes;
 }

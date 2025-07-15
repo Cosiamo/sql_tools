@@ -1,8 +1,11 @@
 use oracle::Statement;
 
-use crate::{data_types::SQLDataTypes, Error};
+use crate::{Error, data_types::SQLDataTypes};
 
-pub(crate) fn stmt_res(mut stmt: Statement, column_size: usize) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+pub(crate) fn stmt_res(
+    mut stmt: Statement,
+    column_size: usize,
+) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let query = stmt.query(&[])?;
     let mut outer_vec = Vec::new();
     for v in query {

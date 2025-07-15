@@ -41,7 +41,7 @@ pub trait AlterBuilder {
 
 pub trait AlterTableBuilder {
     /// Adds a column(s) to a table.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let column = AlterColumns {
@@ -55,7 +55,7 @@ pub trait AlterTableBuilder {
     ///     .add(vec![column])
     ///     .build()?;
     /// ```
-    /// 
+    ///
     /// The same as:
     /// ```sql
     /// ALTER TABLE employees ADD title VARCHAR2(10) DEFAULT 'PMO' NOT NULL;
@@ -63,7 +63,7 @@ pub trait AlterTableBuilder {
     fn add(self, columns: Vec<AlterColumns>) -> Altered;
 
     /// Modifies a column(s) on a table.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// let column = AlterColumns {
@@ -77,7 +77,7 @@ pub trait AlterTableBuilder {
     ///     .modify(vec![column])
     ///     .build()?;
     /// ```
-    /// 
+    ///
     /// The same as:
     /// ```sql
     /// ALTER TABLE employees MODIFY title VARCHAR2(10) DEFAULT 'PMO' NOT NULL;
@@ -85,7 +85,7 @@ pub trait AlterTableBuilder {
     fn modify(self, columns: Vec<AlterColumns>) -> Altered;
 
     /// Drops a column from a table.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.alter()
@@ -93,7 +93,7 @@ pub trait AlterTableBuilder {
     ///     .drop("description")
     ///     .build()?;
     /// ```
-    /// 
+    ///
     /// The same as:
     /// ```sql
     /// ALTER TABLE sales DROP COLUMN description;
@@ -101,7 +101,7 @@ pub trait AlterTableBuilder {
     fn drop(self, column: &str) -> Altered;
 
     /// Renames a column from a table.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.alter()
@@ -109,7 +109,7 @@ pub trait AlterTableBuilder {
     ///     .rename_column("salesman", "employee")
     ///     .build()?;
     /// ```
-    /// 
+    ///
     /// The same as:
     /// ```sql
     /// ALTER TABLE sales RENAME COLUMN salesman TO employee;
@@ -117,7 +117,7 @@ pub trait AlterTableBuilder {
     fn rename_column(self, column: &str, new_name: &str) -> Altered;
 
     /// Renames a table.
-    /// 
+    ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.alter()
@@ -125,7 +125,7 @@ pub trait AlterTableBuilder {
     ///     .rename("regional_sales")
     ///     .build()?;
     /// ```
-    /// 
+    ///
     /// The same as:
     /// ```sql
     /// ALTER TABLE local_sales RENAME TO regional_sales;
