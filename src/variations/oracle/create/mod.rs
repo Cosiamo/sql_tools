@@ -1,6 +1,6 @@
 use crate::{
     Error, SQLVariation,
-    clauses::create::{CreateDataTypes, CreateTable},
+    statements::create::{CreateDataTypes, CreateTable},
 };
 
 pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {

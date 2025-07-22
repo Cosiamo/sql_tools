@@ -1,6 +1,6 @@
 use rusqlite::Connection;
 
-use crate::{Error, SQLVariation, clauses::update::UpdateProps, data_types::SQLDataTypes};
+use crate::{Error, SQLVariation, statements::update::UpdateProps, data_types::SQLDataTypes};
 
 pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
     let conn_info = match &update_set.connect {

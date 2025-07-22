@@ -1,6 +1,6 @@
 use crate::{
     Error, QueryBuilder, SQLVariation,
-    clauses::{
+    statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,

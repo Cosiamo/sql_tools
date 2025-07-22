@@ -1,6 +1,6 @@
 use crate::{
     Error, SQLVariation,
-    clauses::create::CreateDataTypes,
+    statements::create::CreateDataTypes,
     variations::{oracle::alter::alter, sqlite::alter::alter_sqlite},
 };
 

@@ -1,6 +1,6 @@
 use crate::{
     Error, SQLVariation,
-    clauses::where_clause::utils::where_clause_value_format,
+    statements::where_clause::utils::where_clause_value_format,
     data_types::ToSQLData,
     variations::{
         oracle::update::{batch_update_oracle, oracle_build_update},

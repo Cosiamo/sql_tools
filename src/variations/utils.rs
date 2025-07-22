@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-use crate::{clauses::insert::DatatypeIndices, data_types::SQLDataTypes};
+use crate::{statements::insert::DatatypeIndices, data_types::SQLDataTypes};
 
 pub(crate) fn get_dt_indices(data: &Vec<Vec<SQLDataTypes>>) -> DatatypeIndices {
     let mut is_varchar: Vec<usize> = Vec::new();

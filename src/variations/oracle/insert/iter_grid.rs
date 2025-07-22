@@ -4,7 +4,7 @@ use chrono::NaiveDateTime;
 use indicatif::ProgressBar;
 use oracle::Batch;
 
-use crate::{Error, clauses::insert::DatatypeIndices, data_types::SQLDataTypes};
+use crate::{Error, statements::insert::DatatypeIndices, data_types::SQLDataTypes};
 
 use super::sql_fmt::bind_cell_to_batch;
 

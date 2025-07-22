@@ -2,7 +2,7 @@ use std::thread::{self, JoinHandle};
 
 use rusqlite::Connection;
 
-use crate::{Error, SQLVariation, clauses::select::OrderBy, data_types::SQLDataTypes};
+use crate::{Error, SQLVariation, statements::select::OrderBy, data_types::SQLDataTypes};
 
 use super::SelectProps;
 

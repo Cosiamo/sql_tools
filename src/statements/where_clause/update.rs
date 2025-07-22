@@ -1,11 +1,11 @@
-use crate::{clauses::select::SelectProps, data_types::ToSQLData};
+use crate::{statements::update::UpdateProps, data_types};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 
-impl WhereClauseBuilder for SelectProps {
-    fn and<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+impl WhereClauseBuilder for UpdateProps {
+    fn and<T: data_types::ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let and = format!("{} IN ({})", column, value);
+        let and = format!("{column} IN ({value})");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} AND {and}")
         } else {
@@ -15,9 +15,9 @@ impl WhereClauseBuilder for SelectProps {
         self
     }
 
-    fn or<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+    fn or<T: data_types::ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let or = format!("{} IN ({})", column, value);
+        let or = format!("{column} IN ({value})");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} OR {or}")
         } else {
@@ -27,9 +27,9 @@ impl WhereClauseBuilder for SelectProps {
         self
     }
 
-    fn and_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+    fn and_not<T: data_types::ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let and = format!("{} NOT IN ({})", column, value);
+        let and = format!("{column} NOT IN ({value})");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} AND {and}")
         } else {
@@ -39,9 +39,9 @@ impl WhereClauseBuilder for SelectProps {
         self
     }
 
-    fn or_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+    fn or_not<T: data_types::ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
         let value = where_clause_value_format(values);
-        let or = format!("{} NOT IN ({})", column, value);
+        let or = format!("{column} NOT IN ({value})");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} OR {or}")
         } else {

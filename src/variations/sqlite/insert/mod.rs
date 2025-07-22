@@ -3,7 +3,7 @@ use rusqlite::Connection;
 
 use crate::{
     Error, QueryBuilder, SQLVariation,
-    clauses::{
+    statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
         select::SelectBuilder,
     },

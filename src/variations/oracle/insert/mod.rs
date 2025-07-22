@@ -10,7 +10,7 @@ use validation::{does_table_exist, get_col_indexes};
 
 use crate::{
     Error, QueryBuilder, SQLVariation,
-    clauses::create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
+    statements::create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
     data_types::SQLDataTypes,
     variations::utils::get_dt_indices,
 };

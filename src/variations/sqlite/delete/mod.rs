@@ -1,6 +1,6 @@
 use rusqlite::Connection;
 
-use crate::{Error, SQLVariation, clauses::delete::DeleteProps};
+use crate::{Error, SQLVariation, statements::delete::DeleteProps};
 
 pub fn sqlite_delete(props: DeleteProps) -> Result<(), Error> {
     let conn_info = match &props.connect {
