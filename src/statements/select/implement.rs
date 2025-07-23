@@ -8,9 +8,9 @@ use crate::{
 use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Grouped};
 
 impl SelectBuilder for SelectProps {
-    fn inner_join(mut self, table: Table, primary_column: &str, foreign_column: &str) -> Self {
+    fn inner_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
         let join = Joins {
-            table,
+            table: foreign_table,
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Inner,
@@ -19,9 +19,9 @@ impl SelectBuilder for SelectProps {
         self
     }
     
-    fn outer_join(mut self, table: Table, primary_column: &str, foreign_column: &str) -> Self {
+    fn outer_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
         let join = Joins {
-            table,
+            table: foreign_table,
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Outer,
@@ -30,9 +30,9 @@ impl SelectBuilder for SelectProps {
         self
     }
     
-    fn right_join(mut self, table: Table, primary_column: &str, foreign_column: &str) -> Self {
+    fn right_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
         let join = Joins {
-            table,
+            table: foreign_table,
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Right,
@@ -41,9 +41,9 @@ impl SelectBuilder for SelectProps {
         self
     }
     
-    fn left_join(mut self, table: Table, primary_column: &str, foreign_column: &str) -> Self {
+    fn left_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
         let join = Joins {
-            table,
+            table: foreign_table,
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Left,
