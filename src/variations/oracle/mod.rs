@@ -43,6 +43,7 @@ impl QueryBuilder for OracleConnect {
             connect: SQLVariation::Oracle(self.clone()),
             columns: fmt_cols,
             table: table.to_string(),
+            joins: None,
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,

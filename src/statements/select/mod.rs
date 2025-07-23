@@ -13,6 +13,7 @@ pub struct SelectProps {
     pub connect: SQLVariation,
     pub columns: Vec<String>,
     pub table: String,
+    pub joins: Option<Vec<Joins>>,
     pub clause: Option<String>,
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
@@ -35,6 +36,21 @@ pub struct Limit {
 #[derive(Debug)]
 pub struct Ordered {
     select: SelectProps,
+}
+
+#[derive(Debug)]
+pub struct Joins {
+    pub table: String, 
+    pub column: String, 
+    pub join_type: JoinType,
+}
+
+#[derive(Debug)]
+pub enum JoinType {
+    Inner, 
+    Outer,
+    Right,
+    Left,
 }
 
 pub trait SelectBuilder {

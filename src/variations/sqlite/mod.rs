@@ -66,6 +66,7 @@ impl QueryBuilder for SQLiteConnect {
             connect: SQLVariation::SQLite(self.clone()),
             columns: fmt_cols,
             table: table.to_string(),
+            joins: None,
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,
