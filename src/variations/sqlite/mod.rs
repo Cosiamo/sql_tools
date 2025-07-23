@@ -55,12 +55,18 @@ impl SQLiteConnect {
 
 impl QueryBuilder for SQLiteConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
+        let table = Table::new(table);
+
         let fmt_cols = columns
             .iter()
-            .map(|cols| cols.to_string())
+            .map(|cols| 
+                if cols.contains(".") || cols == &"*" {
+                    cols.to_string()
+                } else {
+                    format!("{}.{cols}", table.id)
+                }
+            )
             .collect::<Vec<String>>();
-
-        let table = Table::new(table);
 
         SelectProps {
             connect: SQLVariation::SQLite(self.clone()),
