@@ -46,9 +46,19 @@ pub enum SQLDataTypes {
 For the select method, you add the table you want to select from, then the columns in a vector. If you want to select all, simply input `vec!["*"]`. You can add a [where clause](#where) to filter out the rows you want, just like writing a SQL query.
 ```rust
 let conn = OracleConnect::new(connection_string, username, password)?;
+let foreign_table = Table { name: "national_sales" , id: "nat" }
 let data: Vec<Vec<SQLDataTypes>> = conn
-    .select("regional_sales", vec!["product_id", "revenue", "sale_date"])
+    .select("regional_sales", vec![ 
+        // columns from joined tables need an id associated with them
+        "nat.revenue as state_rev", 
+        // columns from the selected table do not
+        "revenue as city_rev", 
+        "city"
+        "sale_date",
+    ])
+    .inner_join(foreign_table, "product_id", "product_id")
     .where_in("product_id", vec!["1001", "4567"])
+    .and("nat.state", vec!["Texas"]) 
     .and_not("city", vec!["Austin", "Dallas"])
     .build()?;
 data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
