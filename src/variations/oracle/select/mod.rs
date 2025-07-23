@@ -171,9 +171,7 @@ pub(crate) fn oracle_build_single_thread_select(
         conn_info.password,
         conn_info.connection_string,
     )?;
-
-    println!("{}", query);
-
+    
     // ===== Run query =====
     let stmt = conn.statement(&query).build()?;
     stmt_res(stmt, select_props.columns.len())
