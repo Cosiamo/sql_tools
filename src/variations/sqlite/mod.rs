@@ -1,15 +1,12 @@
 use crate::{
-    Error, QueryBuilder, SQLVariation,
-    statements::{
+    data_types::{SQLDataTypes, ToSQLData}, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Limit, OrderBy, SelectBuilder, SelectProps},
+        select::{Limit, OrderBy, SelectBuilder, SelectProps, Table},
         update::UpdateInitialization,
-    },
-    data_types::{SQLDataTypes, ToSQLData},
-    utils::remove_invalid_chars,
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation
 };
 
 use super::SQLiteConnect;
@@ -62,11 +59,14 @@ impl QueryBuilder for SQLiteConnect {
             .iter()
             .map(|cols| cols.to_string())
             .collect::<Vec<String>>();
+
+        let table = Table::new(table);
+
         SelectProps {
             connect: SQLVariation::SQLite(self.clone()),
             columns: fmt_cols,
-            table: table.to_string(),
-            joins: None,
+            table,
+            joins: vec![],
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,

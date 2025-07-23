@@ -1,16 +1,12 @@
 use crate::{
-    Error, QueryBuilder, SQLVariation,
-    statements::{
+    data_types::{SQLDataTypes, ToSQLData}, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Limit, OrderBy, SelectProps},
+        select::{Limit, OrderBy, SelectProps, Table},
         update::UpdateInitialization,
-    },
-    data_types::{SQLDataTypes, ToSQLData},
-    utils::remove_invalid_chars,
-    variations::OracleConnect,
+    }, utils::remove_invalid_chars, variations::OracleConnect, Error, QueryBuilder, SQLVariation
 };
 
 pub mod alter;
@@ -39,11 +35,14 @@ impl QueryBuilder for OracleConnect {
             .iter()
             .map(|cols| cols.to_string())
             .collect::<Vec<String>>();
+
+        let table = Table::new(table);
+
         SelectProps {
             connect: SQLVariation::Oracle(self.clone()),
             columns: fmt_cols,
-            table: table.to_string(),
-            joins: None,
+            table,
+            joins: vec![],
             clause: None,
             order_by: (None, OrderBy::None),
             group_by: None,
