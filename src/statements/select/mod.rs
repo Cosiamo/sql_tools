@@ -12,11 +12,18 @@ pub mod implement;
 pub struct SelectProps {
     pub connect: SQLVariation,
     pub columns: Vec<String>,
-    pub table: String,
+    pub table: Table,
+    pub joins: Vec<Joins>,
     pub clause: Option<String>,
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
     pub limit: Limit,
+}
+
+#[derive(Debug)]
+pub struct Table {
+    pub name: String,
+    pub id: String,
 }
 
 #[derive(Debug)]
@@ -37,7 +44,31 @@ pub struct Ordered {
     select: SelectProps,
 }
 
+#[derive(Debug)]
+pub struct Joins {
+    pub table: Table, 
+    pub primary_column: String, 
+    pub foreign_column: String, 
+    pub join_type: JoinType,
+}
+
+#[derive(Debug)]
+pub enum JoinType {
+    Inner, 
+    Outer,
+    Right,
+    Left,
+}
+
 pub trait SelectBuilder {
+    fn inner_join(self, table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    
+    fn outer_join(self, table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    
+    fn right_join(self, table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    
+    fn left_join(self, table: Table, primary_column: &str, foreign_column: &str) -> Self;
+
     /// Adds a WHERE clause to your query.
     /// ```no_run
     /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
@@ -80,4 +111,17 @@ pub trait SelectBuilder {
 
     /// Builds the query only using one thread.
     fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
+}
+
+impl Table {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: String::from(name),
+            id: crate::utils::generate_id(5),
+        }
+    }
+
+    pub fn query_fmt(&self) -> String {
+        format!("{} {}", self.name, self.id)
+    }
 }
