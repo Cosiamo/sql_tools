@@ -20,19 +20,15 @@ pub(crate) fn build_select_sqlite_single_thread(
 
     let conn = Connection::open(&conn_info.path.clone())?;
 
-    let mut query = match &select_props.clause {
-        Some(filters) => format!(
-            "SELECT {} FROM {} WHERE {}",
-            &select_props.columns.join(", "),
-            &select_props.table,
-            filters
-        ),
-        None => format!(
-            "SELECT {} FROM {}",
-            &select_props.columns.join(", "),
-            &select_props.table
-        ),
-    };
+    // ===== Initialize Query =====
+    let mut query = format!(
+        "SELECT {} FROM {}",
+        &select_props.columns.join(", "),
+        &select_props.table
+    );
+
+    // ===== If filters =====
+    query = filters(&select_props, &query);
 
     // ===== Group By =====
     query = group_by(&select_props, &query);
@@ -40,12 +36,8 @@ pub(crate) fn build_select_sqlite_single_thread(
     // ===== Order By =====
     query = order_by(&select_props, &query)?;
 
-    if let Some(limit) = select_props.limit.limit {
-        query = format!("{} LIMIT {}", query, limit);
-        if let Some(offset) = select_props.limit.offset {
-            query = format!("{} OFFSET {}", query, offset)
-        }
-    };
+    // ===== Limit Offset =====
+    query = limit_offset(&select_props, query);
 
     let mut stmt = conn.prepare(&query)?;
     let mut rows = stmt.query([])?;
@@ -77,31 +69,17 @@ pub(crate) fn build_select_sqlite(
 
     let conn = Connection::open(&conn_info.path.clone())?;
 
-    let mut query: String;
+    // ===== Initialize Queries =====
+    let mut query = format!(
+        "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
+        &select_props.columns.join(", "),
+        &select_props.table
+    );
+    let mut count_sql= format!("SELECT COUNT(*) FROM {}", &select_props.table);
 
-    let count_sql: String;
-    match &select_props.clause {
-        Some(filters) => {
-            count_sql = format!(
-                "SELECT COUNT(*) FROM {} WHERE {}",
-                &select_props.table, &filters
-            );
-            query = format!(
-                "SELECT row_number() over (order by rowid) as rn, {} FROM {} WHERE {}",
-                &select_props.columns.join(", "),
-                &select_props.table,
-                filters
-            );
-        }
-        None => {
-            count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
-            query = format!(
-                "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
-                &select_props.columns.join(", "),
-                &select_props.table
-            );
-        }
-    }
+    // ===== If filters =====
+    query = filters(&select_props, &query);
+    count_sql = filters(&select_props, &count_sql);
 
     // ===== Group By =====
     query = group_by(&select_props, &query);
@@ -109,12 +87,8 @@ pub(crate) fn build_select_sqlite(
     // ===== Order By =====
     query = order_by(&select_props, &query)?;
 
-    if let Some(limit) = select_props.limit.limit {
-        query = format!("{} LIMIT {}", query, limit);
-        if let Some(offset) = select_props.limit.offset {
-            query = format!("{} OFFSET {}", query, offset)
-        }
-    };
+    // ===== Limit Offset =====
+    query = limit_offset(&select_props, query);
 
     let mut count: Option<usize> = None;
     let mut stmt = conn.prepare(&count_sql)?;
@@ -226,4 +200,14 @@ pub fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Er
         (Some(column), OrderBy::DESC) => Ok(format!("{} ORDER BY {} DESC", query, column)),
         (Some(_), OrderBy::None) => Ok(query.to_owned()),
     }
+}
+
+pub fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} LIMIT {}", query, limit);
+    }
+    if let Some(offset) = select_props.limit.offset {
+        query = format!("{} OFFSET {}", query, offset);
+    }
+    query
 }
