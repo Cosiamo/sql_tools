@@ -20,7 +20,7 @@ pub(crate) fn build_select_sqlite_single_thread(
 
     let conn = Connection::open(&conn_info.path.clone())?;
 
-    let mut query = match select_props.clause {
+    let mut query = match &select_props.clause {
         Some(filters) => format!(
             "SELECT {} FROM {} WHERE {}",
             &select_props.columns.join(", "),
@@ -34,20 +34,11 @@ pub(crate) fn build_select_sqlite_single_thread(
         ),
     };
 
-    query = if let Some(group_by) = select_props.group_by {
-        format!("{} GROUP BY {}", query, group_by.join(", "))
-    } else {
-        query
-    };
+    // ===== Group By =====
+    query = group_by(&select_props, &query);
 
-    match select_props.order_by {
-        (None, OrderBy::ASC) => return Err(Error::OrderByError),
-        (None, OrderBy::DESC) => return Err(Error::OrderByError),
-        (None, OrderBy::None) => query = query,
-        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
-        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
-        (Some(_), OrderBy::None) => query = query,
-    }
+    // ===== Order By =====
+    query = order_by(&select_props, &query)?;
 
     if let Some(limit) = select_props.limit.limit {
         query = format!("{} LIMIT {}", query, limit);
@@ -89,7 +80,7 @@ pub(crate) fn build_select_sqlite(
     let mut query: String;
 
     let count_sql: String;
-    match select_props.clause {
+    match &select_props.clause {
         Some(filters) => {
             count_sql = format!(
                 "SELECT COUNT(*) FROM {} WHERE {}",
@@ -111,20 +102,12 @@ pub(crate) fn build_select_sqlite(
             );
         }
     }
-    query = if let Some(group_by) = select_props.group_by {
-        format!("{} GROUP BY {}, rowid", query, group_by.join(", "))
-    } else {
-        query
-    };
 
-    match select_props.order_by {
-        (None, OrderBy::ASC) => return Err(Error::OrderByError),
-        (None, OrderBy::DESC) => return Err(Error::OrderByError),
-        (None, OrderBy::None) => query = query,
-        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
-        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
-        (Some(_), OrderBy::None) => query = query,
-    }
+    // ===== Group By =====
+    query = group_by(&select_props, &query);
+
+    // ===== Order By =====
+    query = order_by(&select_props, &query)?;
 
     if let Some(limit) = select_props.limit.limit {
         query = format!("{} LIMIT {}", query, limit);
@@ -216,4 +199,31 @@ pub(crate) fn build_select_sqlite(
     // res.iter().for_each(|c|{ println!("{:?}", c) });
 
     Ok(res)
+}
+
+pub fn filters(select_props: &SelectProps, query: &String) -> String {
+    if let Some(filters) =  &select_props.clause {
+        format!("{} WHERE {}", query, filters)
+    } else {
+        query.to_owned()
+    }
+}
+
+pub fn group_by(select_props: &SelectProps, query: &String) -> String {
+    if let Some(group_by) = &select_props.group_by {
+        format!("{} GROUP BY {}", query, group_by.join(", "))
+    } else {
+        query.to_owned()
+    }
+}
+
+pub fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Error> {
+    match &select_props.order_by {
+        (None, OrderBy::ASC) => return Err(Error::OrderByError),
+        (None, OrderBy::DESC) => return Err(Error::OrderByError),
+        (None, OrderBy::None) => Ok(query.to_owned()),
+        (Some(column), OrderBy::ASC) => Ok(format!("{} ORDER BY {} ASC", query, column)),
+        (Some(column), OrderBy::DESC) => Ok(format!("{} ORDER BY {} DESC", query, column)),
+        (Some(_), OrderBy::None) => Ok(query.to_owned()),
+    }
 }
