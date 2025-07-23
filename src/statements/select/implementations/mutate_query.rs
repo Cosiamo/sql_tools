@@ -44,6 +44,16 @@ pub fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Er
 }
 
 pub fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
+    if let Some(limit) = select_props.limit.limit {
+        query = format!("{} LIMIT {}", query, limit);
+    }
+    if let Some(offset) = select_props.limit.offset {
+        query = format!("{} OFFSET {}", query, offset);
+    }
+    query
+}
+
+pub fn limit_offset_oracle(select_props: &SelectProps, mut query: String) -> String {
     if let Some(offset) = select_props.limit.offset {
         query = format!("{} OFFSET {} ROWS", query, offset)
     }

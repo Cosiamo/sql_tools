@@ -2,13 +2,10 @@ use std::thread::{self, JoinHandle};
 
 use utils::stmt_res;
 
-use crate::{data_types::SQLDataTypes, variations::{oracle::select::{columns::get_column_names_oracle, mutate_query::{filters, group_by, join_operations, limit_offset, order_by}}, OracleConnect}, Error, SQLVariation};
-
-use super::SelectProps;
+use crate::{data_types::SQLDataTypes, statements::select::{implementations::{mutate_query::limit_offset_oracle, oracle::columns::get_column_names_oracle, shared_select_operations}, SelectProps}, variations::OracleConnect, Error, SQLVariation};
 
 pub mod utils;
 pub mod columns;
-pub mod mutate_query;
 
 pub(crate) fn oracle_build_select(
     mut select_props: SelectProps,
@@ -26,29 +23,12 @@ pub(crate) fn oracle_build_select(
     );
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table.query_fmt());
 
-    // ===== Joins =====
-    if &select_props.joins.len() > &0 {
-        query = join_operations(&select_props, query);
-    }
-    if &select_props.joins.len() > &0 {
-        count_sql = join_operations(&select_props, count_sql);
-    }
-
-    // ===== If filters =====
-    query = filters(&select_props, &query);
-    count_sql = filters(&select_props, &count_sql);
-
-    // ===== Group By =====
-    query = group_by(&select_props, &query);
-    count_sql = group_by(&select_props, &count_sql);
-
-    // ===== Order By =====
-    query = order_by(&select_props, &query)?;
-    count_sql = order_by(&select_props, &count_sql)?;
+    query = shared_select_operations(&select_props, query)?;
+    count_sql = shared_select_operations(&select_props, count_sql)?;
 
     // ===== Limit Offset =====
-    query = limit_offset(&select_props, query);
-    count_sql = limit_offset(&select_props, count_sql);
+    query = limit_offset_oracle(&select_props, query);
+    count_sql = limit_offset_oracle(&select_props, count_sql);
 
     // ===== Initialize connection =====
     let conn_info = extract_connection(&select_props.connect)?;
@@ -147,22 +127,10 @@ pub(crate) fn oracle_build_single_thread_select(
         &select_props.table.query_fmt()
     );
 
-    // ===== Joins =====
-    if &select_props.joins.len() > &0 {
-        query = join_operations(&select_props, query);
-    }
-
-    // ===== If filters =====
-    query = filters(&select_props, &query);
-
-    // ===== Group By =====
-    query = group_by(&select_props, &query);
-
-    // ===== Order By =====
-    query = order_by(&select_props, &query)?;
+    query = shared_select_operations(&select_props, query)?;
 
     // ===== Limit Offset =====
-    query = limit_offset(&select_props, query);
+    query = limit_offset_oracle(&select_props, query);
 
     // ===== Initialize connection =====
     let conn_info = extract_connection(&select_props.connect)?;
