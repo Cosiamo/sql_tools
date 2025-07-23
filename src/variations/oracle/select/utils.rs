@@ -1,6 +1,6 @@
 use oracle::Statement;
 
-use crate::{Error, data_types::SQLDataTypes};
+use crate::{data_types::SQLDataTypes, Error};
 
 pub(crate) fn stmt_res(
     mut stmt: Statement,
