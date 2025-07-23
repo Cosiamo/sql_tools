@@ -2,111 +2,62 @@ use std::thread::{self, JoinHandle};
 
 use utils::stmt_res;
 
-use crate::{Error, SQLVariation, data_types::SQLDataTypes};
+use crate::{data_types::SQLDataTypes, variations::{oracle::select::{columns::get_column_names_oracle, mutate_query::{filters, group_by, limit_offset, order_by}}, OracleConnect}, Error, SQLVariation};
 
-use super::{OrderBy, SelectProps};
+use super::SelectProps;
 
 pub mod utils;
-
-pub(crate) fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<String>, Error> {
-    let conn_info = match &select_props.connect {
-        SQLVariation::Oracle(connect) => connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
-    let sql = format!(
-        "SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'",
-        select_props.table.to_ascii_uppercase()
-    );
-    let conn: oracle::Connection = oracle::Connection::connect(
-        conn_info.username.clone(),
-        conn_info.password.clone(),
-        conn_info.connection_string.clone(),
-    )?;
-
-    let mut header: Vec<String> = Vec::new();
-    let rows = conn.query(&sql, &[])?;
-    for row_result in rows {
-        let row = row_result?;
-        for val in row.sql_values() {
-            let res = val.get()?;
-            header.push(res)
-        }
-    }
-    Ok(header)
-}
+pub mod columns;
+pub mod mutate_query;
 
 pub(crate) fn oracle_build_select(
     mut select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let conn_info = match select_props.connect {
-        SQLVariation::Oracle(ref connect) => connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
-
+    // ===== Get all column names =====
     if select_props.columns == vec!["*".to_string()] {
         select_props.columns = get_column_names_oracle(&select_props)?;
     }
 
-    let mut query: String;
+    // ===== Initialize Queries =====
+    let mut query = format!(
+        "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
+        &select_props.columns.join(", "),
+        &select_props.table
+    );
 
-    let count_sql: String;
-    match select_props.clause {
-        Some(filters) => {
-            count_sql = format!(
-                "SELECT COUNT(*) FROM {} WHERE {}",
-                &select_props.table, &filters
-            );
-            query = format!(
-                "SELECT row_number() over (order by rowid) as rn, {} FROM {} WHERE {}",
-                &select_props.columns.join(", "),
-                &select_props.table,
-                filters
-            );
-        }
-        None => {
-            count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
-            query = format!(
-                "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
-                &select_props.columns.join(", "),
-                &select_props.table
-            );
-        }
-    }
-    query = if let Some(group_by) = select_props.group_by {
-        format!("{} GROUP BY {}, rowid", query, group_by.join(", "))
-    } else {
-        query
-    };
+    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
 
-    match select_props.order_by {
-        (None, OrderBy::ASC) => return Err(Error::OrderByError),
-        (None, OrderBy::DESC) => return Err(Error::OrderByError),
-        (None, OrderBy::None) => query = query,
-        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
-        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
-        (Some(_), OrderBy::None) => query = query,
-    }
+    // ===== If filters =====
+    query = filters(&select_props, &query);
+    count_sql = filters(&select_props, &count_sql);
 
-    if let Some(offset) = select_props.limit.offset {
-        query = format!("{} OFFSET {} ROWS", query, offset)
-    }
-    if let Some(limit) = select_props.limit.limit {
-        query = format!("{} FETCH NEXT {} ONLY", query, limit);
-    };
+    // ===== Group By =====
+    query = group_by(&select_props, &query);
 
-    let mut count: Option<usize> = None;
+    // ===== Order By =====
+    query = order_by(&select_props, &query)?;
+
+    // ===== Limit Offset =====
+    query = limit_offset(&select_props, query);
+
+    // ===== Initialize connection =====
+    let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
         &conn_info.username,
         &conn_info.password,
         &conn_info.connection_string,
-    )
-    .unwrap();
+    )?;
+
+    // ===== Get number of rows =====
+    let mut count: Option<usize> = None;
     let count_query = conn.query(&count_sql, &[])?;
     for res in count_query {
         let row = res?;
-        count = Some(row.get_as::<usize>()?);
+        // might change get_as type to Option<usize>
+        count = row.get_as::<Option<usize>>()?;
     }
 
+    // ===== Multi-threading functionality =====
     let len: usize = if let Some(val) = count {
         val
     } else {
@@ -141,11 +92,11 @@ pub(crate) fn oracle_build_select(
         // println!("{:?}", stmt);
         let username = conn_info.username.to_owned();
         let password = conn_info.password.to_owned();
-        let connection_string = conn_info.connection_string.to_owned();
+        let connect_string = conn_info.connection_string.to_owned();
 
         handles.push(thread::spawn(move || {
             let conn: oracle::Connection =
-                oracle::Connection::connect(username, password, connection_string).unwrap();
+                oracle::Connection::connect(username, password, connect_string)?;
             let stmt = conn.statement(&stmt).build()?;
             stmt_res(stmt, col_len)
         }));
@@ -172,54 +123,48 @@ pub(crate) fn oracle_build_select(
 }
 
 pub(crate) fn oracle_build_single_thread_select(
-    select_props: SelectProps,
+    mut select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let conn_info = match select_props.connect {
-        SQLVariation::Oracle(oracle_connect) => oracle_connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
-    let mut query = match select_props.clause {
-        Some(filters) => format!(
-            "SELECT {} FROM {} WHERE {}",
-            &select_props.columns.join(", "),
-            &select_props.table,
-            filters
-        ),
-        None => format!(
-            "SELECT {} FROM {}",
-            &select_props.columns.join(", "),
-            &select_props.table
-        ),
-    };
-
-    query = if let Some(group_by) = select_props.group_by {
-        format!("{} GROUP BY {}", query, group_by.join(", "))
-    } else {
-        query
-    };
-
-    match select_props.order_by {
-        (None, OrderBy::ASC) => return Err(Error::OrderByError),
-        (None, OrderBy::DESC) => return Err(Error::OrderByError),
-        (None, OrderBy::None) => query = query,
-        (Some(column), OrderBy::ASC) => query = format!("{} ORDER BY {} ASC", query, column),
-        (Some(column), OrderBy::DESC) => query = format!("{} ORDER BY {} DESC", query, column),
-        (Some(_), OrderBy::None) => query = query,
+    // ===== Get all column names =====
+    if select_props.columns == vec!["*".to_string()] {
+        select_props.columns = get_column_names_oracle(&select_props)?;
     }
 
-    if let Some(offset) = select_props.limit.offset {
-        query = format!("{} OFFSET {} ROWS", query, offset)
-    }
-    if let Some(limit) = select_props.limit.limit {
-        query = format!("{} FETCH NEXT {} ONLY", query, limit);
-    };
+    // ===== Initialize query =====
+    let mut query = format!(
+        "SELECT {} FROM {}",
+        &select_props.columns.join(", "),
+        &select_props.table
+    );
 
+    // ===== If filters =====
+    query = filters(&select_props, &query);
+
+    // ===== Group By =====
+    query = group_by(&select_props, &query);
+
+    // ===== Order By =====
+    query = order_by(&select_props, &query)?;
+
+    // ===== Limit Offset =====
+    query = limit_offset(&select_props, query);
+
+    // ===== Initialize connection =====
+    let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
         conn_info.username,
         conn_info.password,
         conn_info.connection_string,
-    )
-    .unwrap();
+    )?;
+
+    // ===== Run query =====
     let stmt = conn.statement(&query).build()?;
     stmt_res(stmt, select_props.columns.len())
+}
+
+fn extract_connection(connect: &SQLVariation) -> Result<OracleConnect, Error> {
+    match connect {
+        SQLVariation::Oracle(oracle_connect) => Ok(oracle_connect.to_owned()),
+        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+    }
 }
