@@ -1,8 +1,8 @@
-use std::thread::{self, JoinHandle};
+use std::sync::Arc;
 
 use rusqlite::Connection;
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::{mutate_query::limit_offset, shared_select_operations}, SelectProps}, Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations}, SelectProps}, Error, SQLVariation};
 
 pub(crate) fn build_select_sqlite(
     mut select_props: SelectProps,
@@ -45,76 +45,32 @@ pub(crate) fn build_select_sqlite(
         }
     }
 
-    let len: usize = if let Some(val) = count {
-        val
-    } else {
-        return Err(Error::CountError);
+    multithread_execution(sqlite_handle_execution, select_props, query, count)
+}
+
+pub fn sqlite_handle_execution(
+    select_props: Arc<SelectProps>, 
+    stmt: String, 
+    col_len: usize
+) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+    let path = match &select_props.connect {
+        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLVariation::SQLite(connect) => &connect.path,
     };
-    let nthreads = num_cpus::get();
-    let num = (len / nthreads + if len % nthreads == 0 { 0 } else { 1 }) as f32;
-
-    let mut handles: Vec<JoinHandle<Result<Vec<Vec<Box<SQLDataTypes>>>, Error>>> = Vec::new();
-
-    let mut c: usize = 0;
-    let mut prev: usize = 0;
-
-    let col_len = select_props.columns.len() + 1;
-
-    for n in 0..nthreads {
-        let start: usize;
-        if n == 0 {
-            start = 1
-        } else {
-            start = prev + 1
+    let conn = Connection::open(path.clone())?;
+    let mut stmt = conn.prepare(&stmt)?;
+    let mut rows = stmt.query([])?;
+    let mut res = Vec::new();
+    while let Some(row) = rows.next()? {
+        // let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
+        //     row.get::<usize, SQLDataTypes>(idx).unwrap()
+        // }).collect::<Vec<SQLDataTypes>>();
+        let mut p = Vec::new();
+        for idx in 0..col_len {
+            p.push(Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
         }
-        let mut end = (c + 1) * num.ceil() as usize;
-        if end > len {
-            end = len
-        }
-        // println!("Start:{}  End:{}", start, end);
-        let sql = format!(
-            "SELECT * FROM ({}) WHERE rn >= {} and rn <= {}",
-            query, start, end
-        );
-        // println!("{:?}", stmt);
-        let path = conn_info.path.to_owned();
-
-        handles.push(thread::spawn(move || {
-            let conn = Connection::open(path.clone())?;
-            let mut stmt = conn.prepare(&sql)?;
-            let mut rows = stmt.query([])?;
-            let mut res = Vec::new();
-            while let Some(row) = rows.next()? {
-                // let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
-                //     row.get::<usize, SQLDataTypes>(idx).unwrap()
-                // }).collect::<Vec<SQLDataTypes>>();
-                let mut p = Vec::new();
-                for idx in 0..col_len {
-                    p.push(Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
-                }
-                res.push(p)
-            }
-            Ok(res)
-        }));
-        prev = end;
-        c += 1;
+        res.push(p)
     }
-
-    let mut group = Vec::new();
-    for handle in handles {
-        let mut handle = handle.join().unwrap()?;
-        let res = handle
-            .iter_mut()
-            .map(|row| {
-                let _ = row.remove(0);
-                row.to_owned()
-            })
-            .collect::<Vec<Vec<Box<SQLDataTypes>>>>();
-        group.push(res);
-    }
-    let res = group.concat();
-    // res.iter().for_each(|c|{ println!("{:?}", c) });
-
     Ok(res)
 }
 
