@@ -3,6 +3,7 @@
         "chrono",
         "cpus",
         "fromsql",
+        "nthread",
         "nthreads",
         "oratype",
         "rowid",

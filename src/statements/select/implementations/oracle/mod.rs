@@ -1,10 +1,8 @@
-use std::sync::Arc;
+use execution::stmt_res;
 
-use utils::stmt_res;
+use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset_oracle, oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution}, shared_select_operations}, SelectProps}, variations::OracleConnect, Error, SQLVariation};
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset_oracle, oracle::columns::get_column_names_oracle, shared_select_operations}, SelectProps}, variations::OracleConnect, Error, SQLVariation};
-
-pub mod utils;
+pub mod execution;
 pub mod columns;
 
 pub(crate) fn oracle_build_select(
@@ -17,12 +15,15 @@ pub(crate) fn oracle_build_select(
 
     // ===== Initialize Queries =====
     let mut query = format!(
-        "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
+        "SELECT row_number() over (order by {}.rowid) as row_num, {} FROM {}",
+        &select_props.table.id,
         &select_props.columns.join(", "),
         &select_props.table.query_fmt()
     );
+
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table.query_fmt());
 
+    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
     count_sql = shared_select_operations(&select_props, count_sql)?;
 
@@ -51,14 +52,6 @@ pub(crate) fn oracle_build_select(
     multithread_execution(oracle_handle_execution, select_props, query, count)
 }
 
-pub fn oracle_handle_execution(select_props: Arc<SelectProps>, stmt: String, col_len: usize) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    // println!("{stmt}");
-    let conn_info = extract_connection(&select_props.connect)?;
-    let conn: oracle::Connection = oracle::Connection::connect(conn_info.username, conn_info.password, conn_info.connection_string)?;
-    let stmt = conn.statement(&stmt).build()?;
-    stmt_res(stmt, col_len)
-}
-
 pub(crate) fn oracle_build_single_thread_select(
     mut select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
@@ -74,6 +67,7 @@ pub(crate) fn oracle_build_single_thread_select(
         &select_props.table.query_fmt()
     );
 
+    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
 
     // ===== Limit Offset =====

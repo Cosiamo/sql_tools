@@ -1,8 +1,8 @@
-use std::sync::Arc;
-
 use rusqlite::Connection;
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations}, SelectProps}, Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution}, SelectProps}, Error, SQLVariation};
+
+pub mod execution;
 
 pub(crate) fn build_select_sqlite(
     mut select_props: SelectProps,
@@ -20,12 +20,13 @@ pub(crate) fn build_select_sqlite(
 
     // ===== Initialize Queries =====
     let mut query = format!(
-        "SELECT row_number() over (order by rowid) as rn, {} FROM {}",
+        "SELECT row_number() over (order by rowid) as row_num, {} FROM {}",
         &select_props.columns.join(", "),
         &select_props.table.query_fmt()
     );
     let mut count_sql= format!("SELECT COUNT(*) FROM {}", &select_props.table.query_fmt());
     
+    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
     count_sql = shared_select_operations(&select_props, count_sql)?;
     
@@ -46,32 +47,6 @@ pub(crate) fn build_select_sqlite(
     }
 
     multithread_execution(sqlite_handle_execution, select_props, query, count)
-}
-
-pub fn sqlite_handle_execution(
-    select_props: Arc<SelectProps>, 
-    stmt: String, 
-    col_len: usize
-) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let path = match &select_props.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => &connect.path,
-    };
-    let conn = Connection::open(path.clone())?;
-    let mut stmt = conn.prepare(&stmt)?;
-    let mut rows = stmt.query([])?;
-    let mut res = Vec::new();
-    while let Some(row) = rows.next()? {
-        // let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
-        //     row.get::<usize, SQLDataTypes>(idx).unwrap()
-        // }).collect::<Vec<SQLDataTypes>>();
-        let mut p = Vec::new();
-        for idx in 0..col_len {
-            p.push(Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
-        }
-        res.push(p)
-    }
-    Ok(res)
 }
 
 pub(crate) fn build_select_sqlite_single_thread(
@@ -95,6 +70,7 @@ pub(crate) fn build_select_sqlite_single_thread(
         &select_props.table.query_fmt()
     );
     
+    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
 
     // ===== Limit Offset =====

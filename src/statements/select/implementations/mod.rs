@@ -4,7 +4,7 @@ use crate::{data_types::SQLDataTypes, statements::select::{implementations::muta
 
 pub mod oracle;
 pub mod sqlite;
-pub mod mutate_query;
+pub(crate) mod mutate_query;
 
 pub(crate) fn shared_select_operations(
     select_props: &SelectProps, 
@@ -30,53 +30,48 @@ pub(crate) fn shared_select_operations(
 pub(crate) fn multithread_execution(
     handle_execution: fn (
         select_props: Arc<SelectProps>, 
-        stmt: String, 
-        col_len: usize
+        sql: String,
     ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>,
     select_props: SelectProps, 
     query: String, 
     count: Option<usize>,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let len: usize = if let Some(val) = count {
+    // ===== Get length of data then divide by number of threads =====
+    let data_length: usize = if let Some(val) = count {
         val
     } else {
         return Err(Error::CountError);
     };
     let nthreads = num_cpus::get();
-    let num = (len / nthreads + if len % nthreads == 0 { 0 } else { 1 }) as f32;
+    let num = (data_length / nthreads + if data_length % nthreads == 0 { 0 } else { 1 }) as f32;
 
+    // ===== Initializing a Vec<JoinHandle> & Arc<SelectProps> for thread safety =====
     let mut handles: Vec<JoinHandle<Result<Vec<Vec<Box<SQLDataTypes>>>, Error>>> = Vec::new();
-
-    let mut c: usize = 0;
-    let mut prev: usize = 0;
-
-    let col_len = select_props.columns.len() + 1;
     let select_props = Arc::new(select_props);
+    
+    let mut iteration: usize = 0; // what thread number the loop is on
+    let mut prev: usize = 0; // The previous thread's "end" number
 
-    for n in 0..nthreads {
+    for nthread in 0..nthreads {
         let start: usize;
-        if n == 0 {
+        if nthread == 0 {
             start = 1
         } else {
             start = prev + 1
         }
-        let mut end = (c + 1) * num.ceil() as usize;
-        if end > len {
-            end = len
+        let mut end = (iteration + 1) * num.ceil() as usize;
+        if end > data_length {
+            end = data_length
         }
-        // println!("Start:{}  End:{}", start, end);
-        let stmt = format!(
-            "SELECT * FROM ({}) WHERE rn >= {} and rn <= {}",
-            query, start, end
-        );
-        // println!("{:?}", stmt);
+
+        let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
+        // println!("{}", stmt);
         let select_props = Arc::clone(&select_props);
 
-        handles.push(thread::spawn(move || {
-            handle_execution(select_props, stmt, col_len)
-        }));
+        handles.push(thread::spawn(move || { handle_execution(select_props, sql) }));
+
         prev = end;
-        c += 1;
+        iteration += 1;
     }
 
     let mut group = Vec::new();
@@ -85,7 +80,7 @@ pub(crate) fn multithread_execution(
         let res = handle
             .iter_mut()
             .map(|row| {
-                let _ = row.remove(0);
+                let _ = row.remove(0); // removing "row_num" from the results
                 row.to_owned()
             })
             .collect::<Vec<Vec<Box<SQLDataTypes>>>>();
