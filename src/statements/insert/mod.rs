@@ -2,6 +2,7 @@ use crate::{Error, SQLVariation, data_types::SQLDataTypes};
 
 pub mod data_conversion;
 pub mod implement;
+pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct InsertProps {

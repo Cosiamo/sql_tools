@@ -14,7 +14,6 @@ use super::SQLiteConnect;
 pub mod alter;
 pub mod create;
 pub mod delete;
-pub mod insert;
 
 impl SQLiteConnect {
     pub fn new_path(path: &str) -> Self {

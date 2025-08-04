@@ -1,10 +1,6 @@
-use crate::{
-    Error, SQLVariation,
-    variations::{
-        oracle::insert::oracle_build_insert,
-        sqlite::insert::{sqlite_build_insert, sqlite_build_insert_pb},
-    },
-};
+
+
+use crate::{statements::insert::sql_implementations::{oracle::oracle_build_insert, sqlite::{sqlite_build_insert, sqlite_build_insert_pb}}, Error, SQLVariation};
 
 use super::{InsertBuilder, InsertProps, InsertPropsFormatted};
 
