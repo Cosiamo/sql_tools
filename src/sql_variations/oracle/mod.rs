@@ -6,7 +6,7 @@ use crate::{
         insert::InsertProps,
         select::{Limit, OrderBy, SelectProps, Table},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, variations::OracleConnect, Error, QueryBuilder, SQLVariation
+    }, utils::remove_invalid_chars, sql_variations::OracleConnect, Error, QueryBuilder, SQLVariation
 };
 
 impl OracleConnect {

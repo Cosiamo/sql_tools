@@ -1,4 +1,4 @@
-use crate::{Error, variations::OracleConnect};
+use crate::{Error, sql_variations::OracleConnect};
 
 pub(crate) fn alter_oracle(connect: OracleConnect, query: String) -> Result<(), Error> {
     let conn: oracle::Connection = oracle::Connection::connect(
