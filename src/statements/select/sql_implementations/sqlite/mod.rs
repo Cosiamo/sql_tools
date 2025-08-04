@@ -1,6 +1,6 @@
 use rusqlite::Connection;
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution}, SelectProps}, Error, SQLVariation};
+use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution}, SelectProps}, Error, SQLVariation};
 
 pub mod execution;
 

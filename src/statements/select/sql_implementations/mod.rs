@@ -1,6 +1,6 @@
 use std::{sync::Arc, thread::{self, JoinHandle}};
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::mutate_query::{filters, group_by, join_operations, order_by}, SelectProps}, Error};
+use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::mutate_query::{filters, group_by, join_operations, order_by}, SelectProps}, Error};
 
 pub mod oracle;
 pub mod sqlite;

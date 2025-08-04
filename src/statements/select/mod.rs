@@ -7,7 +7,7 @@ use crate::{
 
 pub mod group_by;
 pub mod implement;
-pub mod implementations;
+pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct SelectProps {

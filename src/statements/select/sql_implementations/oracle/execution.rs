@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use oracle::Statement;
 
-use crate::{data_types::SQLDataTypes, statements::select::{implementations::oracle::extract_connection, SelectProps}, Error};
+use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::oracle::extract_connection, SelectProps}, Error};
 
 pub(crate) fn oracle_handle_execution(
     select_props: Arc<SelectProps>, 
