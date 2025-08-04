@@ -11,13 +11,6 @@ use crate::{
 
 use super::SQLiteConnect;
 
-pub mod alter;
-pub mod create;
-pub mod delete;
-pub mod insert;
-pub mod select;
-pub mod update;
-
 impl SQLiteConnect {
     pub fn new_path(path: &str) -> Self {
         SQLiteConnect {

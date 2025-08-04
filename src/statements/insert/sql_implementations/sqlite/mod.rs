@@ -2,16 +2,11 @@ use indicatif::ProgressBar;
 use rusqlite::Connection;
 
 use crate::{
-    Error, QueryBuilder, SQLVariation,
-    statements::{
-        create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
-        select::SelectBuilder,
-    },
-    data_types::SQLDataTypes,
-    variations::{SQLiteConnect, oracle::insert::validation::get_col_indexes},
+    data_types::SQLDataTypes, statements::{
+        create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, insert::{sql_implementations::oracle::validation::get_col_indexes, InsertProps}, select::SelectBuilder
+    }, variations::SQLiteConnect, Error, QueryBuilder, SQLVariation
 };
 
-use super::InsertProps;
 
 pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match &insert_props.connect {

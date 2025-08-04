@@ -1,6 +1,7 @@
 use crate::{Error, SQLVariation};
 
 pub mod implement;
+pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct CreateTable {
