@@ -1,4 +1,4 @@
-use crate::{statements::select::SelectProps, Error, SQLVariation};
+use crate::{Error, SQLVariation, statements::select::SelectProps};
 
 pub(crate) fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<String>, Error> {
     let conn_info = match &select_props.connect {
@@ -22,7 +22,7 @@ pub(crate) fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<
         for val in row.sql_values() {
             let res = val.get::<String>()?;
             let col_id = format!("{}.{res}", select_props.table.id);
-            header.push(col_id) 
+            header.push(col_id)
         }
     }
     Ok(header)

@@ -1,6 +1,16 @@
 use rusqlite::Connection;
 
-use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::{multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution}, SelectProps}, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    data_types::SQLDataTypes,
+    statements::select::{
+        SelectProps,
+        sql_implementations::{
+            multithread_execution, mutate_query::limit_offset, shared_select_operations,
+            sqlite::execution::sqlite_handle_execution,
+        },
+    },
+};
 
 pub mod execution;
 
@@ -24,12 +34,12 @@ pub(crate) fn build_select_sqlite(
         &select_props.columns.join(", "),
         &select_props.table.query_fmt()
     );
-    let mut count_sql= format!("SELECT COUNT(*) FROM {}", &select_props.table.query_fmt());
-    
+    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table.query_fmt());
+
     // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
     count_sql = shared_select_operations(&select_props, count_sql)?;
-    
+
     // ===== Limit Offset =====
     query = limit_offset(&select_props, query);
     count_sql = limit_offset(&select_props, count_sql);
@@ -69,7 +79,7 @@ pub(crate) fn build_select_sqlite_single_thread(
         &select_props.columns.join(", "),
         &select_props.table.query_fmt()
     );
-    
+
     // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
 

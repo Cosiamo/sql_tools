@@ -2,14 +2,22 @@ use std::sync::Arc;
 
 use oracle::Statement;
 
-use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::oracle::extract_connection, SelectProps}, Error};
+use crate::{
+    Error,
+    data_types::SQLDataTypes,
+    statements::select::{SelectProps, sql_implementations::oracle::extract_connection},
+};
 
 pub(crate) fn oracle_handle_execution(
-    select_props: Arc<SelectProps>, 
-    sql: String
+    select_props: Arc<SelectProps>,
+    sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = extract_connection(&select_props.connect)?;
-    let conn = oracle::Connection::connect(conn_info.username, conn_info.password, conn_info.connection_string)?;
+    let conn = oracle::Connection::connect(
+        conn_info.username,
+        conn_info.password,
+        conn_info.connection_string,
+    )?;
     let stmt = conn.statement(&sql).build()?;
     let column_size = select_props.columns.len() + 1;
     stmt_res(stmt, column_size)

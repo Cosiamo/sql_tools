@@ -1,12 +1,16 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, statements::{
+    Error, QueryBuilder, SQLVariation,
+    data_types::{SQLDataTypes, ToSQLData},
+    sql_variations::OracleConnect,
+    statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
         select::{Limit, OrderBy, SelectProps, Table},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, sql_variations::OracleConnect, Error, QueryBuilder, SQLVariation
+    },
+    utils::remove_invalid_chars,
 };
 
 impl OracleConnect {
@@ -28,13 +32,13 @@ impl QueryBuilder for OracleConnect {
 
         let fmt_cols = columns
             .iter()
-            .map(|cols| 
+            .map(|cols| {
                 if cols.contains(".") || cols == &"*" {
                     cols.to_string()
                 } else {
                     format!("{}.{cols}", table.id)
                 }
-            )
+            })
             .collect::<Vec<String>>();
 
         SelectProps {

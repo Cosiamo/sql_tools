@@ -1,5 +1,8 @@
 use crate::{
-    statements::create::sql_implementations::{oracle::oracle_build_create_table, sqlite::sqlite_build_create_table}, Error, SQLVariation
+    Error, SQLVariation,
+    statements::create::sql_implementations::{
+        oracle::oracle_build_create_table, sqlite::sqlite_build_create_table,
+    },
 };
 
 use super::{CreateColumns, CreateDataTypes, CreateProps, CreateTable, ModifyCreateTable};

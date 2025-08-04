@@ -1,4 +1,4 @@
-use crate::{statements::delete::DeleteProps, data_types::ToSQLData};
+use crate::{data_types::ToSQLData, statements::delete::DeleteProps};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 

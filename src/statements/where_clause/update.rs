@@ -1,4 +1,4 @@
-use crate::{statements::update::UpdateProps, data_types};
+use crate::{data_types, statements::update::UpdateProps};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 

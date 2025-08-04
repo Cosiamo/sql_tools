@@ -1,5 +1,13 @@
 use crate::{
-    data_types::ToSQLData, statements::{update::sql_implementations::{oracle::{batch_update_oracle, oracle_build_update}, sqlite::{batch_update_sqlite, sqlite_build_update}}, where_clause::utils::where_clause_value_format}, Error, SQLVariation
+    Error, SQLVariation,
+    data_types::ToSQLData,
+    statements::{
+        update::sql_implementations::{
+            oracle::{batch_update_oracle, oracle_build_update},
+            sqlite::{batch_update_sqlite, sqlite_build_update},
+        },
+        where_clause::utils::where_clause_value_format,
+    },
 };
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};

@@ -1,4 +1,7 @@
-use crate::{statements::select::{JoinType, OrderBy, SelectProps}, Error};
+use crate::{
+    Error,
+    statements::select::{JoinType, OrderBy, SelectProps},
+};
 
 pub fn join_operations(select_props: &SelectProps, mut query: String) -> String {
     for join in &select_props.joins {
@@ -11,13 +14,14 @@ pub fn join_operations(select_props: &SelectProps, mut query: String) -> String 
         let join_table = join.table.query_fmt();
         let primary_column = format!("{}.{}", select_props.table.id, join.primary_column);
         let foreign_column = format!("{}.{}", join.table.id, join.foreign_column);
-        query = format!("{query} {join_type} JOIN {join_table} ON {primary_column} = {foreign_column}");
+        query =
+            format!("{query} {join_type} JOIN {join_table} ON {primary_column} = {foreign_column}");
     }
     query
 }
 
 pub fn filters(select_props: &SelectProps, query: &String) -> String {
-    if let Some(filters) =  &select_props.clause {
+    if let Some(filters) = &select_props.clause {
         format!("{} WHERE {}", query, filters)
     } else {
         query.to_owned()

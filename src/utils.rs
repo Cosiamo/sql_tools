@@ -1,7 +1,9 @@
-use std::iter;
 use rand::Rng;
+use std::iter;
 
-use crate::{Error, QueryBuilder, statements::select::SelectBuilder, sql_variations::OracleConnect};
+use crate::{
+    Error, QueryBuilder, sql_variations::OracleConnect, statements::select::SelectBuilder,
+};
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
     input

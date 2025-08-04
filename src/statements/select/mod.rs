@@ -47,15 +47,15 @@ pub struct Ordered {
 
 #[derive(Debug)]
 pub struct Joins {
-    pub table: Table, 
-    pub primary_column: String, 
-    pub foreign_column: String, 
+    pub table: Table,
+    pub primary_column: String,
+    pub foreign_column: String,
     pub join_type: JoinType,
 }
 
 #[derive(Debug)]
 pub enum JoinType {
-    Inner, 
+    Inner,
     Outer,
     Right,
     Left,
@@ -63,7 +63,7 @@ pub enum JoinType {
 
 pub trait SelectBuilder {
     /// Inner joins another table to your query.
-    /// 
+    ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
@@ -80,9 +80,9 @@ pub trait SelectBuilder {
     ///     .build()?;
     /// ```
     fn inner_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
-    
+
     /// Outer joins another table to your query.
-    /// 
+    ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
@@ -99,9 +99,9 @@ pub trait SelectBuilder {
     ///     .build()?;
     /// ```
     fn outer_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
-    
+
     /// Right joins another table to your query.
-    /// 
+    ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
@@ -120,7 +120,7 @@ pub trait SelectBuilder {
     fn right_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
 
     /// Left joins another table to your query.
-    /// 
+    ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run

@@ -1,5 +1,9 @@
 use crate::{
-    statements::{alter::sql_implementations::{oracle::alter_oracle, sqlite::alter_sqlite}, create::CreateDataTypes}, Error, SQLVariation
+    Error, SQLVariation,
+    statements::{
+        alter::sql_implementations::{oracle::alter_oracle, sqlite::alter_sqlite},
+        create::CreateDataTypes,
+    },
 };
 
 use super::{AlterBuilder, AlterColumns, AlterProps, AlterTable, AlterTableBuilder, Altered};

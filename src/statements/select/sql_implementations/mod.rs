@@ -1,14 +1,24 @@
-use std::{sync::Arc, thread::{self, JoinHandle}};
+use std::{
+    sync::Arc,
+    thread::{self, JoinHandle},
+};
 
-use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::mutate_query::{filters, group_by, join_operations, order_by}, SelectProps}, Error};
+use crate::{
+    Error,
+    data_types::SQLDataTypes,
+    statements::select::{
+        SelectProps,
+        sql_implementations::mutate_query::{filters, group_by, join_operations, order_by},
+    },
+};
 
+pub(crate) mod mutate_query;
 pub mod oracle;
 pub mod sqlite;
-pub(crate) mod mutate_query;
 
 pub(crate) fn shared_select_operations(
-    select_props: &SelectProps, 
-    mut query: String
+    select_props: &SelectProps,
+    mut query: String,
 ) -> Result<String, Error> {
     // ===== Joins =====
     if &select_props.joins.len() > &0 {
@@ -28,12 +38,12 @@ pub(crate) fn shared_select_operations(
 }
 
 pub(crate) fn multithread_execution(
-    handle_execution: fn (
-        select_props: Arc<SelectProps>, 
+    handle_execution: fn(
+        select_props: Arc<SelectProps>,
         sql: String,
     ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>,
-    select_props: SelectProps, 
-    query: String, 
+    select_props: SelectProps,
+    query: String,
     count: Option<usize>,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     // ===== Get length of data then divide by number of threads =====
@@ -48,7 +58,7 @@ pub(crate) fn multithread_execution(
     // ===== Initializing a Vec<JoinHandle> & Arc<SelectProps> for thread safety =====
     let mut handles: Vec<JoinHandle<Result<Vec<Vec<Box<SQLDataTypes>>>, Error>>> = Vec::new();
     let select_props = Arc::new(select_props);
-    
+
     let mut iteration: usize = 0; // what thread number the loop is on
     let mut prev: usize = 0; // The previous thread's "end" number
 
@@ -68,7 +78,7 @@ pub(crate) fn multithread_execution(
         // println!("{}", stmt);
         let select_props = Arc::clone(&select_props);
 
-        handles.push(thread::spawn(move || { handle_execution(select_props, sql) }));
+        handles.push(thread::spawn(move || handle_execution(select_props, sql)));
 
         prev = end;
         iteration += 1;

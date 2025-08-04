@@ -1,9 +1,22 @@
 use execution::stmt_res;
 
-use crate::{data_types::SQLDataTypes, statements::select::{sql_implementations::{multithread_execution, mutate_query::limit_offset_oracle, oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution}, shared_select_operations}, SelectProps}, sql_variations::OracleConnect, Error, SQLVariation};
+use crate::{
+    Error, SQLVariation,
+    data_types::SQLDataTypes,
+    sql_variations::OracleConnect,
+    statements::select::{
+        SelectProps,
+        sql_implementations::{
+            multithread_execution,
+            mutate_query::limit_offset_oracle,
+            oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution},
+            shared_select_operations,
+        },
+    },
+};
 
-pub mod execution;
 pub mod columns;
+pub mod execution;
 
 pub(crate) fn oracle_build_select(
     mut select_props: SelectProps,
@@ -80,7 +93,7 @@ pub(crate) fn oracle_build_single_thread_select(
         conn_info.password,
         conn_info.connection_string,
     )?;
-    
+
     // ===== Run query =====
     let stmt = conn.statement(&query).build()?;
     stmt_res(stmt, select_props.columns.len())

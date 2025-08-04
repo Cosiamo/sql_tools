@@ -1,11 +1,27 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, statements::{select::{sql_implementations::{oracle::{oracle_build_select, oracle_build_single_thread_select}, sqlite::{build_select_sqlite, build_select_sqlite_single_thread}}, JoinType, Joins, Table}, where_clause::utils::where_clause_value_format}, Error, SQLVariation
+    Error, SQLVariation,
+    data_types::{SQLDataTypes, ToSQLData},
+    statements::{
+        select::{
+            JoinType, Joins, Table,
+            sql_implementations::{
+                oracle::{oracle_build_select, oracle_build_single_thread_select},
+                sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
+            },
+        },
+        where_clause::utils::where_clause_value_format,
+    },
 };
 
 use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Grouped};
 
 impl SelectBuilder for SelectProps {
-    fn inner_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
+    fn inner_join(
+        mut self,
+        foreign_table: Table,
+        primary_column: &str,
+        foreign_column: &str,
+    ) -> Self {
         let join = Joins {
             table: foreign_table,
             primary_column: String::from(primary_column),
@@ -15,8 +31,13 @@ impl SelectBuilder for SelectProps {
         self.joins.push(join);
         self
     }
-    
-    fn outer_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
+
+    fn outer_join(
+        mut self,
+        foreign_table: Table,
+        primary_column: &str,
+        foreign_column: &str,
+    ) -> Self {
         let join = Joins {
             table: foreign_table,
             primary_column: String::from(primary_column),
@@ -26,8 +47,13 @@ impl SelectBuilder for SelectProps {
         self.joins.push(join);
         self
     }
-    
-    fn right_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
+
+    fn right_join(
+        mut self,
+        foreign_table: Table,
+        primary_column: &str,
+        foreign_column: &str,
+    ) -> Self {
         let join = Joins {
             table: foreign_table,
             primary_column: String::from(primary_column),
@@ -37,8 +63,13 @@ impl SelectBuilder for SelectProps {
         self.joins.push(join);
         self
     }
-    
-    fn left_join(mut self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self {
+
+    fn left_join(
+        mut self,
+        foreign_table: Table,
+        primary_column: &str,
+        foreign_column: &str,
+    ) -> Self {
         let join = Joins {
             table: foreign_table,
             primary_column: String::from(primary_column),

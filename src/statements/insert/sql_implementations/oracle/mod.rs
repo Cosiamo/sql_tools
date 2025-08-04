@@ -9,7 +9,13 @@ use sql_fmt::insert_stmt;
 use validation::{does_table_exist, get_col_indexes};
 
 use crate::{
-    data_types::SQLDataTypes, statements::{create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, insert::InsertProps}, sql_variations::utils::get_dt_indices, Error, QueryBuilder, SQLVariation
+    Error, QueryBuilder, SQLVariation,
+    data_types::SQLDataTypes,
+    sql_variations::utils::get_dt_indices,
+    statements::{
+        create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
+        insert::InsertProps,
+    },
 };
 
 pub mod iter_grid;

@@ -1,4 +1,4 @@
-use crate::{statements::select::SelectProps, data_types::ToSQLData};
+use crate::{data_types::ToSQLData, statements::select::SelectProps};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 
