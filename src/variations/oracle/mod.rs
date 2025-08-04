@@ -10,7 +10,6 @@ use crate::{
 };
 
 pub mod alter;
-pub mod create;
 
 impl OracleConnect {
     pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, Error> {
