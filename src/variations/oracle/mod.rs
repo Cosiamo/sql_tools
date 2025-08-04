@@ -9,6 +9,8 @@ use crate::{
     }, utils::remove_invalid_chars, variations::OracleConnect, Error, QueryBuilder, SQLVariation
 };
 
+pub mod alter;
+
 impl OracleConnect {
     pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, Error> {
         match oracle::Connection::connect(&username, &password, &connection_string) {

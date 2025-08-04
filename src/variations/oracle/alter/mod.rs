@@ -1,6 +1,6 @@
 use crate::{Error, variations::OracleConnect};
 
-pub(crate) fn alter_oracle(connect: OracleConnect, query: String) -> Result<(), Error> {
+pub(crate) fn alter(connect: OracleConnect, query: String) -> Result<(), Error> {
     let conn: oracle::Connection = oracle::Connection::connect(
         connect.username.clone(),
         connect.password.clone(),

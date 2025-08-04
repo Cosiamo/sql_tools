@@ -3,7 +3,6 @@ use crate::SQLVariation;
 use super::create::CreateDataTypes;
 
 pub mod implement;
-pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct AlterProps {

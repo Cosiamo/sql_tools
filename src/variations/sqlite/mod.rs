@@ -11,6 +11,8 @@ use crate::{
 
 use super::SQLiteConnect;
 
+pub mod alter;
+
 impl SQLiteConnect {
     pub fn new_path(path: &str) -> Self {
         SQLiteConnect {

@@ -1,5 +1,7 @@
 use crate::{
-    statements::{alter::sql_implementations::{oracle::alter_oracle, sqlite::alter_sqlite}, create::CreateDataTypes}, Error, SQLVariation
+    Error, SQLVariation,
+    statements::create::CreateDataTypes,
+    variations::{oracle::alter::alter, sqlite::alter::alter_sqlite},
 };
 
 use super::{AlterBuilder, AlterColumns, AlterProps, AlterTable, AlterTableBuilder, Altered};
@@ -101,7 +103,7 @@ impl Altered {
     /// Builds the `ALTER` query.
     pub fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(conn) => alter_oracle(conn, self.query),
+            SQLVariation::Oracle(conn) => alter(conn, self.query),
             SQLVariation::SQLite(conn) => alter_sqlite(conn, self.query),
         }
     }
