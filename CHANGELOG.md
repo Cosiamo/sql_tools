@@ -1,8 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+Dates are labeled YYYY-MM-DD.
 
 <!-- ## [Unreleased] -->
+## [0.5.1] - 2025-08-04
+- Restructured where the sql variations are executing their statements (for easier maintenance and upgradeability)
 
 ## [0.5.0] - 2025-07-23
 ### Added
