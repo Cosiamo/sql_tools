@@ -1,8 +1,7 @@
 use group_by::Grouped;
 
 use crate::{
-    Error, SQLVariation,
-    data_types::{SQLDataTypes, ToSQLData},
+    data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation, Table
 };
 
 pub mod group_by;
@@ -19,12 +18,6 @@ pub struct SelectProps {
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
     pub limit: Limit,
-}
-
-#[derive(Debug)]
-pub struct Table {
-    pub name: String,
-    pub id: String,
 }
 
 #[derive(Debug)]
@@ -160,6 +153,12 @@ pub trait SelectBuilder {
     /// Selects where a column is not NULL.
     fn where_not_null(self, column: &str) -> Self;
 
+    /// Adds a LIKE statement 
+    fn where_like(self, column: &str, value: &str) -> Self;
+    
+    /// Adds a NOT LIKE statement
+    fn where_not_like(self, column: &str, value: &str) -> Self;
+
     /// Order By a column ascending
     fn order_asc(self, column: &str) -> Ordered;
 
@@ -180,17 +179,4 @@ pub trait SelectBuilder {
 
     /// Builds the query only using one thread.
     fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
-}
-
-impl Table {
-    pub(crate) fn new(name: &str) -> Self {
-        Self {
-            name: String::from(name),
-            id: crate::utils::generate_id(5),
-        }
-    }
-
-    pub(crate) fn query_fmt(&self) -> String {
-        format!("{} {}", self.name, self.id)
-    }
 }

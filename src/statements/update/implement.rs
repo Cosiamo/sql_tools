@@ -1,13 +1,11 @@
 use crate::{
-    Error, SQLVariation,
-    data_types::ToSQLData,
-    statements::{
+    data_types::ToSQLData, statements::{
         update::sql_implementations::{
             oracle::{batch_update_oracle, oracle_build_update},
             sqlite::{batch_update_sqlite, sqlite_build_update},
         },
-        where_clause::utils::where_clause_value_format,
-    },
+        where_clause::utils::{match_table_ids, where_clause_value_format},
+    }, Error, SQLVariation
 };
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
@@ -62,6 +60,7 @@ impl UpdateBuilder for UpdateProps {
     }
 
     fn where_in<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+        let column = match_table_ids(&self.table.id, column);
         let value = where_clause_value_format(values);
         let where_clause = format!("{} IN ({})", column, value);
         self.clause = Some(where_clause);
@@ -69,6 +68,7 @@ impl UpdateBuilder for UpdateProps {
     }
 
     fn where_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
+        let column = match_table_ids(&self.table.id, column);
         let value = where_clause_value_format(values);
         let where_clause = format!("{} NOT IN ({})", column, value);
         self.clause = Some(where_clause);
@@ -76,14 +76,30 @@ impl UpdateBuilder for UpdateProps {
     }
 
     fn where_null(mut self, column: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
         let where_clause = format!("{column} IS NULL");
         self.clause = Some(where_clause);
         self
     }
 
     fn where_not_null(mut self, column: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
         let where_clause = format!("{column} IS NOT NULL");
         self.clause = Some(where_clause);
+        self
+    }
+    
+    fn where_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let like = format!("{column} LIKE '{value}'");
+        self.clause = Some(like);
+        self
+    }
+    
+    fn where_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let like = format!("{column} NOT LIKE '{value}'");
+        self.clause = Some(like);
         self
     }
 

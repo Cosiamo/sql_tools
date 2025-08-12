@@ -10,8 +10,8 @@ pub fn sqlite_delete(props: DeleteProps) -> Result<(), Error> {
     let conn = Connection::open(&conn_info.path.clone())?;
 
     let query = match props.clause {
-        Some(filters) => format!("DELETE FROM {} WHERE {}", &props.table, filters),
-        None => format!("DELETE FROM {}", &props.table),
+        Some(filters) => format!("DELETE FROM {}.{} WHERE {}", &props.table.id, &props.table.name, filters),
+        None => format!("DELETE FROM {}.{}", &props.table.id, &props.table.name),
     };
     conn.execute(&query, [])?;
     Ok(())

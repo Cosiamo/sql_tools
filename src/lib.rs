@@ -167,3 +167,23 @@ pub enum SQLVariation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),
 }
+
+
+#[derive(Debug)]
+pub struct Table {
+    pub name: String,
+    pub id: String,
+}
+
+impl Table {
+    pub(crate) fn new(name: &str) -> Self {
+        Self {
+            name: String::from(name),
+            id: crate::utils::generate_id(5),
+        }
+    }
+
+    pub(crate) fn query_fmt(&self) -> String {
+        format!("{} {}", self.name, self.id)
+    }
+}

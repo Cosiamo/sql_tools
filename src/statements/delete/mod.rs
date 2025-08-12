@@ -1,4 +1,4 @@
-use crate::{Error, SQLVariation, data_types::ToSQLData};
+use crate::{data_types::ToSQLData, Error, SQLVariation, Table};
 
 pub mod implement;
 pub mod sql_implementations;
@@ -6,7 +6,7 @@ pub mod sql_implementations;
 #[derive(Debug)]
 pub struct DeleteProps {
     pub connect: SQLVariation,
-    pub table: String,
+    pub table: Table,
     pub clause: Option<String>,
 }
 
@@ -34,4 +34,10 @@ pub trait DeleteBuilder {
 
     /// Deletes where a cell in column is not NULL.
     fn where_not_null(self, column: &str) -> Self;
+
+    /// Adds a LIKE statement 
+    fn where_like(self, column: &str, value: &str) -> Self;
+    
+    /// Adds a NOT LIKE statement
+    fn where_not_like(self, column: &str, value: &str) -> Self;
 }
