@@ -75,7 +75,7 @@ pub(crate) fn multithread_execution(
         }
 
         let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
-        // println!("{}", stmt);
+        // println!("{sql}");
         let select_props = Arc::clone(&select_props);
 
         handles.push(thread::spawn(move || handle_execution(select_props, sql)));
