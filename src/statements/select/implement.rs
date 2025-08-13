@@ -109,6 +109,20 @@ impl SelectBuilder for SelectProps {
         self.clause = Some(where_clause);
         self
     }
+    
+    fn where_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let like = format!("{column} LIKE '{value}'");
+        self.clause = Some(like);
+        self
+    }
+    
+    fn where_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let like = format!("{column} NOT LIKE '{value}'");
+        self.clause = Some(like);
+        self
+    }
 
     fn order_asc(mut self, column: &str) -> Ordered {
         self.order_by = (Some(column.to_string()), OrderBy::ASC);

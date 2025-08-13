@@ -13,8 +13,8 @@ pub fn oracle_build_delete(props: DeleteProps) -> Result<(), Error> {
     .unwrap();
 
     let sql = match props.clause {
-        Some(filters) => format!("DELETE FROM {} WHERE {}", &props.table, filters),
-        None => format!("DELETE FROM {}", &props.table),
+        Some(filters) => format!("DELETE FROM {}.{} WHERE {}", &props.table.id, &props.table.name, filters),
+        None => format!("DELETE FROM {}.{}", &props.table.id, &props.table.name),
     };
     conn.execute(&sql, &[])?;
     conn.commit()?;

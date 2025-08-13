@@ -82,4 +82,12 @@ pub trait WhereClauseBuilder {
 
     /// OR IS NOT NULL
     fn or_not_null(self, column: &str) -> Self;
+
+    fn and_like(self, column: &str, value: &str) -> Self;
+
+    fn or_like(self, column: &str, value: &str) -> Self;
+
+    fn and_not_like(self, column: &str, value: &str) -> Self;
+
+    fn or_not_like(self, column: &str, value: &str) -> Self;
 }

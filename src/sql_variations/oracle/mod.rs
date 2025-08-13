@@ -1,16 +1,12 @@
 use crate::{
-    Error, QueryBuilder, SQLVariation,
-    data_types::{SQLDataTypes, ToSQLData},
-    sql_variations::OracleConnect,
-    statements::{
+    data_types::{SQLDataTypes, ToSQLData}, sql_variations::OracleConnect, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Limit, OrderBy, SelectProps, Table},
+        select::{Limit, OrderBy, SelectProps},
         update::UpdateInitialization,
-    },
-    utils::remove_invalid_chars,
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation, Table
 };
 
 impl OracleConnect {
@@ -56,10 +52,10 @@ impl QueryBuilder for OracleConnect {
         }
     }
 
-    fn update(&self, table: &str) -> UpdateInitialization {
+    fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLVariation::Oracle(self.clone()),
-            table: table.to_string(),
+            table: table.clone(),
         }
     }
 
@@ -105,9 +101,10 @@ impl QueryBuilder for OracleConnect {
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
+        let table = Table::new(table);
         DeleteProps {
             connect: SQLVariation::Oracle(self.clone()),
-            table: String::from(table),
+            table,
             clause: None,
         }
     }

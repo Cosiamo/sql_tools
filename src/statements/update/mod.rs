@@ -1,6 +1,5 @@
 use crate::{
-    Error, SQLVariation,
-    data_types::{SQLDataTypes, ToSQLData},
+    data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation, Table
 };
 
 pub mod implement;
@@ -9,14 +8,14 @@ pub mod sql_implementations;
 #[derive(Debug)]
 pub struct UpdateInitialization {
     pub connect: SQLVariation,
-    pub table: String,
+    pub table: Table,
 }
 
 #[derive(Debug)]
 pub struct UpdateProps {
     pub connect: SQLVariation,
     pub set_match: Vec<SetMatch>,
-    pub table: String,
+    pub table: Table,
     pub clause: Option<String>,
 }
 
@@ -77,6 +76,12 @@ pub trait UpdateBuilder {
 
     /// Selects where a column is not NULL.
     fn where_not_null(self, column: &str) -> Self;
+    
+    /// Adds a LIKE statement 
+    fn where_like(self, column: &str, value: &str) -> Self;
+    
+    /// Adds a NOT LIKE statement
+    fn where_not_like(self, column: &str, value: &str) -> Self;
 
     /// Builds the query.
     fn build(self) -> Result<(), Error>;

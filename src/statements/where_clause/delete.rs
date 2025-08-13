@@ -1,4 +1,4 @@
-use crate::{data_types::ToSQLData, statements::delete::DeleteProps};
+use crate::{data_types::ToSQLData, statements::{delete::DeleteProps, where_clause::utils::match_table_ids}};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 
@@ -86,6 +86,54 @@ impl WhereClauseBuilder for DeleteProps {
 
     fn or_not_null(mut self, column: &str) -> Self {
         let or = format!("{column} IS NOT NULL");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} OR {or}")
+        } else {
+            format!("{or}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn and_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let and = format!("{column} LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} AND {and}")
+        } else {
+            format!("{and}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn or_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let or = format!("{column} LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} OR {or}")
+        } else {
+            format!("{or}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn and_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let and = format!("{column} NOT LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} AND {and}")
+        } else {
+            format!("{and}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn or_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let or = format!("{column} NOT LIKE '{value}'");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} OR {or}")
         } else {

@@ -1,15 +1,12 @@
 use crate::{
-    Error, QueryBuilder, SQLVariation,
-    data_types::{SQLDataTypes, ToSQLData},
-    statements::{
+    data_types::{SQLDataTypes, ToSQLData}, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Limit, OrderBy, SelectBuilder, SelectProps, Table},
+        select::{Limit, OrderBy, SelectBuilder, SelectProps},
         update::UpdateInitialization,
-    },
-    utils::remove_invalid_chars,
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation, Table
 };
 
 use super::SQLiteConnect;
@@ -79,10 +76,10 @@ impl QueryBuilder for SQLiteConnect {
         }
     }
 
-    fn update(&self, table: &str) -> UpdateInitialization {
+    fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLVariation::SQLite(self.clone()),
-            table: table.to_string(),
+            table: table.clone(),
         }
     }
 
@@ -128,9 +125,10 @@ impl QueryBuilder for SQLiteConnect {
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
+        let table = Table::new(table);
         DeleteProps {
             connect: SQLVariation::SQLite(self.clone()),
-            table: String::from(table),
+            table,
             clause: None,
         }
     }

@@ -1,4 +1,4 @@
-use crate::{data_types::ToSQLData, statements::select::SelectProps};
+use crate::{data_types::ToSQLData, statements::{select::SelectProps, where_clause::utils::match_table_ids}};
 
 use super::{WhereClauseBuilder, utils::where_clause_value_format};
 
@@ -102,12 +102,52 @@ impl WhereClauseBuilder for SelectProps {
         self.clause = Some(clause);
         self
     }
-}
-
-fn match_table_ids(id: &String, column: &str) -> String {
-    if column.contains(".") {
-        column.to_owned()
-    } else {
-        format!("{id}.{column}")
+    
+    fn and_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let and = format!("{column} LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} AND {and}")
+        } else {
+            format!("{and}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn or_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let or = format!("{column} LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} OR {or}")
+        } else {
+            format!("{or}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn and_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let and = format!("{column} NOT LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} AND {and}")
+        } else {
+            format!("{and}")
+        };
+        self.clause = Some(clause);
+        self
+    }
+    
+    fn or_not_like(mut self, column: &str, value: &str) -> Self {
+        let column = match_table_ids(&self.table.id, column);
+        let or = format!("{column} NOT LIKE '{value}'");
+        let clause = if let Some(existing) = self.clause {
+            format!("{existing} OR {or}")
+        } else {
+            format!("{or}")
+        };
+        self.clause = Some(clause);
+        self
     }
 }

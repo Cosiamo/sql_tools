@@ -13,3 +13,11 @@ pub(crate) fn where_clause_value_format<T: ToSQLData>(values: Vec<T>) -> String 
         .collect::<Vec<String>>()
         .join(", ")
 }
+
+pub(crate) fn match_table_ids(id: &String, column: &str) -> String {
+    if column.contains(".") {
+        column.to_owned()
+    } else {
+        format!("{id}.{column}")
+    }
+}
