@@ -89,7 +89,7 @@ pub trait QueryBuilder {
     ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
     ///     .build_return_count()?;
     /// ```
-    fn update(&self, table: &str) -> UpdateInitialization;
+    fn update(&self, table: &Table) -> UpdateInitialization;
 
     /// Creates a new [`InsertProps`] to start building out an insert query.
     ///
@@ -169,7 +169,7 @@ pub enum SQLVariation {
 }
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Table {
     pub name: String,
     pub id: String,

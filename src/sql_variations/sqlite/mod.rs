@@ -76,11 +76,10 @@ impl QueryBuilder for SQLiteConnect {
         }
     }
 
-    fn update(&self, table: &str) -> UpdateInitialization {
-        let table = Table::new(table);
+    fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLVariation::SQLite(self.clone()),
-            table: table,
+            table: table.clone(),
         }
     }
 

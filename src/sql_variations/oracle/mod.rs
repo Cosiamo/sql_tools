@@ -52,11 +52,10 @@ impl QueryBuilder for OracleConnect {
         }
     }
 
-    fn update(&self, table: &str) -> UpdateInitialization {
-        let table = Table::new(table);
+    fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLVariation::Oracle(self.clone()),
-            table,
+            table: table.clone(),
         }
     }
 
