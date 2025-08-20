@@ -11,11 +11,12 @@ pub struct DeleteProps {
 }
 
 pub trait DeleteBuilder {
+    /// Builds the DELETE query.
     fn build(self) -> Result<(), Error>;
 
     /// Adds a WHERE clause to your query.
     /// ```no_run
-    /// conn.delete("quarterly_earnings", vec!["revenue", "profit"])
+    /// conn.delete("quarterly_earnings")
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .build()?;
     /// ```
@@ -23,7 +24,7 @@ pub trait DeleteBuilder {
 
     /// Adds a WHERE NOT clause to your query.
     /// ```no_run
-    /// conn.delete("quarterly_earnings", vec!["revenue", "profit"])
+    /// conn.delete("quarterly_earnings")
     ///     .where_not("quarter", vec!["Q1", "Q4"])
     ///     .build()?;
     /// ```
@@ -36,8 +37,18 @@ pub trait DeleteBuilder {
     fn where_not_null(self, column: &str) -> Self;
 
     /// Adds a LIKE statement 
+    /// ```no_run
+    /// conn.delete("inventory") 
+    ///     .where_like("product_sku", "%1234%")
+    ///     .build()?;
+    /// ```
     fn where_like(self, column: &str, value: &str) -> Self;
     
     /// Adds a NOT LIKE statement
+    /// ```no_run
+    /// conn.delete("inventory") 
+    ///     .where_not_like("product_sku", "%5678%")
+    ///     .build()?;
+    /// ```
     fn where_not_like(self, column: &str, value: &str) -> Self;
 }

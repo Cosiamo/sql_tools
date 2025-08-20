@@ -136,6 +136,18 @@ pub trait QueryBuilder {
     ///
     /// my_table.build()?;
     /// ```
+    /// 
+    /// Or dynamically build a table.
+    /// ```no_run
+    /// let my_table: CreateTable = conn.create()
+    ///     .table("my_table", columns);
+    /// 
+    /// for col_name in data_header {
+    ///     my_table.add_column(col_name, CreateDataTypes::VARCHAR(50));
+    /// }
+    ///
+    /// my_table.build()?;
+    /// ```
     fn create(&self) -> CreateProps;
 
     /// Creates a new [`AlterProps`] to start the process of altering a table or column(s).
@@ -170,6 +182,7 @@ pub enum SQLImplementation {
 
 
 #[derive(Debug, Clone)]
+/// A SQL Table and it's corresponding ID
 pub struct Table {
     pub name: String,
     pub id: String,

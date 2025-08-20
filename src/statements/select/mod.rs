@@ -154,9 +154,27 @@ pub trait SelectBuilder {
     fn where_not_null(self, column: &str) -> Self;
 
     /// Adds a LIKE statement 
+    /// ```no_run
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_like("name", "Bob%")
+    ///     .build()?;
+    /// ```
+    /// Is the same as: 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE name LIKE 'Bob%';
+    /// ```
     fn where_like(self, column: &str, value: &str) -> Self;
     
     /// Adds a NOT LIKE statement
+    /// ```no_run
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_not_like("name", "Bob%")
+    ///     .build()?;
+    /// ```
+    /// Is the same as: 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE name NOT LIKE 'Bob%';
+    /// ```
     fn where_not_like(self, column: &str, value: &str) -> Self;
 
     /// Order By a column ascending
@@ -172,8 +190,8 @@ pub trait SelectBuilder {
 
     /// Builds the query.
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.
-    /// If you're using a single core sever, it's recommended to use [`build_single_thread`](`SelectBuilder::build_single_thread`).
-    /// [`SQLite`](`SQLVariation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`)
+    /// If you're using a single core machine, it's recommended to use [`build_single_thread`](`SelectBuilder::build_single_thread`).
+    /// [`SQLite`](`SQLImplementation::SQLite`) runs better using [`build_single_thread`](`SelectBuilder::build_single_thread`)
     /// (will either fix or remove it as an option in a future update).
     fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
 
