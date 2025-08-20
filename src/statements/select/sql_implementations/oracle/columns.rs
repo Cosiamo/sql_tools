@@ -1,9 +1,9 @@
-use crate::{Error, SQLVariation, statements::select::SelectProps};
+use crate::{Error, SQLImplementation, statements::select::SelectProps};
 
 pub(crate) fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<String>, Error> {
     let conn_info = match &select_props.connect {
-        SQLVariation::Oracle(connect) => connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::Oracle(connect) => connect,
+        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let sql = format!(
         "SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'",

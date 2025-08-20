@@ -1,11 +1,11 @@
-use crate::{data_types::ToSQLData, Error, SQLVariation, Table};
+use crate::{data_types::ToSQLData, Error, SQLImplementation, Table};
 
 pub mod implement;
 pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct DeleteProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub table: Table,
     pub clause: Option<String>,
 }

@@ -1,5 +1,5 @@
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     statements::insert::sql_implementations::{
         oracle::oracle_build_insert,
         sqlite::{sqlite_build_insert, sqlite_build_insert_pb},
@@ -39,15 +39,15 @@ impl InsertBuilder for InsertProps {
 
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_insert(self, false),
-            SQLVariation::SQLite(_) => sqlite_build_insert(self),
+            SQLImplementation::Oracle(_) => oracle_build_insert(self, false),
+            SQLImplementation::SQLite(_) => sqlite_build_insert(self),
         }
     }
 
     fn build_with_progress_bar(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_insert(self, true),
-            SQLVariation::SQLite(_) => sqlite_build_insert_pb(self),
+            SQLImplementation::Oracle(_) => oracle_build_insert(self, true),
+            SQLImplementation::SQLite(_) => sqlite_build_insert_pb(self),
         }
     }
 

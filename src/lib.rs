@@ -163,7 +163,7 @@ pub trait QueryBuilder {
 
 #[derive(Debug)]
 /// The various types of SQL connections
-pub enum SQLVariation {
+pub enum SQLImplementation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),
 }

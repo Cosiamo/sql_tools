@@ -2,7 +2,7 @@ use indicatif::ProgressBar;
 use rusqlite::Connection;
 
 use crate::{
-    Error, QueryBuilder, SQLVariation,
+    Error, QueryBuilder, SQLImplementation,
     data_types::SQLDataTypes,
     sql_implementations::SQLiteConnect,
     statements::{
@@ -14,8 +14,8 @@ use crate::{
 
 pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match &insert_props.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
 
     // Does table exist
@@ -112,8 +112,8 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
 
 pub(crate) fn sqlite_build_insert_pb(insert_props: InsertProps) -> Result<(), Error> {
     let conn_info = match &insert_props.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
 
     // Does table exist

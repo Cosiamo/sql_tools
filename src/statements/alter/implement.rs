@@ -1,5 +1,5 @@
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     statements::{
         alter::sql_implementations::{oracle::alter_oracle, sqlite::alter_sqlite},
         create::CreateDataTypes,
@@ -105,8 +105,8 @@ impl Altered {
     /// Builds the `ALTER` query.
     pub fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(conn) => alter_oracle(conn, self.query),
-            SQLVariation::SQLite(conn) => alter_sqlite(conn, self.query),
+            SQLImplementation::Oracle(conn) => alter_oracle(conn, self.query),
+            SQLImplementation::SQLite(conn) => alter_sqlite(conn, self.query),
         }
     }
 }

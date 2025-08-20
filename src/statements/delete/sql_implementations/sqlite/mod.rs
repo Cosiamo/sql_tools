@@ -1,11 +1,11 @@
 use rusqlite::Connection;
 
-use crate::{Error, SQLVariation, statements::delete::DeleteProps};
+use crate::{Error, SQLImplementation, statements::delete::DeleteProps};
 
 pub fn sqlite_delete(props: DeleteProps) -> Result<(), Error> {
     let conn_info = match &props.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
     let conn = Connection::open(&conn_info.path.clone())?;
 

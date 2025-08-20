@@ -1,4 +1,4 @@
-use crate::SQLVariation;
+use crate::SQLImplementation;
 
 use super::create::CreateDataTypes;
 
@@ -7,12 +7,12 @@ pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct AlterProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
 }
 
 #[derive(Debug)]
 pub struct AlterTable {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub query: String,
     pub table_name: String,
 }
@@ -27,7 +27,7 @@ pub struct AlterColumns {
 
 #[derive(Debug)]
 pub struct Altered {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub query: String,
 }
 

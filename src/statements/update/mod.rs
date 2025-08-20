@@ -1,5 +1,5 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation, Table
+    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation, Table
 };
 
 pub mod implement;
@@ -7,13 +7,13 @@ pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct UpdateInitialization {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub table: Table,
 }
 
 #[derive(Debug)]
 pub struct UpdateProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub set_match: Vec<SetMatch>,
     pub table: Table,
     pub clause: Option<String>,

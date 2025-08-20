@@ -1,7 +1,7 @@
 use execution::stmt_res;
 
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     data_types::SQLDataTypes,
     sql_implementations::OracleConnect,
     statements::select::{
@@ -99,9 +99,9 @@ pub(crate) fn oracle_build_single_thread_select(
     stmt_res(stmt, select_props.columns.len())
 }
 
-fn extract_connection(connect: &SQLVariation) -> Result<OracleConnect, Error> {
+fn extract_connection(connect: &SQLImplementation) -> Result<OracleConnect, Error> {
     match connect {
-        SQLVariation::Oracle(oracle_connect) => Ok(oracle_connect.to_owned()),
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::Oracle(oracle_connect) => Ok(oracle_connect.to_owned()),
+        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
     }
 }

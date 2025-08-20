@@ -1,7 +1,7 @@
 use group_by::Grouped;
 
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, Error, SQLVariation, Table
+    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation, Table
 };
 
 pub mod group_by;
@@ -10,7 +10,7 @@ pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct SelectProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub columns: Vec<String>,
     pub table: Table,
     pub joins: Vec<Joins>,

@@ -2,7 +2,7 @@ use crate::{
     data_types::ToSQLData, statements::{
         delete::sql_implementations::{oracle::oracle_build_delete, sqlite::sqlite_delete},
         where_clause::utils::{match_table_ids, where_clause_value_format},
-    }, Error, SQLVariation
+    }, Error, SQLImplementation
 };
 
 use super::{DeleteBuilder, DeleteProps};
@@ -10,8 +10,8 @@ use super::{DeleteBuilder, DeleteProps};
 impl DeleteBuilder for DeleteProps {
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_delete(self),
-            SQLVariation::SQLite(_) => sqlite_delete(self),
+            SQLImplementation::Oracle(_) => oracle_build_delete(self),
+            SQLImplementation::SQLite(_) => sqlite_delete(self),
         }
     }
 

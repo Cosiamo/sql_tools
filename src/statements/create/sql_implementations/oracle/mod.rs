@@ -1,12 +1,12 @@
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     statements::create::{CreateDataTypes, CreateTable},
 };
 
 pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
     let conn_info = match create_table.connect {
-        SQLVariation::Oracle(oracle_connect) => oracle_connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::Oracle(oracle_connect) => oracle_connect,
+        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
     };
 
     let cols_and_data_types = create_table

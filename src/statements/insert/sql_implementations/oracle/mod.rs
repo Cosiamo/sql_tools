@@ -9,7 +9,7 @@ use sql_fmt::insert_stmt;
 use validation::{does_table_exist, get_col_indexes};
 
 use crate::{
-    Error, QueryBuilder, SQLVariation,
+    Error, QueryBuilder, SQLImplementation,
     data_types::SQLDataTypes,
     sql_implementations::utils::get_dt_indices,
     statements::{
@@ -27,8 +27,8 @@ pub(crate) fn oracle_build_insert(
     use_pb: bool,
 ) -> Result<(), Error> {
     let conn_info = match insert_props.connect {
-        SQLVariation::Oracle(oracle_connect) => oracle_connect,
-        SQLVariation::SQLite(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::Oracle(oracle_connect) => oracle_connect,
+        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
     };
     let username_conn = conn_info.username.to_owned();
     let password_conn = conn_info.password.to_owned();

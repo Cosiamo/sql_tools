@@ -6,7 +6,7 @@ use crate::{
         insert::InsertProps,
         select::{Limit, OrderBy, SelectProps},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation, Table
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation, Table
 };
 
 impl OracleConnect {
@@ -38,7 +38,7 @@ impl QueryBuilder for OracleConnect {
             .collect::<Vec<String>>();
 
         SelectProps {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
             columns: fmt_cols,
             table,
             joins: vec![],
@@ -54,7 +54,7 @@ impl QueryBuilder for OracleConnect {
 
     fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
             table: table.clone(),
         }
     }
@@ -80,7 +80,7 @@ impl QueryBuilder for OracleConnect {
             .collect::<Vec<String>>();
         grid.remove(0);
         Ok(InsertProps {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
             grid,
             table: table.to_string(),
             header,
@@ -90,20 +90,20 @@ impl QueryBuilder for OracleConnect {
 
     fn create(&self) -> CreateProps {
         CreateProps {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
         }
     }
 
     fn alter(&self) -> AlterProps {
         AlterProps {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
         }
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
         let table = Table::new(table);
         DeleteProps {
-            connect: SQLVariation::Oracle(self.clone()),
+            connect: SQLImplementation::Oracle(self.clone()),
             table,
             clause: None,
         }

@@ -1,14 +1,14 @@
 use rusqlite::Connection;
 
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     statements::create::{CreateDataTypes, CreateTable},
 };
 
 pub(crate) fn sqlite_build_create_table(create_table: CreateTable) -> Result<(), Error> {
     let conn_info = match &create_table.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
 
     let cols_and_data_types = create_table

@@ -1,5 +1,5 @@
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     statements::create::sql_implementations::{
         oracle::oracle_build_create_table, sqlite::sqlite_build_create_table,
     },
@@ -28,8 +28,8 @@ impl ModifyCreateTable for CreateTable {
 
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_create_table(self),
-            SQLVariation::SQLite(_) => sqlite_build_create_table(self),
+            SQLImplementation::Oracle(_) => oracle_build_create_table(self),
+            SQLImplementation::SQLite(_) => sqlite_build_create_table(self),
         }
     }
 }

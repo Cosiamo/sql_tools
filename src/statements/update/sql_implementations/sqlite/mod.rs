@@ -1,11 +1,11 @@
 use rusqlite::Connection;
 
-use crate::{Error, SQLVariation, data_types::SQLDataTypes, statements::update::UpdateProps};
+use crate::{Error, SQLImplementation, data_types::SQLDataTypes, statements::update::UpdateProps};
 
 pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
     let conn_info = match &update_set.connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
 
     let set_match_len = &update_set.set_match.len();
@@ -59,8 +59,8 @@ pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
     let connect = &updates[0].connect;
     // let table = &updates[0].query_type.table;
     let conn_info = match connect {
-        SQLVariation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLVariation::SQLite(connect) => connect,
+        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
+        SQLImplementation::SQLite(connect) => connect,
     };
 
     let sql = updates.iter().map(|update| {

@@ -1,5 +1,5 @@
 use crate::{
-    Error, SQLVariation,
+    Error, SQLImplementation,
     data_types::{SQLDataTypes, ToSQLData},
     statements::{
         select::{
@@ -146,15 +146,15 @@ impl SelectBuilder for SelectProps {
 
     fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_select(self),
-            SQLVariation::SQLite(_) => build_select_sqlite(self),
+            SQLImplementation::Oracle(_) => oracle_build_select(self),
+            SQLImplementation::SQLite(_) => build_select_sqlite(self),
         }
     }
 
     fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_single_thread_select(self),
-            SQLVariation::SQLite(_) => build_select_sqlite_single_thread(self),
+            SQLImplementation::Oracle(_) => oracle_build_single_thread_select(self),
+            SQLImplementation::SQLite(_) => build_select_sqlite_single_thread(self),
         }
     }
 

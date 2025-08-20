@@ -1,4 +1,4 @@
-use crate::{Error, SQLVariation, data_types::SQLDataTypes};
+use crate::{Error, SQLImplementation, data_types::SQLDataTypes};
 
 pub mod data_conversion;
 pub mod implement;
@@ -6,7 +6,7 @@ pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct InsertProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub header: Vec<String>,
     pub grid: Vec<Vec<SQLDataTypes>>,
     pub table: String,

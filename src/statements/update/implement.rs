@@ -5,7 +5,7 @@ use crate::{
             sqlite::{batch_update_sqlite, sqlite_build_update},
         },
         where_clause::utils::{match_table_ids, where_clause_value_format},
-    }, Error, SQLVariation
+    }, Error, SQLImplementation
 };
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
@@ -105,11 +105,11 @@ impl UpdateBuilder for UpdateProps {
 
     fn build(self) -> Result<(), Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => {
+            SQLImplementation::Oracle(_) => {
                 oracle_build_update(self)?;
                 Ok(())
             }
-            SQLVariation::SQLite(_) => {
+            SQLImplementation::SQLite(_) => {
                 sqlite_build_update(self)?;
                 Ok(())
             }
@@ -118,8 +118,8 @@ impl UpdateBuilder for UpdateProps {
 
     fn build_return_count(self) -> Result<usize, Error> {
         match self.connect {
-            SQLVariation::Oracle(_) => oracle_build_update(self),
-            SQLVariation::SQLite(_) => sqlite_build_update(self),
+            SQLImplementation::Oracle(_) => oracle_build_update(self),
+            SQLImplementation::SQLite(_) => sqlite_build_update(self),
         }
     }
 }
@@ -127,7 +127,7 @@ impl UpdateBuilder for UpdateProps {
 pub fn batch_update(updates: Vec<UpdateProps>) -> Result<(), Error> {
     let connect = &updates[0].connect;
     match connect {
-        SQLVariation::Oracle(_) => batch_update_oracle(updates),
-        SQLVariation::SQLite(_) => batch_update_sqlite(updates),
+        SQLImplementation::Oracle(_) => batch_update_oracle(updates),
+        SQLImplementation::SQLite(_) => batch_update_sqlite(updates),
     }
 }

@@ -1,18 +1,18 @@
-use crate::{Error, SQLVariation};
+use crate::{Error, SQLImplementation};
 
 pub mod implement;
 pub mod sql_implementations;
 
 #[derive(Debug)]
 pub struct CreateTable {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
     pub columns: Vec<CreateColumns>,
     pub table: String,
 }
 
 #[derive(Debug)]
 pub struct CreateProps {
-    pub connect: SQLVariation,
+    pub connect: SQLImplementation,
 }
 
 #[derive(Debug, Clone)]
