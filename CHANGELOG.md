@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.7.0] - 2025-08-20
+### Added
+- More documentation for delete, select, create, and where clause methods
+
+### Changed
+- SQLVariations is now SQLImplementations to follow common naming conventions
+- .create().add_column() now borrows self
+
 ## [0.6.0] - 2025-08-13
 ### Added
 - Where "like" and "not like" statements
