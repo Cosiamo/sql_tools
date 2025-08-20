@@ -26,15 +26,7 @@ impl InsertBuilder for InsertProps {
             }
         }
 
-        Ok(InsertPropsFormatted {
-            insert_props: InsertProps {
-                connect: self.connect,
-                header: self.header,
-                grid: self.grid,
-                table: self.table,
-                create: self.create,
-            },
-        })
+        Ok(InsertPropsFormatted { insert_props: self })
     }
 
     fn build(self) -> Result<(), Error> {
