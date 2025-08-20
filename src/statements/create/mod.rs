@@ -3,7 +3,7 @@ use crate::{Error, SQLImplementation};
 pub mod implement;
 pub mod sql_implementations;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CreateTable {
     pub connect: SQLImplementation,
     pub columns: Vec<CreateColumns>,
@@ -31,7 +31,7 @@ pub enum CreateDataTypes {
 
 pub trait ModifyCreateTable {
     /// Adds a column to the CREATE TABLE query.
-    fn add_column(self, column: String, data_type: CreateDataTypes) -> Self;
+    fn add_column(&mut self, column: String, data_type: CreateDataTypes) -> Self;
 
     /// Builds the query.
     fn build(self) -> Result<(), Error>;

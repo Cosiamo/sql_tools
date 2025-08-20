@@ -18,12 +18,12 @@ impl CreateProps {
 }
 
 impl ModifyCreateTable for CreateTable {
-    fn add_column(mut self, column: String, data_type: CreateDataTypes) -> Self {
+    fn add_column(&mut self, column: String, data_type: CreateDataTypes) -> Self {
         self.columns.push(CreateColumns {
             name: column,
             data_type,
         });
-        self
+        self.to_owned()
     }
 
     fn build(self) -> Result<(), Error> {

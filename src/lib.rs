@@ -173,7 +173,7 @@ pub trait QueryBuilder {
     fn delete(&self, table: &str) -> DeleteProps;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// The various types of SQL connections
 pub enum SQLImplementation {
     Oracle(OracleConnect),
