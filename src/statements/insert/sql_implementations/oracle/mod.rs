@@ -11,7 +11,7 @@ use validation::{does_table_exist, get_col_indexes};
 use crate::{
     Error, QueryBuilder, SQLVariation,
     data_types::SQLDataTypes,
-    sql_variations::utils::get_dt_indices,
+    sql_implementations::utils::get_dt_indices,
     statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
         insert::InsertProps,

@@ -3,7 +3,7 @@ use execution::stmt_res;
 use crate::{
     Error, SQLVariation,
     data_types::SQLDataTypes,
-    sql_variations::OracleConnect,
+    sql_implementations::OracleConnect,
     statements::select::{
         SelectProps,
         sql_implementations::{

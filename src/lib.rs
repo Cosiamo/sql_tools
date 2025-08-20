@@ -1,14 +1,14 @@
 #![doc = include_str!("../README.md")]
 
 use data_types::ToSQLData;
-use sql_variations::{OracleConnect, SQLiteConnect};
+use sql_implementations::{OracleConnect, SQLiteConnect};
 use statements::{
     alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
     select::SelectProps, update::UpdateInitialization,
 };
 
 pub mod data_types;
-pub mod sql_variations;
+pub mod sql_implementations;
 pub mod statements;
 pub mod utils;
 

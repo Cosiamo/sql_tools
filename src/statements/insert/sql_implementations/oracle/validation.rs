@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use itertools::Itertools;
 
-use crate::{Error, data_types::SQLDataTypes, sql_variations::OracleConnect};
+use crate::{Error, data_types::SQLDataTypes, sql_implementations::OracleConnect};
 
 pub(crate) fn does_table_exist(table: &String, conn_info: &OracleConnect) -> Result<bool, Error> {
     let conn: oracle::Connection = oracle::Connection::connect(

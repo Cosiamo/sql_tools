@@ -4,7 +4,7 @@ use rusqlite::Connection;
 use crate::{
     Error, QueryBuilder, SQLVariation,
     data_types::SQLDataTypes,
-    sql_variations::SQLiteConnect,
+    sql_implementations::SQLiteConnect,
     statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
         insert::{InsertProps, sql_implementations::oracle::validation::get_col_indexes},

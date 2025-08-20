@@ -1,5 +1,5 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, sql_variations::OracleConnect, statements::{
+    data_types::{SQLDataTypes, ToSQLData}, sql_implementations::OracleConnect, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
