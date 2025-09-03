@@ -6,7 +6,7 @@ use crate::{
         insert::InsertProps,
         select::{Limit, OrderBy, SelectBuilder, SelectProps},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLVariation, Table
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation, Table
 };
 
 use super::SQLiteConnect;
@@ -48,7 +48,8 @@ impl SQLiteConnect {
 
 impl QueryBuilder for SQLiteConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let table = Table::new(table);
+        let table_name = table.trim();
+        let table = Table::new(table_name);
 
         let fmt_cols = columns
             .iter()
@@ -62,7 +63,7 @@ impl QueryBuilder for SQLiteConnect {
             .collect::<Vec<String>>();
 
         SelectProps {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
             columns: fmt_cols,
             table,
             joins: vec![],
@@ -78,7 +79,7 @@ impl QueryBuilder for SQLiteConnect {
 
     fn update(&self, table: &Table) -> UpdateInitialization {
         UpdateInitialization {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
             table: table.clone(),
         }
     }
@@ -104,7 +105,7 @@ impl QueryBuilder for SQLiteConnect {
             .collect::<Vec<String>>();
         grid.remove(0);
         Ok(InsertProps {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
             grid,
             table: table.to_string(),
             header,
@@ -114,20 +115,20 @@ impl QueryBuilder for SQLiteConnect {
 
     fn create(&self) -> CreateProps {
         CreateProps {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
         }
     }
 
     fn alter(&self) -> AlterProps {
         AlterProps {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
         }
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
         let table = Table::new(table);
         DeleteProps {
-            connect: SQLVariation::SQLite(self.clone()),
+            connect: SQLImplementation::SQLite(self.clone()),
             table,
             clause: None,
         }

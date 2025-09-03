@@ -7,6 +7,7 @@
         "nthreads",
         "oratype",
         "rowid",
+        "rownum",
         "rusqlite",
         "thiserror",
         "tosql",

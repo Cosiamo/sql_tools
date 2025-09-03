@@ -24,7 +24,8 @@ impl OracleConnect {
 
 impl QueryBuilder for OracleConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let table = Table::new(table);
+        let table_name = table.trim();
+        let table = Table::new(table_name);
 
         let fmt_cols = columns
             .iter()
