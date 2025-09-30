@@ -50,6 +50,7 @@ impl QueryBuilder for OracleConnect {
                 limit: None,
                 offset: None,
             },
+            return_header: false,
         }
     }
 

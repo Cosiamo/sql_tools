@@ -96,8 +96,15 @@ pub(crate) fn multithread_execution(
             .collect::<Vec<Vec<Box<SQLDataTypes>>>>();
         group.push(res);
     }
-    let res = group.concat();
+    let mut res = group.concat();
     // res.iter().for_each(|c|{ println!("{:?}", c) });
+    if select_props.return_header {
+        let header = vec![select_props.columns.iter().map(|column| {
+            let column = column.split(".").collect::<Vec<&str>>();
+            Box::new(SQLDataTypes::Varchar(column[column.len()-1].to_string()))
+        }).collect::<Vec<Box<SQLDataTypes>>>()];
+        res.splice(..0, header.iter().cloned());
+    }
 
     Ok(res)
 }

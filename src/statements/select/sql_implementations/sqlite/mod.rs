@@ -99,5 +99,13 @@ pub(crate) fn build_select_sqlite_single_thread(
         res.push(p)
     }
 
+    if select_props.return_header {
+        let header = vec![select_props.columns.iter().map(|column| {
+            let column = column.split(".").collect::<Vec<&str>>();
+            Box::new(SQLDataTypes::Varchar(column[column.len()-1].to_string()))
+        }).collect::<Vec<Box<SQLDataTypes>>>()];
+        res.splice(..0, header.iter().cloned());
+    }
+
     Ok(res)
 }

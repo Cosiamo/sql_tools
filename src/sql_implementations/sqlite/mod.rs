@@ -74,6 +74,7 @@ impl QueryBuilder for SQLiteConnect {
                 limit: None,
                 offset: None,
             },
+            return_header: false,
         }
     }
 
