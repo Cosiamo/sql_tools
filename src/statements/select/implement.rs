@@ -165,6 +165,11 @@ impl SelectBuilder for SelectProps {
         };
         self
     }
+    
+    fn return_header(mut self) -> Self {
+        self.return_header = true;
+        self
+    }
 }
 
 impl Ordered {

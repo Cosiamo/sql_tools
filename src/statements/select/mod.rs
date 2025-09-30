@@ -18,6 +18,7 @@ pub struct SelectProps {
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
     pub limit: Limit,
+    pub return_header: bool,
 }
 
 #[derive(Debug)]
@@ -187,6 +188,8 @@ pub trait SelectBuilder {
     fn group_by(self, columns: Vec<&str>) -> Grouped;
 
     fn limit(self, limit: usize, offset: Option<usize>) -> Self;
+
+    fn return_header(self) -> Self;
 
     /// Builds the query.
     /// This is multi-threaded by default, dividing the number of rows by the number of CPU cores.
