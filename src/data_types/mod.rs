@@ -40,7 +40,7 @@ impl fmt::Display for SQLDataTypes {
 /// }
 ///
 /// impl ToSQLData for MyEnum {
-///     fn fmt_data(self) -> SQLDataTypes {
+///     fn fmt_data(&self) -> SQLDataTypes {
 ///         match self {
 ///             MyEnum::Name(val) => SQLDataTypes::Varchar(val.into()),
 ///             MyEnum::Age(val) => SQLDataTypes::Number(val.into()),
@@ -57,7 +57,7 @@ impl fmt::Display for SQLDataTypes {
 /// struct MyType<'a>(&'a SomeForeignType);
 ///
 /// impl ToSQLData for MyType<'_> {
-///     fn fmt_data(self) -> SQLDataTypes {
+///     fn fmt_data(&'_ self) -> SQLDataTypes {
 ///         match self {
 ///             MyType(SomeForeignType::Int(val)) => SQLDataTypes::Number(*val),
 ///             MyType(SomeForeignType::Float(val)) => SQLDataTypes::Float(*val),
