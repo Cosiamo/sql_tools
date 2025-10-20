@@ -37,14 +37,14 @@ pub(crate) fn oracle_build_update(update_set: UpdateProps) -> Result<usize, Erro
     let query = match update_set.clause {
         Some(filters) => {
             count_sql = format!(
-                "SELECT COUNT(*) FROM {}.{} WHERE {}",
-                &update_set.table.id, &update_set.table.name, &filters
+                "SELECT COUNT(*) FROM {} WHERE {}",
+                &update_set.table, &filters
             );
-            format!("UPDATE {}.{} {} WHERE {}", &update_set.table.id, &update_set.table.name, set, filters)
+            format!("UPDATE {} {} WHERE {}", &update_set.table, set, filters)
         }
         None => {
-            count_sql = format!("SELECT COUNT(*) FROM {}.{}", &update_set.table.id, &update_set.table.name);
-            format!("UPDATE {}.{} {}", &update_set.table.id, &update_set.table.name, set)
+            count_sql = format!("SELECT COUNT(*) FROM {}", &update_set.table);
+            format!("UPDATE {} {}", &update_set.table, set)
         }
     };
 
@@ -95,8 +95,8 @@ pub fn batch_update_oracle(updates: Vec<UpdateProps>) -> Result<(), Error> {
             else { format!("{} = {},", set_match.column, fmt_data_types) }
         }).collect::<Vec<String>>().join(" ");
         match &update.clause {
-            Some(clause) => format!("UPDATE {}.{} {} WHERE {}", &update.table.id, &update.table.name, set, clause),
-            None => format!("UPDATE {}.{} {}", &update.table.id, &update.table.name, set),
+            Some(clause) => format!("UPDATE {} {} WHERE {}", &update.table, set, clause),
+            None => format!("UPDATE {} {}", &update.table, set),
         }
     }).collect::<Vec<String>>().join("; ");
 

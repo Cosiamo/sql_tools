@@ -89,7 +89,7 @@ pub trait QueryBuilder {
     ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
     ///     .build_return_count()?;
     /// ```
-    fn update(&self, table: &Table) -> UpdateInitialization;
+    fn update(&self, table: &str) -> UpdateInitialization;
 
     /// Creates a new [`InsertProps`] to start building out an insert query.
     ///
@@ -178,20 +178,4 @@ pub trait QueryBuilder {
 pub enum SQLImplementation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),
-}
-
-#[derive(Debug, Clone)]
-/// A SQL Table and it's corresponding ID
-pub struct Table {
-    pub name: String,
-    pub id: String,
-}
-
-impl Table {
-    pub(crate) fn new(name: &str) -> Self {
-        Self {
-            name: String::from(name),
-            id: crate::utils::generate_id(5),
-        }
-    }
 }

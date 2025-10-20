@@ -6,7 +6,7 @@ use crate::{
         insert::InsertProps,
         select::{Column, Limit, OrderBy, SelectProps},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation, Table
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation
 };
 
 impl OracleConnect {
@@ -56,10 +56,10 @@ impl QueryBuilder for OracleConnect {
         }
     }
 
-    fn update(&self, table: &Table) -> UpdateInitialization {
+    fn update(&self, table: &str) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLImplementation::Oracle(self.clone()),
-            table: table.clone(),
+            table: table.to_owned(),
         }
     }
 
@@ -105,7 +105,7 @@ impl QueryBuilder for OracleConnect {
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        let table = Table::new(table);
+        let table = table.to_string();
         DeleteProps {
             connect: SQLImplementation::Oracle(self.clone()),
             table,

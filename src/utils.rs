@@ -1,6 +1,3 @@
-use rand::Rng;
-use std::iter;
-
 use crate::{
     Error, QueryBuilder, sql_implementations::OracleConnect, statements::select::SelectBuilder,
 };
@@ -23,13 +20,6 @@ pub(crate) fn remove_invalid_chars(input: &String) -> String {
         .replace(")", "")
         .replace("+", "")
         .replace("#", "")
-}
-
-pub(crate) fn generate_id(len: usize) -> String {
-    const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let mut rng = rand::rng();
-    let one_char = || CHARSET[rng.random_range(0..CHARSET.len())] as char;
-    iter::repeat_with(one_char).take(len).collect()
 }
 
 impl OracleConnect {

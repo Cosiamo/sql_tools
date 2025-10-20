@@ -6,7 +6,7 @@ use crate::{
         insert::InsertProps,
         select::{Column, Limit, OrderBy, SelectBuilder, SelectProps},
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation, Table
+    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation
 };
 
 use super::SQLiteConnect;
@@ -80,10 +80,10 @@ impl QueryBuilder for SQLiteConnect {
         }
     }
 
-    fn update(&self, table: &Table) -> UpdateInitialization {
+    fn update(&self, table: &str) -> UpdateInitialization {
         UpdateInitialization {
             connect: SQLImplementation::SQLite(self.clone()),
-            table: table.clone(),
+            table: table.to_owned(),
         }
     }
 
@@ -129,7 +129,7 @@ impl QueryBuilder for SQLiteConnect {
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        let table = Table::new(table);
+        let table = table.to_string();
         DeleteProps {
             connect: SQLImplementation::SQLite(self.clone()),
             table,

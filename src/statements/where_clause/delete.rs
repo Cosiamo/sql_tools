@@ -96,7 +96,7 @@ impl WhereClauseBuilder for DeleteProps {
     }
     
     fn and_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let and = format!("{column} LIKE '{value}'");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} AND {and}")
@@ -108,7 +108,7 @@ impl WhereClauseBuilder for DeleteProps {
     }
     
     fn or_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let or = format!("{column} LIKE '{value}'");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} OR {or}")
@@ -120,7 +120,7 @@ impl WhereClauseBuilder for DeleteProps {
     }
     
     fn and_not_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let and = format!("{column} NOT LIKE '{value}'");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} AND {and}")
@@ -132,7 +132,7 @@ impl WhereClauseBuilder for DeleteProps {
     }
     
     fn or_not_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let or = format!("{column} NOT LIKE '{value}'");
         let clause = if let Some(existing) = self.clause {
             format!("{existing} OR {or}")
