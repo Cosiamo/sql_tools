@@ -180,7 +180,6 @@ pub enum SQLImplementation {
     SQLite(SQLiteConnect),
 }
 
-
 #[derive(Debug, Clone)]
 /// A SQL Table and it's corresponding ID
 pub struct Table {
@@ -194,9 +193,5 @@ impl Table {
             name: String::from(name),
             id: crate::utils::generate_id(5),
         }
-    }
-
-    pub(crate) fn query_fmt(&self) -> String {
-        format!("{} {}", self.name, self.id)
     }
 }

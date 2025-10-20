@@ -1,7 +1,7 @@
 use group_by::Grouped;
 
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation, Table
+    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation
 };
 
 pub mod group_by;
@@ -11,14 +11,20 @@ pub mod sql_implementations;
 #[derive(Debug)]
 pub struct SelectProps {
     pub connect: SQLImplementation,
-    pub columns: Vec<String>,
-    pub table: Table,
+    pub columns: Vec<Column>,
+    pub table: String,
     pub joins: Vec<Joins>,
     pub clause: Option<String>,
     pub order_by: (Option<String>, OrderBy),
     pub group_by: Option<Vec<String>>,
     pub limit: Limit,
     pub return_header: bool,
+}
+
+#[derive(Debug)]
+pub struct Column {
+    pub name: String,
+    pub table: String,
 }
 
 #[derive(Debug)]
@@ -41,7 +47,7 @@ pub struct Ordered {
 
 #[derive(Debug)]
 pub struct Joins {
-    pub table: Table,
+    pub table: String,
     pub primary_column: String,
     pub foreign_column: String,
     pub join_type: JoinType,
@@ -61,76 +67,72 @@ pub trait SelectBuilder {
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
-    /// let foreign_table = Table { name: "yearly_earnings".to_owned(), id: "yearly".to_owned() };
     /// let data = conn.select("quarterly_earnings", vec![
     ///         "yearly.year", // Adding the joined table's id to specify which table the column comes from
     ///         "yearly.revenue as yearly_rev",
     ///         "revenue as quarterly_rev", // If you don't add an id, then it will be associated with the primary table
     ///         "profit",
     ///     ])
-    ///     .inner_join(foreign_table, "year", "year")
+    ///     .inner_join("yearly_earnings", "year", "year")
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .and("yearly.year", vec!["2025", "2026"]) // Same concept from above applies in a WHERE/AND/OR clause
     ///     .build()?;
     /// ```
-    fn inner_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    fn inner_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
 
     /// Outer joins another table to your query.
     ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
-    /// let foreign_table = Table { name: "yearly_earnings".to_owned(), id: "yearly".to_owned() };
     /// let data = conn.select("quarterly_earnings", vec![
     ///         "yearly.year", // Adding the joined table's id to specify which table the column comes from
     ///         "yearly.revenue as yearly_rev",
     ///         "revenue as quarterly_rev", // If you don't add an id, then it will be associated with the primary table
     ///         "profit",
     ///     ])
-    ///     .outer_join(foreign_table, "year", "year")
+    ///     .outer_join("yearly_earnings", "year", "year")
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .and("yearly.year", vec!["2025", "2026"]) // Same concept from above applies in a WHERE/AND/OR clause
     ///     .build()?;
     /// ```
-    fn outer_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    fn outer_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
 
     /// Right joins another table to your query.
     ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
-    /// let foreign_table = Table { name: "yearly_earnings".to_owned(), id: "yearly".to_owned() };
     /// let data = conn.select("quarterly_earnings", vec![
     ///         "yearly.year", // Adding the joined table's id to specify which table the column comes from
     ///         "yearly.revenue as yearly_rev",
     ///         "revenue as quarterly_rev", // If you don't add an id, then it will be associated with the primary table
     ///         "profit",
     ///     ])
-    ///     .right_join(foreign_table, "year", "year")
+    ///     .right_join("yearly_earnings", "year", "year")
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .and("yearly.year", vec!["2025", "2026"]) // Same concept from above applies in a WHERE/AND/OR clause
     ///     .build()?;
     /// ```
-    fn right_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    fn right_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
 
     /// Left joins another table to your query.
     ///
     /// The table from the [`select method`](`crate::QueryBuilder::select`) is the primary table and will auto-generate an ID.
     /// The column you want associated with the primary table will be the `primary_column` that's passed into this method and vice versa.
     /// ```no_run
-    /// let foreign_table = Table { name: "yearly_earnings".to_owned(), id: "yearly".to_owned() };
     /// let data = conn.select("quarterly_earnings", vec![
     ///         "yearly.year", // Adding the joined table's id to specify which table the column comes from
     ///         "yearly.revenue as yearly_rev",
     ///         "revenue as quarterly_rev", // If you don't add an id, then it will be associated with the primary table
     ///         "profit",
     ///     ])
-    ///     .left_join(foreign_table, "year", "year")
+    ///     .left_join("yearly_earnings", "year", "year")
     ///     .where_in("quarter", vec!["Q2", "Q3"])
     ///     .and("yearly.year", vec!["2025", "2026"]) // Same concept from above applies in a WHERE/AND/OR clause
     ///     .build()?;
     /// ```
-    fn left_join(self, foreign_table: Table, primary_column: &str, foreign_column: &str) -> Self;
+    fn left_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
 
     /// Adds a WHERE clause to your query.
     /// ```no_run
@@ -187,8 +189,10 @@ pub trait SelectBuilder {
     /// Group By column(s)
     fn group_by(self, columns: Vec<&str>) -> Grouped;
 
+    /// Sets limit and offset of query
     fn limit(self, limit: usize, offset: Option<usize>) -> Self;
 
+    /// Returns column names
     fn return_header(self) -> Self;
 
     /// Builds the query.

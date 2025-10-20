@@ -4,7 +4,7 @@ use crate::{
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Limit, OrderBy, SelectBuilder, SelectProps},
+        select::{Column, Limit, OrderBy, SelectBuilder, SelectProps},
         update::UpdateInitialization,
     }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation, Table
 };
@@ -48,24 +48,26 @@ impl SQLiteConnect {
 
 impl QueryBuilder for SQLiteConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let table_name = table.trim();
-        let table = Table::new(table_name);
+        let table = table.trim();
 
-        let fmt_cols = columns
-            .iter()
-            .map(|cols| {
-                if cols.contains(".") || cols == &"*" {
-                    cols.to_string()
-                } else {
-                    format!("{}.{cols}", table.id)
-                }
-            })
-            .collect::<Vec<String>>();
+        let mut header = vec![];
+        for col in columns {
+            if col.contains(".") {
+                let col_props = col.split(".").collect::<Vec<&str>>();
+                header.push(
+                    Column { name: col_props[col_props.len() - 1].to_string(), table: col_props[0].to_string() }
+                );
+            } else {
+                header.push(
+                    Column { name: col.to_string(), table: table.to_string() }
+                );
+            }
+        }
 
         SelectProps {
             connect: SQLImplementation::SQLite(self.clone()),
-            columns: fmt_cols,
-            table,
+            columns: header,
+            table: table.to_string(),
             joins: vec![],
             clause: None,
             order_by: (None, OrderBy::None),

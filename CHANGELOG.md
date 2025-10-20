@@ -3,13 +3,17 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
-## [0.7.0] - 2025-08-20
+## [0.7.0] - 2025-09-30
 ### Added
+- Added the ability to return header names via return_header() in select()
 - More documentation for delete, select, create, and where clause methods
 
 ### Changed
 - SQLVariations is now SQLImplementations to follow common naming conventions
 - .create().add_column() now borrows self
+- replaced fmt_data() with fmt_data_borrowed()'s functionality to avoid self consumption in method and rm fmt_data_borrowed()
+- format_grid_strings() uses self instead of creating new struct
+- made oracle col headers public
 
 ## [0.6.0] - 2025-08-13
 ### Added

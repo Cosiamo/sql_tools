@@ -11,11 +11,10 @@ pub fn join_operations(select_props: &SelectProps, mut query: String) -> String 
             JoinType::Right => format!("RIGHT"),
             JoinType::Left => format!("LEFT"),
         };
-        let join_table = join.table.query_fmt();
-        let primary_column = format!("{}.{}", select_props.table.id, join.primary_column);
-        let foreign_column = format!("{}.{}", join.table.id, join.foreign_column);
-        query =
-            format!("{query} {join_type} JOIN {join_table} ON {primary_column} = {foreign_column}");
+        let join_table = &join.table;
+        let primary_column = format!("{}.{}", select_props.table, join.primary_column);
+        let foreign_column = format!("{}.{}", join.table, join.foreign_column);
+        query = format!("{query} {join_type} JOIN {join_table} ON {primary_column} = {foreign_column}");
     }
     query
 }

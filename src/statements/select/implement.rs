@@ -3,7 +3,7 @@ use crate::{
     data_types::{SQLDataTypes, ToSQLData},
     statements::{
         select::{
-            JoinType, Joins, Table,
+            JoinType, Joins,
             sql_implementations::{
                 oracle::{oracle_build_select, oracle_build_single_thread_select},
                 sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
@@ -18,12 +18,12 @@ use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Group
 impl SelectBuilder for SelectProps {
     fn inner_join(
         mut self,
-        foreign_table: Table,
+        foreign_table: &str,
         primary_column: &str,
         foreign_column: &str,
     ) -> Self {
         let join = Joins {
-            table: foreign_table,
+            table: foreign_table.to_owned(),
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Inner,
@@ -34,12 +34,12 @@ impl SelectBuilder for SelectProps {
 
     fn outer_join(
         mut self,
-        foreign_table: Table,
+        foreign_table: &str,
         primary_column: &str,
         foreign_column: &str,
     ) -> Self {
         let join = Joins {
-            table: foreign_table,
+            table: foreign_table.to_owned(),
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Outer,
@@ -50,12 +50,12 @@ impl SelectBuilder for SelectProps {
 
     fn right_join(
         mut self,
-        foreign_table: Table,
+        foreign_table: &str,
         primary_column: &str,
         foreign_column: &str,
     ) -> Self {
         let join = Joins {
-            table: foreign_table,
+            table: foreign_table.to_owned(),
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Right,
@@ -66,12 +66,12 @@ impl SelectBuilder for SelectProps {
 
     fn left_join(
         mut self,
-        foreign_table: Table,
+        foreign_table: &str,
         primary_column: &str,
         foreign_column: &str,
     ) -> Self {
         let join = Joins {
-            table: foreign_table,
+            table: foreign_table.to_owned(),
             primary_column: String::from(primary_column),
             foreign_column: String::from(foreign_column),
             join_type: JoinType::Left,
@@ -81,7 +81,7 @@ impl SelectBuilder for SelectProps {
     }
 
     fn where_in<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let value = where_clause_value_format(values);
         let where_clause = format!("{column} IN ({value})");
         self.clause = Some(where_clause);
@@ -89,7 +89,7 @@ impl SelectBuilder for SelectProps {
     }
 
     fn where_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let value = where_clause_value_format(values);
         let where_clause = format!("{column} NOT IN ({value})");
         self.clause = Some(where_clause);
@@ -97,28 +97,28 @@ impl SelectBuilder for SelectProps {
     }
 
     fn where_null(mut self, column: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let where_clause = format!("{column} IS NULL");
         self.clause = Some(where_clause);
         self
     }
 
     fn where_not_null(mut self, column: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let where_clause = format!("{column} IS NOT NULL");
         self.clause = Some(where_clause);
         self
     }
     
     fn where_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let like = format!("{column} LIKE '{value}'");
         self.clause = Some(like);
         self
     }
     
     fn where_not_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table.id, column);
+        let column = match_table_ids(&self.table, column);
         let like = format!("{column} NOT LIKE '{value}'");
         self.clause = Some(like);
         self
@@ -182,10 +182,10 @@ impl Ordered {
     }
 }
 
-fn match_table_ids(id: &String, column: &str) -> String {
+fn match_table_ids(table: &str, column: &str) -> String {
     if column.contains(".") {
         column.to_owned()
     } else {
-        format!("{id}.{column}")
+        format!("{table}.{column}")
     }
 }
