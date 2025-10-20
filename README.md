@@ -5,7 +5,7 @@ A rust crate meant to make SQL queries simple and communication between various 
 In your `cargo.toml` file:
 ```toml
 [dependencies]
-sql_tools = "0.5.1"
+sql_tools = "0.7.0"
 # chrono is required if you're working with dates 
 chrono = "0.4.41" 
 ```
@@ -48,11 +48,11 @@ pub enum SQLDataTypes {
 ## SELECT
 For the select method, you add the table you want to select from, then the columns in a vector. If you want to select all, simply input `vec!["*"]`. You can add a [where clause](#where) to filter out the rows you want, just like writing a SQL query.
 ```rust
-let foreign_table = Table { name: "national_sales" , id: "nat" }
+let foreign_table = "national_sales";
 let data: Vec<Vec<SQLDataTypes>> = conn
     .select("regional_sales", vec![ 
         // columns from joined tables need an id associated with them
-        "nat.revenue as state_rev", 
+        "national_sales.revenue as state_rev", 
         // columns from the selected table do not
         "revenue as city_rev", 
         "city"
@@ -60,7 +60,7 @@ let data: Vec<Vec<SQLDataTypes>> = conn
     ])
     .inner_join(foreign_table, "product_id", "product_id")
     .where_in("product_id", vec!["1001", "4567"])
-    .and("nat.state", vec!["Texas"]) 
+    .and("national_sales.state", vec!["Texas"]) 
     .and_not("city", vec!["Austin", "Dallas"])
     .build()?;
 data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });

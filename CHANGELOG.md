@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
-## [0.7.0] - 2025-09-30
+## [0.7.0] - 2025-10-20
 ### Added
 - Added the ability to return header names via return_header() in select()
 - More documentation for delete, select, create, and where clause methods
@@ -14,6 +14,7 @@ Dates are labeled YYYY-MM-DD.
 - replaced fmt_data() with fmt_data_borrowed()'s functionality to avoid self consumption in method and rm fmt_data_borrowed()
 - format_grid_strings() uses self instead of creating new struct
 - made oracle col headers public
+- Removed the `Table` struct and reverted all method params with this data type back to `&str`
 
 ## [0.6.0] - 2025-08-13
 ### Added
