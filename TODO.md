@@ -1,6 +1,3 @@
-# QueryBuilder
-- All methods that take a table as an input should take the `Table` struct instead of `&str`
-
 # Insert
 - A 2nd insert method that only takes data and excludes header
 - Add method to add/replace header
