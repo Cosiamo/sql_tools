@@ -3,8 +3,7 @@ use rusqlite::Connection;
 use crate::{
     data_types::SQLDataTypes, statements::select::{
         sql_implementations::{
-            multithread_execution, mutate_query::limit_offset, shared_select_operations,
-            sqlite::execution::sqlite_handle_execution,
+            multithread::multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution
         }, Column, SelectProps
     }, Error, SQLImplementation
 };

@@ -3,7 +3,7 @@ use crate::{
     statements::select::{JoinType, OrderBy, SelectProps},
 };
 
-pub fn join_operations(select_props: &SelectProps, mut query: String) -> String {
+pub(crate) fn join_operations(select_props: &SelectProps, mut query: String) -> String {
     for join in &select_props.joins {
         let join_type = match join.join_type {
             JoinType::Inner => format!("INNER"),
@@ -19,7 +19,7 @@ pub fn join_operations(select_props: &SelectProps, mut query: String) -> String 
     query
 }
 
-pub fn filters(select_props: &SelectProps, query: &String) -> String {
+pub(crate) fn filters(select_props: &SelectProps, query: &String) -> String {
     if let Some(filters) = &select_props.clause {
         format!("{} WHERE {}", query, filters)
     } else {
@@ -27,7 +27,7 @@ pub fn filters(select_props: &SelectProps, query: &String) -> String {
     }
 }
 
-pub fn group_by(select_props: &SelectProps, query: &String) -> String {
+pub(crate) fn group_by(select_props: &SelectProps, query: &String) -> String {
     if let Some(group_by) = &select_props.group_by {
         format!("{} GROUP BY {}", query, group_by.join(", "))
     } else {
@@ -35,7 +35,7 @@ pub fn group_by(select_props: &SelectProps, query: &String) -> String {
     }
 }
 
-pub fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Error> {
+pub(crate) fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Error> {
     match &select_props.order_by {
         (None, OrderBy::ASC) => return Err(Error::OrderByError),
         (None, OrderBy::DESC) => return Err(Error::OrderByError),
@@ -46,7 +46,7 @@ pub fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Er
     }
 }
 
-pub fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
+pub(crate) fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
     if let Some(limit) = select_props.limit.limit {
         query = format!("{} LIMIT {}", query, limit);
     }
@@ -56,7 +56,7 @@ pub fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
     query
 }
 
-pub fn limit_offset_oracle(select_props: &SelectProps, mut query: String) -> String {
+pub(crate) fn limit_offset_oracle(select_props: &SelectProps, mut query: String) -> String {
     if let Some(offset) = select_props.limit.offset {
         query = format!("{} OFFSET {} ROWS", query, offset)
     }

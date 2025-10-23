@@ -18,13 +18,11 @@ pub fn sqlite_handle_execution(
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();
     while let Some(row) = rows.next()? {
-        // let p = select_props.columns.iter().enumerate().map(|(idx, _)| {
-        //     row.get::<usize, SQLDataTypes>(idx).unwrap()
-        // }).collect::<Vec<SQLDataTypes>>();
         let mut p = Vec::new();
         for idx in 0..column_size {
             p.push(Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
         }
+        p.remove(0); // Removes the row number
         res.push(p)
     }
     Ok(res)

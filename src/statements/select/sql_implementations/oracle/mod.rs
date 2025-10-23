@@ -1,18 +1,11 @@
 use execution::stmt_res;
 
 use crate::{
-    Error, SQLImplementation,
-    data_types::SQLDataTypes,
-    sql_implementations::OracleConnect,
-    statements::select::{
-        SelectProps,
+    data_types::SQLDataTypes, sql_implementations::OracleConnect, statements::select::{
         sql_implementations::{
-            multithread_execution,
-            mutate_query::limit_offset_oracle,
-            oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution},
-            shared_select_operations,
-        },
-    },
+            multithread::multithread_execution, mutate_query::limit_offset_oracle, oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution}, shared_select_operations
+        }, SelectProps
+    }, Error, SQLImplementation
 };
 
 pub mod columns;
@@ -102,7 +95,7 @@ pub(crate) fn oracle_build_single_thread_select(
 
     // ===== Run query =====
     let stmt = conn.statement(&query).build()?;
-    let mut res = stmt_res(stmt, select_props.columns.len())?;
+    let mut res = stmt_res(stmt, select_props.columns.len(), false)?;
     if select_props.return_header {
         let header = vec![select_props.columns.iter().map(|column| {
             Box::new(SQLDataTypes::Varchar(column.name.to_string()))
