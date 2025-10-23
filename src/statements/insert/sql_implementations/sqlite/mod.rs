@@ -20,9 +20,10 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
 
     // Does table exist
     let connection = SQLiteConnect::new_path(&conn_info.path);
-    let exists_sql = format!("PRAGMA_TABLE_INFO('{}')", insert_props.table);
+    let table = &insert_props.table.split(".").collect::<Vec<&str>>();
     let exists = connection
-        .select(&exists_sql, vec!["name"])
+        .select("sqlite_master", vec!["name"])
+        .where_in("name", vec![table[0]])
         .build_single_thread()
         .unwrap();
 
@@ -118,9 +119,10 @@ pub(crate) fn sqlite_build_insert_pb(insert_props: InsertProps) -> Result<(), Er
 
     // Does table exist
     let connection = SQLiteConnect::new_path(&conn_info.path);
-    let exists_sql = format!("PRAGMA_TABLE_INFO('{}')", insert_props.table);
+    let table = &insert_props.table.split(".").collect::<Vec<&str>>();
     let exists = connection
-        .select(&exists_sql, vec!["name"])
+        .select("sqlite_master", vec!["name"])
+        .where_in("name", vec![table[0]])
         .build_single_thread()
         .unwrap();
 

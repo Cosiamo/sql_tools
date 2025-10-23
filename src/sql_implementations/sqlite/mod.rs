@@ -4,9 +4,9 @@ use crate::{
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Column, Limit, OrderBy, SelectBuilder, SelectProps},
+        select::SelectProps,
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation
+    }, Error, QueryBuilder, SQLImplementation
 };
 
 use super::SQLiteConnect;
@@ -24,22 +24,25 @@ impl SQLiteConnect {
         };
 
         let connection = SQLiteConnect::new_path(&self.path);
-        let exists_sql = format!("PRAGMA_TABLE_INFO('{}')", table);
-        let exists = connection
-            .select(&exists_sql, vec!["name"])
-            .build_single_thread()?;
+        let conn = rusqlite::Connection::open(&connection.path.clone())?;
 
-        if exists.len() == 0 {
+        let query = format!("select name from PRAGMA_TABLE_INFO('{table}')");
+        let mut stmt = conn.prepare(&query)?;
+        let mut rows = stmt.query([])?;
+        let mut columns = Vec::new();
+        while let Some(row) = rows.next()? {
+            let p = Box::new(row.get::<usize, SQLDataTypes>(0)?);
+            columns.push(p);
+        }
+
+        if columns.len() == 0 {
             return Err(Error::TableDoesNotExist);
         };
 
-        let res = exists
+        let res = columns
             .iter()
             .map(|row| {
-                row.iter()
-                    .map(|cell| cell.to_string())
-                    .collect::<Vec<String>>()
-                    .join("")
+                row.to_string()
             })
             .collect::<Vec<String>>();
         Ok(res)
@@ -48,92 +51,32 @@ impl SQLiteConnect {
 
 impl QueryBuilder for SQLiteConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let table = table.trim();
-
-        let mut header = vec![];
-        for col in columns {
-            if col.contains(".") {
-                let col_props = col.split(".").collect::<Vec<&str>>();
-                header.push(
-                    Column { name: col_props[col_props.len() - 1].to_string(), table: col_props[0].to_string() }
-                );
-            } else {
-                header.push(
-                    Column { name: col.to_string(), table: table.to_string() }
-                );
-            }
-        }
-
-        SelectProps {
-            connect: SQLImplementation::SQLite(self.clone()),
-            columns: header,
-            table: table.to_string(),
-            joins: vec![],
-            clause: None,
-            order_by: (None, OrderBy::None),
-            group_by: None,
-            limit: Limit {
-                limit: None,
-                offset: None,
-            },
-            return_header: false,
-        }
+        SQLImplementation::SQLite(self.clone())
+            .select_initialization(table, columns)
     }
 
     fn update(&self, table: &str) -> UpdateInitialization {
-        UpdateInitialization {
-            connect: SQLImplementation::SQLite(self.clone()),
-            table: table.to_owned(),
-        }
+        SQLImplementation::SQLite(self.clone())
+            .update_initialization(table)
     }
 
     fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
-        if data.len() < 2 {
-            return Err(Error::NoHeading);
-        }
-        let mut grid = data
-            .iter()
-            .map(|row| {
-                row.iter()
-                    .map(|cell| cell.fmt_data())
-                    .collect::<Vec<SQLDataTypes>>()
-            })
-            .collect::<Vec<Vec<SQLDataTypes>>>();
-        let header = grid[0]
-            .iter()
-            .map(|cell| {
-                let res = format!("{}", cell);
-                remove_invalid_chars(&res)
-            })
-            .collect::<Vec<String>>();
-        grid.remove(0);
-        Ok(InsertProps {
-            connect: SQLImplementation::SQLite(self.clone()),
-            grid,
-            table: table.to_string(),
-            header,
-            create: false,
-        })
+        SQLImplementation::SQLite(self.clone())
+            .insert_initialization(table, data)
     }
 
     fn create(&self) -> CreateProps {
-        CreateProps {
-            connect: SQLImplementation::SQLite(self.clone()),
-        }
+        SQLImplementation::SQLite(self.clone())
+            .create_initialization()
     }
 
     fn alter(&self) -> AlterProps {
-        AlterProps {
-            connect: SQLImplementation::SQLite(self.clone()),
-        }
+        SQLImplementation::SQLite(self.clone())
+            .alter_initialization()
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        let table = table.to_string();
-        DeleteProps {
-            connect: SQLImplementation::SQLite(self.clone()),
-            table,
-            clause: None,
-        }
+        SQLImplementation::SQLite(self.clone())
+            .delete_initialization(table)
     }
 }

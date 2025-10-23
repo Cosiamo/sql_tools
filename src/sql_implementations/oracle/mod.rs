@@ -1,12 +1,12 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, sql_implementations::OracleConnect, statements::{
+    data_types::ToSQLData, sql_implementations::OracleConnect, statements::{
         alter::AlterProps,
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Column, Limit, OrderBy, SelectProps},
+        select::SelectProps,
         update::UpdateInitialization,
-    }, utils::remove_invalid_chars, Error, QueryBuilder, SQLImplementation
+    }, Error, QueryBuilder, SQLImplementation
 };
 
 impl OracleConnect {
@@ -24,92 +24,32 @@ impl OracleConnect {
 
 impl QueryBuilder for OracleConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        let table = table.trim();
-
-        let mut header = vec![];
-        for col in columns {
-            if col.contains(".") {
-                let col_props = col.split(".").collect::<Vec<&str>>();
-                header.push(
-                    Column { name: col_props[col_props.len() - 1].to_string(), table: col_props[0].to_string() }
-                );
-            } else {
-                header.push(
-                    Column { name: col.to_string(), table: table.to_string() }
-                );
-            }
-        }
-
-        SelectProps {
-            connect: SQLImplementation::Oracle(self.clone()),
-            columns: header,
-            table: table.to_string(),
-            joins: vec![],
-            clause: None,
-            order_by: (None, OrderBy::None),
-            group_by: None,
-            limit: Limit {
-                limit: None,
-                offset: None,
-            },
-            return_header: false,
-        }
+        SQLImplementation::Oracle(self.clone())
+            .select_initialization(table, columns)
     }
 
     fn update(&self, table: &str) -> UpdateInitialization {
-        UpdateInitialization {
-            connect: SQLImplementation::Oracle(self.clone()),
-            table: table.to_owned(),
-        }
+        SQLImplementation::Oracle(self.clone())
+            .update_initialization(table)
     }
 
     fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
-        if data.len() < 2 {
-            return Err(Error::NoHeading);
-        }
-        let mut grid = data
-            .iter()
-            .map(|row| {
-                row.iter()
-                    .map(|cell| cell.fmt_data())
-                    .collect::<Vec<SQLDataTypes>>()
-            })
-            .collect::<Vec<Vec<SQLDataTypes>>>();
-        let header = grid[0]
-            .iter()
-            .map(|cell| {
-                let res = format!("{}", cell);
-                remove_invalid_chars(&res)
-            })
-            .collect::<Vec<String>>();
-        grid.remove(0);
-        Ok(InsertProps {
-            connect: SQLImplementation::Oracle(self.clone()),
-            grid,
-            table: table.to_string(),
-            header,
-            create: false,
-        })
+        SQLImplementation::Oracle(self.clone())
+            .insert_initialization(table, data)
     }
 
     fn create(&self) -> CreateProps {
-        CreateProps {
-            connect: SQLImplementation::Oracle(self.clone()),
-        }
+        SQLImplementation::Oracle(self.clone())
+            .create_initialization()
     }
 
     fn alter(&self) -> AlterProps {
-        AlterProps {
-            connect: SQLImplementation::Oracle(self.clone()),
-        }
+        SQLImplementation::Oracle(self.clone())
+            .alter_initialization()
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        let table = table.to_string();
-        DeleteProps {
-            connect: SQLImplementation::Oracle(self.clone()),
-            table,
-            clause: None,
-        }
+        SQLImplementation::Oracle(self.clone())
+            .delete_initialization(table)
     }
 }
