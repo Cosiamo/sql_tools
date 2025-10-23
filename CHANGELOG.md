@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.7.1] - 2025-10-23
+### Fixed
+- table_info method for SQLite was broken as a result of the table.column update in 0.7.0, fixed this to allow the function to work as intended
+
 ## [0.7.0] - 2025-10-20
 ### Added
 - Added the ability to return header names via return_header() in select()
