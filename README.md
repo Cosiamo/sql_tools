@@ -5,7 +5,7 @@ A rust crate meant to make SQL queries simple and communication between various 
 In your `cargo.toml` file:
 ```toml
 [dependencies]
-sql_tools = "0.7.1"
+sql_tools = "0.7.2"
 # chrono is required if you're working with dates 
 chrono = "0.4.41" 
 ```

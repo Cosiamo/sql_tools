@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.7.2] - 2025-10-27
+### Improved
+- Improved speed and memory usage for multithreaded select 
+
 ## [0.7.1] - 2025-10-23
 ### Fixed
 - table_info method for SQLite was broken as a result of the table.column update in 0.7.0, fixed this to allow the function to work as intended
