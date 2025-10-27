@@ -11,7 +11,6 @@ pub(crate) fn multithread_execution(
     query: String,
     count: Option<usize>,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    // ===== Get length of data then divide by number of threads =====
     let data_length: usize = if let Some(val) = count {
         val
     } else {
@@ -20,15 +19,14 @@ pub(crate) fn multithread_execution(
     let nthreads = num_cpus::get();
     let num = (data_length / nthreads + if data_length % nthreads == 0 { 0 } else { 1 }) as f32;
 
-    // ===== Initializing a Vec<JoinHandle> & Arc<SelectProps> for thread safety =====
     let mut handles: Vec<JoinHandle<Result<Vec<Vec<Box<SQLDataTypes>>>, Error>>> = Vec::new();
     let select_props = Arc::new(select_props);
 
     let mut prev: usize = 0; // The previous thread's "end" number
 
     for nthread in 0..nthreads {
-        let start: usize = prev + 1; // Which row number this thread starts on 
-        let mut end = (nthread + 1) * num.ceil() as usize; // Which row number this thread ends on 
+        let start: usize = prev + 1; 
+        let mut end = (nthread + 1) * num.ceil() as usize; 
         if end > data_length { end = data_length }
 
         let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");

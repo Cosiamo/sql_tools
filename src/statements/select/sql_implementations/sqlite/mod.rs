@@ -38,7 +38,6 @@ pub(crate) fn build_select_sqlite(
 
     let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
 
-    // ===== Initialize Queries =====
     let mut query = format!(
         "SELECT row_number() over (order by rowid) as row_num, {} FROM {}",
         &cols.join(", "),
@@ -46,11 +45,9 @@ pub(crate) fn build_select_sqlite(
     );
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
-    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
     count_sql = shared_select_operations(&select_props, count_sql)?;
 
-    // ===== Limit Offset =====
     query = limit_offset(&select_props, query);
     count_sql = limit_offset(&select_props, count_sql);
 
@@ -97,17 +94,14 @@ pub(crate) fn build_select_sqlite_single_thread(
 
     let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
 
-    // ===== Initialize Query =====
     let mut query = format!(
         "SELECT {} FROM {}",
         &cols.join(", "),
         &table,
     );
 
-    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
 
-    // ===== Limit Offset =====
     query = limit_offset(&select_props, query);
 
     let mut stmt = conn.prepare(&query)?;

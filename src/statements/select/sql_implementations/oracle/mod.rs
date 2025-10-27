@@ -14,7 +14,6 @@ pub mod execution;
 pub(crate) fn oracle_build_select(
     mut select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    // ===== Get all column names =====
     if select_props.columns[0].name == "*".to_string() {
         select_props.columns = get_column_names_oracle(&select_props)?;
     }
@@ -22,7 +21,6 @@ pub(crate) fn oracle_build_select(
     let table = &select_props.table;
     let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
 
-    // ===== Initialize Queries =====
     let mut query = format!(
         "SELECT row_number() over (order by {}.rowid) as row_num, {} FROM {}",
         &table,
@@ -32,15 +30,12 @@ pub(crate) fn oracle_build_select(
 
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
-    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
     count_sql = shared_select_operations(&select_props, count_sql)?;
 
-    // ===== Limit Offset =====
     query = limit_offset_oracle(&select_props, query);
     count_sql = limit_offset_oracle(&select_props, count_sql);
 
-    // ===== Initialize connection =====
     let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
         &conn_info.username,
@@ -48,7 +43,6 @@ pub(crate) fn oracle_build_select(
         &conn_info.connection_string,
     )?;
 
-    // ===== Get number of rows =====
     let mut count: Option<usize> = None;
     let count_query = conn.query(&count_sql, &[])?;
     for res in count_query {
@@ -57,14 +51,12 @@ pub(crate) fn oracle_build_select(
         count = row.get_as::<Option<usize>>()?;
     }
 
-    // ===== Multi-threading functionality =====
     multithread_execution(oracle_handle_execution, select_props, query, count)
 }
 
 pub(crate) fn oracle_build_single_thread_select(
     mut select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    // ===== Get all column names =====
     if select_props.columns[0].name == "*".to_string() {
         select_props.columns = get_column_names_oracle(&select_props)?;
     }
@@ -72,20 +64,16 @@ pub(crate) fn oracle_build_single_thread_select(
     let table = &select_props.table;
     let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
 
-    // ===== Initialize query =====
     let mut query = format!(
         "SELECT {} FROM {}",
         &cols.join(", "),
         &table,
     );
 
-    // ===== Select Operations =====
     query = shared_select_operations(&select_props, query)?;
 
-    // ===== Limit Offset =====
     query = limit_offset_oracle(&select_props, query);
 
-    // ===== Initialize connection =====
     let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
         conn_info.username,
@@ -93,7 +81,6 @@ pub(crate) fn oracle_build_single_thread_select(
         conn_info.connection_string,
     )?;
 
-    // ===== Run query =====
     let stmt = conn.statement(&query).build()?;
     let mut res = stmt_res(stmt, select_props.columns.len(), false)?;
     if select_props.return_header {
