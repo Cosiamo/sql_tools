@@ -13,6 +13,7 @@ pub mod data_types;
 pub mod sql_implementations;
 pub mod statements;
 pub mod utils;
+pub mod query_conjunctions;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

@@ -1,15 +1,10 @@
 use crate::{
-    Error, SQLImplementation,
-    data_types::SQLDataTypes,
-    statements::{
-        select::{
+    Error, SQLImplementation, data_types::SQLDataTypes, query_conjunctions::utils::where_clause_value_format, statements::select::{
             JoinType, Joins, WhereArg, sql_implementations::{
                 oracle::{oracle_build_select, oracle_build_single_thread_select},
                 sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
             }
-        },
-        query_conjunctions::utils::where_clause_value_format,
-    },
+        }
 };
 
 use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Grouped};

@@ -1,4 +1,4 @@
-use crate::{data_types::{self, ToSQLData}, statements::query_conjunctions::WhereArg};
+use crate::{WhereArg, data_types::{self, ToSQLData}};
 
 pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
     items

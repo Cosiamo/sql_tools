@@ -1,11 +1,8 @@
 use crate::{
-    data_types::ToSQLData, statements::{
-        update::sql_implementations::{
+    Error, SQLImplementation, data_types::ToSQLData, query_conjunctions::utils::{match_table_ids, where_clause_value_format}, statements::update::sql_implementations::{
             oracle::{batch_update_oracle, oracle_build_update},
             sqlite::{batch_update_sqlite, sqlite_build_update},
-        },
-        query_conjunctions::utils::{match_table_ids, where_clause_value_format},
-    }, Error, SQLImplementation
+        }
 };
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};

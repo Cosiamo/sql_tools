@@ -1,4 +1,4 @@
-use crate::statements::{delete::DeleteProps, select::SelectProps, update::UpdateProps, query_conjunctions::{QueryConjunctions, WhereArg, utils::{conjunction_match, conjunction_match_not, match_table_ids}}};
+use crate::{WhereArg, query_conjunctions::{QueryConjunctions, utils::{conjunction_match, conjunction_match_not, match_table_ids}}, statements::{delete::DeleteProps, select::SelectProps, update::UpdateProps}};
 
 impl QueryConjunctions for SelectProps {
     fn and(mut self, column: &str, values: WhereArg) -> Self {

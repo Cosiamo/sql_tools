@@ -1,8 +1,5 @@
 use crate::{
-    data_types::ToSQLData, statements::{
-        delete::sql_implementations::{oracle::oracle_build_delete, sqlite::sqlite_delete},
-        query_conjunctions::utils::{match_table_ids, where_clause_value_format},
-    }, Error, SQLImplementation
+    Error, SQLImplementation, data_types::ToSQLData, query_conjunctions::utils::{match_table_ids, where_clause_value_format}, statements::delete::sql_implementations::{oracle::oracle_build_delete, sqlite::sqlite_delete}
 };
 
 use super::{DeleteBuilder, DeleteProps};
