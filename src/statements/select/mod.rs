@@ -1,7 +1,7 @@
 use group_by::Grouped;
 
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation
+    Error, SQLImplementation, WhereArg, data_types::SQLDataTypes
 };
 
 pub mod group_by;
@@ -136,49 +136,103 @@ pub trait SelectBuilder {
 
     /// Adds a WHERE clause to your query.
     /// ```no_run
+    /// let values = WhereArg::Values(vec![
+    ///    SQLDataTypes::Varchar("Q2".to_string()),  SQLDataTypes::Varchar("Q3".to_string())
+    /// ]);
     /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
-    ///     .where_in("quarter", vec!["Q2", "Q3"])
+    ///     .where_in("quarter", values)
     ///     .build()?;
     /// ```
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-
-    /// Adds a WHERE NOT clause to your query.
-    /// ```no_run
-    /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
-    ///     .where_not("quarter", vec!["Q1", "Q4"])
-    ///     .build()?;
+    /// 
+    /// ```sql
+    /// SELECT revenue, profit FROM quarterly_earning WHERE quarter IN ('Q2', 'Q3');
     /// ```
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-
-    /// Selects where a column is NULL.
-    fn where_null(self, column: &str) -> Self;
-
-    /// Selects where a column is not NULL.
-    fn where_not_null(self, column: &str) -> Self;
-
-    /// Adds a LIKE statement 
+    /// 
     /// ```no_run
+    /// let like = WhereArg::Like("Bob%".to_string());
     /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_like("name", "Bob%")
+    ///     .where_in("name", "Bob%")
     ///     .build()?;
     /// ```
-    /// Is the same as: 
+    /// 
     /// ```sql
     /// SELECT name, position FROM employees WHERE name LIKE 'Bob%';
     /// ```
-    fn where_like(self, column: &str, value: &str) -> Self;
-    
-    /// Adds a NOT LIKE statement
+    /// 
     /// ```no_run
+    /// let query = WhereArg::Query(
+    ///     "SELECT name FROM customers"
+    /// );
     /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_not_like("name", "Bob%")
+    ///     .where_in("name", query)
     ///     .build()?;
     /// ```
-    /// Is the same as: 
+    /// 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE name in (SELECT name FROM customers);
+    /// ```
+    /// 
+    /// ```no_run
+    /// let null = WhereArg::Null;
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_in("hours_worked", null)
+    ///     .build()?;
+    /// ```
+    /// 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE hours_worked IS NULL;
+    /// ```
+    fn where_in(self, column: &str, values: WhereArg) -> Self; 
+
+    /// Adds a WHERE NOT clause to your query.
+    /// ```no_run
+    /// let values = WhereArg::Values(vec![
+    ///    SQLDataTypes::Varchar("Q1".to_string()),  SQLDataTypes::Varchar("Q4".to_string())
+    /// ]);
+    /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
+    ///     .where_not("quarter", values)
+    ///     .build()?;
+    /// ```
+    /// 
+    /// ```sql
+    /// SELECT revenue, profit FROM quarterly_earning WHERE quarter NOT IN ('Q2', 'Q3');
+    /// ```
+    /// 
+    /// ```no_run
+    /// let like = WhereArg::Like("Bob%".to_string());
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_not("name", "Bob%")
+    ///     .build()?;
+    /// ```
+    /// 
     /// ```sql
     /// SELECT name, position FROM employees WHERE name NOT LIKE 'Bob%';
     /// ```
-    fn where_not_like(self, column: &str, value: &str) -> Self;
+    /// 
+    /// ```no_run
+    /// let query = WhereArg::Query(
+    ///     "SELECT name FROM customers"
+    /// );
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_not("name", query)
+    ///     .build()?;
+    /// ```
+    /// 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE name NOT IN (SELECT name FROM customers);
+    /// ```
+    /// 
+    /// ```no_run
+    /// let null = WhereArg::Null;
+    /// let data = conn.select("employees", vec!["name", "position"])
+    ///     .where_not("hours_worked", null)
+    ///     .build()?;
+    /// ```
+    /// 
+    /// ```sql
+    /// SELECT name, position FROM employees WHERE hours_worked IS NOT NULL;
+    /// ```
+    fn where_not(self, column: &str, values: WhereArg) -> Self;
 
     /// Order By a column ascending
     fn order_asc(self, column: &str) -> Ordered;

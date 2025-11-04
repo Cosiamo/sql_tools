@@ -1,15 +1,14 @@
 use crate::{
     Error, SQLImplementation,
-    data_types::{SQLDataTypes, ToSQLData},
+    data_types::SQLDataTypes,
     statements::{
         select::{
-            JoinType, Joins,
-            sql_implementations::{
+            JoinType, Joins, WhereArg, sql_implementations::{
                 oracle::{oracle_build_select, oracle_build_single_thread_select},
                 sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
-            },
+            }
         },
-        where_clause::utils::where_clause_value_format,
+        query_conjunctions::utils::where_clause_value_format,
     },
 };
 
@@ -80,47 +79,49 @@ impl SelectBuilder for SelectProps {
         self
     }
 
-    fn where_in<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let value = where_clause_value_format(values);
-        let where_clause = format!("{column} IN ({value})");
+    fn where_in(mut self, column: &str, values: WhereArg) -> Self {
+        let where_clause = match values {
+            WhereArg::Values(items) => {
+                let value = where_clause_value_format(items);
+                let column = match_table_ids(&self.table, column);
+                format!("{column} IN ({value})")
+            },
+            WhereArg::Like(like) => {
+                let column = match_table_ids(&self.table, column);
+                format!("{column} LIKE '{like}'")
+            },
+            WhereArg::Query(value) => {
+                format!("{column} IN ({value})")
+            },
+            WhereArg::NULL => {
+                let column = match_table_ids(&self.table, column);
+                format!("{column} IS NULL")
+            },
+        };
         self.clause = Some(where_clause);
         self
     }
 
-    fn where_not<T: ToSQLData>(mut self, column: &str, values: Vec<T>) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let value = where_clause_value_format(values);
-        let where_clause = format!("{column} NOT IN ({value})");
+    fn where_not(mut self, column: &str, values: WhereArg) -> Self {
+        let where_clause = match values {
+            WhereArg::Values(items) => {
+                let value = where_clause_value_format(items);
+                let column = match_table_ids(&self.table, column);
+                format!("{column} NOT IN ({value})")
+            },
+            WhereArg::Like(like) => {
+                let column = match_table_ids(&self.table, column);
+                format!("{column} NOT LIKE '{like}'")
+            },
+            WhereArg::Query(value) => {
+                format!("{column} NOT IN ({value})")
+            },
+            WhereArg::NULL => {
+                let column = match_table_ids(&self.table, column);
+                format!("{column} IS NOT NULL")
+            },
+        };
         self.clause = Some(where_clause);
-        self
-    }
-
-    fn where_null(mut self, column: &str) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let where_clause = format!("{column} IS NULL");
-        self.clause = Some(where_clause);
-        self
-    }
-
-    fn where_not_null(mut self, column: &str) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let where_clause = format!("{column} IS NOT NULL");
-        self.clause = Some(where_clause);
-        self
-    }
-    
-    fn where_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let like = format!("{column} LIKE '{value}'");
-        self.clause = Some(like);
-        self
-    }
-    
-    fn where_not_like(mut self, column: &str, value: &str) -> Self {
-        let column = match_table_ids(&self.table, column);
-        let like = format!("{column} NOT LIKE '{value}'");
-        self.clause = Some(like);
         self
     }
 

@@ -4,7 +4,7 @@ use crate::{
             oracle::{batch_update_oracle, oracle_build_update},
             sqlite::{batch_update_sqlite, sqlite_build_update},
         },
-        where_clause::utils::{match_table_ids, where_clause_value_format},
+        query_conjunctions::utils::{match_table_ids, where_clause_value_format},
     }, Error, SQLImplementation
 };
 

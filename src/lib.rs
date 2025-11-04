@@ -7,6 +7,8 @@ use statements::{
     select::SelectProps, update::UpdateInitialization,
 };
 
+use crate::data_types::SQLDataTypes;
+
 pub mod data_types;
 pub mod sql_implementations;
 pub mod statements;
@@ -178,4 +180,13 @@ pub trait QueryBuilder {
 pub enum SQLImplementation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),
+}
+
+#[derive(Debug)]
+/// The argument type for the `where_in`, `where_not`, `and`, `and_not`, `or`, and `or_not` methods.
+pub enum WhereArg {
+    Values(Vec<SQLDataTypes>),
+    Like(String),
+    Query(String),
+    NULL,
 }

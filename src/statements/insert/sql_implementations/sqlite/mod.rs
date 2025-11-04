@@ -2,14 +2,11 @@ use indicatif::ProgressBar;
 use rusqlite::Connection;
 
 use crate::{
-    Error, QueryBuilder, SQLImplementation,
-    data_types::SQLDataTypes,
-    sql_implementations::SQLiteConnect,
-    statements::{
+    Error, QueryBuilder, SQLImplementation, WhereArg, data_types::SQLDataTypes, sql_implementations::SQLiteConnect, statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
         insert::{InsertProps, sql_implementations::oracle::validation::get_col_indexes},
         select::SelectBuilder,
-    },
+    }
 };
 
 pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error> {
@@ -21,9 +18,11 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
     // Does table exist
     let connection = SQLiteConnect::new_path(&conn_info.path);
     let table = &insert_props.table.split(".").collect::<Vec<&str>>();
+    let table = table.iter().map(|cell|SQLDataTypes::Varchar(cell.to_string())).collect::<Vec<SQLDataTypes>>();
+    let value = WhereArg::Values(vec![table[0].clone()]);
     let exists = connection
         .select("sqlite_master", vec!["name"])
-        .where_in("name", vec![table[0]])
+        .where_in("name", value)
         .build_single_thread()
         .unwrap();
 
@@ -120,9 +119,11 @@ pub(crate) fn sqlite_build_insert_pb(insert_props: InsertProps) -> Result<(), Er
     // Does table exist
     let connection = SQLiteConnect::new_path(&conn_info.path);
     let table = &insert_props.table.split(".").collect::<Vec<&str>>();
+    let table = table.iter().map(|cell|SQLDataTypes::Varchar(cell.to_string())).collect::<Vec<SQLDataTypes>>();
+    let value = WhereArg::Values(vec![table[0].clone()]);
     let exists = connection
         .select("sqlite_master", vec!["name"])
-        .where_in("name", vec![table[0]])
+        .where_in("name", value)
         .build_single_thread()
         .unwrap();
 
