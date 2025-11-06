@@ -1,7 +1,7 @@
 use group_by::Grouped;
 
 use crate::{
-    Error, SQLImplementation, WhereArg, data_types::SQLDataTypes
+    Error, SQLImplementation, data_types::SQLDataTypes
 };
 
 pub mod group_by;
@@ -133,106 +133,6 @@ pub trait SelectBuilder {
     ///     .build()?;
     /// ```
     fn left_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
-
-    /// Adds a WHERE clause to your query.
-    /// ```no_run
-    /// let values = WhereArg::Values(vec![
-    ///    SQLDataTypes::Varchar("Q2".to_string()),  SQLDataTypes::Varchar("Q3".to_string())
-    /// ]);
-    /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
-    ///     .where_in("quarter", values)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT revenue, profit FROM quarterly_earning WHERE quarter IN ('Q2', 'Q3');
-    /// ```
-    /// 
-    /// ```no_run
-    /// let like = WhereArg::Like("Bob%".to_string());
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_in("name", "Bob%")
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE name LIKE 'Bob%';
-    /// ```
-    /// 
-    /// ```no_run
-    /// let query = WhereArg::Query(
-    ///     "SELECT name FROM customers"
-    /// );
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_in("name", query)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE name in (SELECT name FROM customers);
-    /// ```
-    /// 
-    /// ```no_run
-    /// let null = WhereArg::Null;
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_in("hours_worked", null)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE hours_worked IS NULL;
-    /// ```
-    fn where_in(self, column: &str, values: WhereArg) -> Self; 
-
-    /// Adds a WHERE NOT clause to your query.
-    /// ```no_run
-    /// let values = WhereArg::Values(vec![
-    ///    SQLDataTypes::Varchar("Q1".to_string()),  SQLDataTypes::Varchar("Q4".to_string())
-    /// ]);
-    /// let data = conn.select("quarterly_earnings", vec!["revenue", "profit"])
-    ///     .where_not("quarter", values)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT revenue, profit FROM quarterly_earning WHERE quarter NOT IN ('Q2', 'Q3');
-    /// ```
-    /// 
-    /// ```no_run
-    /// let like = WhereArg::Like("Bob%".to_string());
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_not("name", "Bob%")
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE name NOT LIKE 'Bob%';
-    /// ```
-    /// 
-    /// ```no_run
-    /// let query = WhereArg::Query(
-    ///     "SELECT name FROM customers"
-    /// );
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_not("name", query)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE name NOT IN (SELECT name FROM customers);
-    /// ```
-    /// 
-    /// ```no_run
-    /// let null = WhereArg::Null;
-    /// let data = conn.select("employees", vec!["name", "position"])
-    ///     .where_not("hours_worked", null)
-    ///     .build()?;
-    /// ```
-    /// 
-    /// ```sql
-    /// SELECT name, position FROM employees WHERE hours_worked IS NOT NULL;
-    /// ```
-    fn where_not(self, column: &str, values: WhereArg) -> Self;
 
     /// Order By a column ascending
     fn order_asc(self, column: &str) -> Ordered;

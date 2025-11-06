@@ -1,5 +1,5 @@
 use crate::{
-    Error, QueryBuilder, WhereArg, sql_implementations::OracleConnect, statements::select::SelectBuilder
+    Error, QueryBuilder, query_conjunctions::{QueryConjunctions, WhereArg}, sql_implementations::OracleConnect, statements::select::SelectBuilder
 };
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {

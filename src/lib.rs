@@ -7,8 +7,6 @@ use statements::{
     select::SelectProps, update::UpdateInitialization,
 };
 
-use crate::data_types::SQLDataTypes;
-
 pub mod data_types;
 pub mod sql_implementations;
 pub mod statements;
@@ -60,10 +58,12 @@ pub trait QueryBuilder {
     /// You can add a [`where_clause::WhereSelect`] to filter out the rows you want, just like writing a SQL query.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// let product_ids = WhereArg::Values(vec![SQLDataTypes::Number(1001), SQLDataTypes::Number(4567)]);
+    /// let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
     /// let data: Vec<Vec<SQLDataTypes>> = conn
     ///     .select("regional_sales", vec!["product_id", "revenue", "sale_date"])
-    ///     .where_in("product_id", vec!["1001", "4567"])
-    ///     .and_not("city", vec!["Austin", "Dallas"])
+    ///     .where_in("product_id", product_ids)
+    ///     .and_not("city", cities)
     ///     .build()?;
     /// data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
     /// ```
@@ -81,15 +81,16 @@ pub trait QueryBuilder {
     /// Updates can return Ok() or the number of rows that were updated.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// let countries = WhereArg::Values(vec![SQLDataTypes::Varchar("Canada"),SQLDataTypes::Varchar("United States"), SQLDataTypes::Varchar("Mexico")]);
     /// conn.update("global_sales")
     ///     .set("continent", "North America")
-    ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
+    ///     .where_in("country", countries)
     ///     .build()?;
     /// // If you want to get the number of rows that were updated
     /// let count: usize = conn
     ///     .update("global_sales")
     ///     .set("continent", "North America")
-    ///     .where_in("country", vec!["Canada", "United States", "Mexico"])
+    ///     .where_in("country", countries)
     ///     .build_return_count()?;
     /// ```
     fn update(&self, table: &str) -> UpdateInitialization;
@@ -170,7 +171,7 @@ pub trait QueryBuilder {
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// conn.delete("my_table")
-    ///     .where_null("Column_A")
+    ///     .where_in("Column_A", WhereArg::NULL)
     ///     .build()?
     /// ```
     fn delete(&self, table: &str) -> DeleteProps;
@@ -181,13 +182,4 @@ pub trait QueryBuilder {
 pub enum SQLImplementation {
     Oracle(OracleConnect),
     SQLite(SQLiteConnect),
-}
-
-#[derive(Debug)]
-/// The argument type for the `where_in`, `where_not`, `and`, `and_not`, `or`, and `or_not` methods.
-pub enum WhereArg {
-    Values(Vec<SQLDataTypes>),
-    Like(String),
-    Query(String),
-    NULL,
 }

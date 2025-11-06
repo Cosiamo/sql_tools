@@ -2,7 +2,7 @@ use indicatif::ProgressBar;
 use rusqlite::Connection;
 
 use crate::{
-    Error, QueryBuilder, SQLImplementation, WhereArg, data_types::SQLDataTypes, sql_implementations::SQLiteConnect, statements::{
+    Error, QueryBuilder, SQLImplementation, data_types::SQLDataTypes, query_conjunctions::{QueryConjunctions, WhereArg}, sql_implementations::SQLiteConnect, statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
         insert::{InsertProps, sql_implementations::oracle::validation::get_col_indexes},
         select::SelectBuilder,

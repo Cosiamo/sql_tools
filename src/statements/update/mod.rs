@@ -41,48 +41,6 @@ pub trait UpdateBuilder {
     /// Sets a column equal to the result of a SELECT query.
     fn set_query(self, column: &str, query: &str) -> Self;
 
-    /// Adds a WHERE clause to your query.
-    /// ```no_run
-    /// conn.update("test_grades")
-    ///     .set("passed", "false")
-    ///     .where_in("name", vec!["John Doe", "Jane Smith"])
-    ///     .build()?;
-    /// ```
-    /// Is the same as:
-    /// ```sql
-    /// UPDATE test_grades
-    /// SET passed = 'false'
-    /// WHERE name NOT IN ('John Doe');
-    /// ```
-    fn where_in<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-
-    /// Adds a WHERE NOT clause to your query.
-    /// ```no_run
-    /// conn.update("test_grades")
-    ///     .set("passed", "true")
-    ///     .where_not("name", vec!["John Doe", "Jane Smith"])
-    ///     .build()?;
-    /// ```
-    /// Is the same as:
-    /// ```sql
-    /// UPDATE test_grades
-    /// SET passed = 'true'
-    /// WHERE name NOT IN ('John Doe');
-    /// ```
-    fn where_not<T: ToSQLData>(self, column: &str, values: Vec<T>) -> Self;
-
-    /// Selects where a column is NULL.
-    fn where_null(self, column: &str) -> Self;
-
-    /// Selects where a column is not NULL.
-    fn where_not_null(self, column: &str) -> Self;
-    
-    /// Adds a LIKE statement 
-    fn where_like(self, column: &str, value: &str) -> Self;
-    
-    /// Adds a NOT LIKE statement
-    fn where_not_like(self, column: &str, value: &str) -> Self;
-
     /// Builds the query.
     fn build(self) -> Result<(), Error>;
 

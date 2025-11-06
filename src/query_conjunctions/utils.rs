@@ -1,4 +1,4 @@
-use crate::{WhereArg, data_types::{self, ToSQLData}};
+use crate::{data_types::{self, ToSQLData}, query_conjunctions::WhereArg};
 
 pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
     items
@@ -19,6 +19,48 @@ pub(crate) fn match_table_ids(id: &String, column: &str) -> String {
         column.to_owned()
     } else {
         format!("{id}.{column}")
+    }
+}
+
+pub(crate) fn where_match (
+    column: &str, 
+    values: WhereArg, 
+) -> String {
+    match values {
+        WhereArg::Values(items) => {
+            let value = where_clause_value_format(items);
+            format!("{column} IN ({value})")
+        },
+        WhereArg::Like(like) => {
+            format!("{column} LIKE '{like}'")
+        },
+        WhereArg::Query(value) => {
+            format!("{column} IN ({value})")
+        },
+        WhereArg::NULL => {
+            format!("{column} IS NULL")
+        },
+    }
+}
+
+pub(crate) fn where_match_not (
+    column: &str, 
+    values: WhereArg, 
+) -> String {
+    match values {
+        WhereArg::Values(items) => {
+            let value = where_clause_value_format(items);
+            format!("{column} NOt IN ({value})")
+        },
+        WhereArg::Like(like) => {
+            format!("{column} NOT LIKE '{like}'")
+        },
+        WhereArg::Query(value) => {
+            format!("{column} NOT IN ({value})")
+        },
+        WhereArg::NULL => {
+            format!("{column} IS NOT NULL")
+        },
     }
 }
 
