@@ -5,7 +5,7 @@ A rust crate meant to make SQL queries simple and communication between various 
 In your `cargo.toml` file:
 ```toml
 [dependencies]
-sql_tools = "0.7.2"
+sql_tools = "0.8.0"
 # chrono is required if you're working with dates 
 chrono = "0.4.41" 
 ```
@@ -48,7 +48,9 @@ pub enum SQLDataTypes {
 ## SELECT
 For the select method, you add the table you want to select from, then the columns in a vector. If you want to select all, simply input `vec!["*"]`. You can add a [where clause](#where) to filter out the rows you want, just like writing a SQL query.
 ```rust
-let foreign_table = "national_sales";
+let product_ids = WhereArg::Values(vec![SQLDataTypes::Number(1001),SQLDataTypes::Number(4567)]);
+let state = WhereArg::Like("Tex%");
+let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
 let data: Vec<Vec<SQLDataTypes>> = conn
     .select("regional_sales", vec![ 
         // columns from joined tables need an id associated with them
@@ -58,10 +60,10 @@ let data: Vec<Vec<SQLDataTypes>> = conn
         "city"
         "sale_date",
     ])
-    .inner_join(foreign_table, "product_id", "product_id")
-    .where_in("product_id", vec!["1001", "4567"])
-    .and("national_sales.state", vec!["Texas"]) 
-    .and_not("city", vec!["Austin", "Dallas"])
+    .inner_join("national_sales", "product_id", "product_id")
+    .where_in("product_id", product_ids)
+    .and("national_sales.state", state) 
+    .and_not("city", cities)
     .build()?;
 data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ```
@@ -69,15 +71,16 @@ data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ## UPDATE
 Updates a table's column(s) based on criteria set in the optional [where clauses](#where). Updates can return Ok() or the number of rows that were updated.
 ```rust
+let countries = WhereArg::Values(vec![SQLDataTypes::Varchar("Canada"), SQLDataTypes::Varchar("United States"), SQLDataTypes::Varchar("Mexico")]);
 conn.update("global_sales")
     .set("continent", "North America")
-    .where_in("country", vec!["Canada", "United States", "Mexico"])
+    .where_in("country", countries)
     .build()?;
 // If you want to get the number of rows that were updated
 let count: usize = conn
     .update("global_sales")
     .set("continent", "North America")
-    .where_in("country", vec!["Canada", "United States", "Mexico"])
+    .where_in("country", countries)
     .build_return_count()?;
 ```
 
@@ -144,8 +147,9 @@ my_table.build()?;
 ## DELETE
 Deletes rows in a table based on the where methods added to the `DeleteProps`. If no where methods are added, it will delete all data in the table.
 ```rust
+let terminated = WhereArg::Query("SELECT status FROM employment_statues WHERE status_type LIKE 'termina%'");
 conn.delete("employee_data")
-    .where_in("status", vec!["terminated"])
+    .where_in("status", terminated)
     .build()?;
 ```
 
@@ -187,6 +191,38 @@ conn.alter()
     .table("sales")
     .rename_column("salesman", "employee")
     .build()?;
+```
+
+## Where
+Conjunction statements are split into 4 categories via the `WhereArg` enum to prevent SQL injections, potential issues with NULL values, and for more intentional query structure.
+
+- `Values` is a vector of any data type that has is implemented for the `ToSQLData` trait. This would be used as if you have a basic WHERE clause that you have set values for.
+```rust
+.where_in("column", WhereArg::Values(vec!["one", "two", "three"]))
+```
+```sql
+WHERE column IN ('one', 'two', 'three');
+```
+- `Like` is used the same way as a SQL LIKE statement.
+```rust
+.where_in("column", WhereArg::Like("Hello Wor%"))
+```
+```sql
+WHERE column IN ('Hello Wor%');
+```
+- `Query` is when you want to select values from another table.
+```rust
+.where_in("column", WhereArg::Query("SELECT value FROM another_table"))
+```
+```sql
+WHERE column IN (SELECT value FROM another_table)
+```
+- `NULL` is for selecting NULL values.
+```rust
+.where_in("column", WhereArg::NULL)
+```
+```sql
+WHERE column IS NULL
 ```
 
 ## ToSQLData

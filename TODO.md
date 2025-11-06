@@ -3,6 +3,7 @@
 - Add method to add/replace header
 
 # Select 
+- Need a clever way to differentiate a varchar from a query in where statements
 
 # CREATE
 - Create view method

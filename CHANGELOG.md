@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.8.0] - 2025-11-04
+### Added
+- WhereArgs enum
+
+### Removed
+- where_like, where_null, where_not_like, where_not_null, and_like, and_null, and_not_like, and_not_null, or_like, or_null, or_not_like, or_not_null
+
+### Changed
+- where_clause module to query_conjunctions
+- WhereClauseBuilder to QueryConjunctions
+- where_in, where_not, and, and_not, or, or_not all take a WhereArgs argument instead of Vec<T> where T: ToSQLData
+- where_in and where_not no longer have their own individual traits for each statement type, instead they live in the QueryConjunctions trait
+
 ## [0.7.2] - 2025-10-27
 ### Improved
 - Improved speed and memory usage for multithreaded select 
