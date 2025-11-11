@@ -7,9 +7,25 @@ impl ToSQLData for SQLDataTypes {
         self.to_owned()
     }
 }
+impl ToSQLData for Option<SQLDataTypes> {
+    fn fmt_data(&self) -> SQLDataTypes {
+        match self {
+            Some(val) => val.to_owned(),
+            None => SQLDataTypes::NULL,
+        }
+    }
+}
 impl ToSQLData for Box<SQLDataTypes> {
     fn fmt_data(&self) -> SQLDataTypes {
         *self.to_owned()
+    }
+}
+impl ToSQLData for Option<Box<SQLDataTypes>> {
+    fn fmt_data(&self) -> SQLDataTypes {
+        match self {
+            Some(val) => *val.to_owned(),
+            None => SQLDataTypes::NULL,
+        }
     }
 }
 
