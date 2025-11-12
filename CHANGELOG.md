@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.8.1] - 2025-11-12
+### Added
+- Impl ToSqlData trait for `Option<SQLDataType>` and `Box<Option<SQLDataType>>` 
+
 ## [0.8.0] - 2025-11-04
 ### Added
 - WhereArgs enum
