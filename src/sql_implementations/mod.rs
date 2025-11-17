@@ -11,7 +11,7 @@ pub struct OracleConnect {
 }
 
 #[derive(Debug, Clone)]
-pub struct SQLiteConnect {
-    pub path: String,
-    pub memory: bool,
+pub enum SQLiteConnect {
+    Path(String),
+    Memory,
 }
