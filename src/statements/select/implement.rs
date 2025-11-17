@@ -1,10 +1,13 @@
 use crate::{
-    Error, SQLImplementation, data_types::SQLDataTypes, statements::select::{
-            JoinType, Joins, sql_implementations::{
-                oracle::{oracle_build_select, oracle_build_single_thread_select},
-                sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
-            }
-        }
+    Error, SQLImplementation,
+    data_types::SQLDataTypes,
+    statements::select::{
+        JoinType, Joins,
+        sql_implementations::{
+            oracle::{oracle_build_select, oracle_build_single_thread_select},
+            sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
+        },
+    },
 };
 
 use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Grouped};
@@ -115,7 +118,7 @@ impl SelectBuilder for SelectProps {
         };
         self
     }
-    
+
     fn return_header(mut self) -> Self {
         self.return_header = true;
         self

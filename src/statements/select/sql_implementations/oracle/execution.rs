@@ -37,7 +37,9 @@ pub(crate) fn stmt_res(
             let a = p.get::<usize, SQLDataTypes>(col_idx)?;
             inner_vec.push(Box::new(a))
         }
-        if is_parallel { inner_vec.remove(0); }
+        if is_parallel {
+            inner_vec.remove(0);
+        }
         outer_vec.push(inner_vec)
     }
 

@@ -1,7 +1,11 @@
 use indicatif::ProgressBar;
 
 use crate::{
-    Error, SQLImplementation, data_types::SQLDataTypes, statements::insert::{InsertProps, sql_implementations::sqlite::utils::does_sqlite_table_exist}
+    Error, SQLImplementation,
+    data_types::SQLDataTypes,
+    statements::insert::{
+        InsertProps, sql_implementations::sqlite::utils::does_sqlite_table_exist,
+    },
 };
 
 pub(crate) mod utils;

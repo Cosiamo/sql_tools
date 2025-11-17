@@ -1,4 +1,12 @@
-use crate::{Error, QueryBuilder, data_types::SQLDataTypes, sql_implementations::SQLiteConnect, statements::{create::{CreateColumns, CreateDataTypes, ModifyCreateTable}, insert::{InsertProps, sql_implementations::oracle::validation::get_col_indexes}}};
+use crate::{
+    Error, QueryBuilder,
+    data_types::SQLDataTypes,
+    sql_implementations::SQLiteConnect,
+    statements::{
+        create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
+        insert::{InsertProps, sql_implementations::oracle::validation::get_col_indexes},
+    },
+};
 
 pub(crate) fn does_sqlite_table_exist(
     insert_props: &InsertProps,
@@ -6,7 +14,10 @@ pub(crate) fn does_sqlite_table_exist(
 ) -> Result<(), Error> {
     // Does table exist
     let table = &insert_props.table.split(".").collect::<Vec<&str>>();
-    let table = table.iter().map(|cell|SQLDataTypes::Varchar(cell.to_string())).collect::<Vec<SQLDataTypes>>();
+    let table = table
+        .iter()
+        .map(|cell| SQLDataTypes::Varchar(cell.to_string()))
+        .collect::<Vec<SQLDataTypes>>();
     let exists = conn_info.table_info(&table[0].to_string());
 
     match exists {
@@ -15,13 +26,13 @@ pub(crate) fn does_sqlite_table_exist(
                 return Err(Error::TableDoesNotExist);
             }
             create_sqlite_table(insert_props, conn_info)
-        },
+        }
         Err(_err) => {
             if !insert_props.create {
                 return Err(Error::TableDoesNotExist);
             }
             create_sqlite_table(insert_props, conn_info)
-        },
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::{
-    Error, SQLImplementation, statements::delete::sql_implementations::{oracle::oracle_build_delete, sqlite::sqlite_delete}
+    Error, SQLImplementation,
+    statements::delete::sql_implementations::{oracle::oracle_build_delete, sqlite::sqlite_delete},
 };
 
 use super::{DeleteBuilder, DeleteProps};

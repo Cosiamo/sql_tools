@@ -1,8 +1,10 @@
 use crate::{
-    Error, SQLImplementation, data_types::ToSQLData, statements::update::sql_implementations::{
-            oracle::{batch_update_oracle, oracle_build_update},
-            sqlite::{batch_update_sqlite, sqlite_build_update},
-        }
+    Error, SQLImplementation,
+    data_types::ToSQLData,
+    statements::update::sql_implementations::{
+        oracle::{batch_update_oracle, oracle_build_update},
+        sqlite::{batch_update_sqlite, sqlite_build_update},
+    },
 };
 
 use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
@@ -55,7 +57,7 @@ impl UpdateBuilder for UpdateProps {
         });
         self
     }
-    
+
     fn build(self) -> Result<(), Error> {
         match self.connect {
             SQLImplementation::Oracle(_) => {

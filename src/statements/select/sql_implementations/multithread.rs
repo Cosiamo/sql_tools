@@ -1,6 +1,9 @@
-use std::{sync::Arc, thread::{self, JoinHandle}};
+use std::{
+    sync::Arc,
+    thread::{self, JoinHandle},
+};
 
-use crate::{data_types::SQLDataTypes, statements::select::SelectProps, Error};
+use crate::{Error, data_types::SQLDataTypes, statements::select::SelectProps};
 
 pub(crate) fn multithread_execution(
     handle_execution: fn(
@@ -25,12 +28,14 @@ pub(crate) fn multithread_execution(
     let mut prev: usize = 0; // The previous thread's "end" number
 
     for nthread in 0..nthreads {
-        let start: usize = prev + 1; 
-        let mut end = (nthread + 1) * num.ceil() as usize; 
-        if end > data_length { end = data_length }
+        let start: usize = prev + 1;
+        let mut end = (nthread + 1) * num.ceil() as usize;
+        if end > data_length {
+            end = data_length
+        }
 
         let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
-        
+
         let select_props = Arc::clone(&select_props);
         handles.push(thread::spawn(move || handle_execution(select_props, sql)));
 
@@ -44,10 +49,14 @@ pub(crate) fn multithread_execution(
     }
 
     if select_props.return_header {
-        let col_fmt = select_props.columns.iter().map(|column| {
-            let column = column.name.split(".").collect::<Vec<&str>>();
-            Box::new(SQLDataTypes::Varchar(column[column.len()-1].to_string()))
-        }).collect::<Vec<Box<SQLDataTypes>>>();
+        let col_fmt = select_props
+            .columns
+            .iter()
+            .map(|column| {
+                let column = column.name.split(".").collect::<Vec<&str>>();
+                Box::new(SQLDataTypes::Varchar(column[column.len() - 1].to_string()))
+            })
+            .collect::<Vec<Box<SQLDataTypes>>>();
         let header = vec![col_fmt];
         res.splice(..0, header.iter().cloned());
     }

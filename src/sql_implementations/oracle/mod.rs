@@ -1,12 +1,11 @@
 use crate::{
-    data_types::ToSQLData, sql_implementations::OracleConnect, statements::{
-        alter::AlterProps,
-        create::CreateProps,
-        delete::DeleteProps,
-        insert::InsertProps,
-        select::SelectProps,
-        update::UpdateInitialization,
-    }, Error, QueryBuilder, SQLImplementation
+    Error, QueryBuilder, SQLImplementation,
+    data_types::ToSQLData,
+    sql_implementations::OracleConnect,
+    statements::{
+        alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
+        select::SelectProps, update::UpdateInitialization,
+    },
 };
 
 impl OracleConnect {
@@ -25,32 +24,26 @@ impl OracleConnect {
 
 impl QueryBuilder for OracleConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        SQLImplementation::Oracle(self.clone())
-            .select_initialization(table, columns)
+        SQLImplementation::Oracle(self.clone()).select_initialization(table, columns)
     }
 
     fn update(&self, table: &str) -> UpdateInitialization {
-        SQLImplementation::Oracle(self.clone())
-            .update_initialization(table)
+        SQLImplementation::Oracle(self.clone()).update_initialization(table)
     }
 
     fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
-        SQLImplementation::Oracle(self.clone())
-            .insert_initialization(table, data)
+        SQLImplementation::Oracle(self.clone()).insert_initialization(table, data)
     }
 
     fn create(&self) -> CreateProps {
-        SQLImplementation::Oracle(self.clone())
-            .create_initialization()
+        SQLImplementation::Oracle(self.clone()).create_initialization()
     }
 
     fn alter(&self) -> AlterProps {
-        SQLImplementation::Oracle(self.clone())
-            .alter_initialization()
+        SQLImplementation::Oracle(self.clone()).alter_initialization()
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        SQLImplementation::Oracle(self.clone())
-            .delete_initialization(table)
+        SQLImplementation::Oracle(self.clone()).delete_initialization(table)
     }
 }

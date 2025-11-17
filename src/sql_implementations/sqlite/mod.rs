@@ -1,12 +1,10 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, statements::{
-        alter::AlterProps,
-        create::CreateProps,
-        delete::DeleteProps,
-        insert::InsertProps,
-        select::SelectProps,
-        update::UpdateInitialization,
-    }, Error, QueryBuilder, SQLImplementation
+    Error, QueryBuilder, SQLImplementation,
+    data_types::{SQLDataTypes, ToSQLData},
+    statements::{
+        alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
+        select::SelectProps, update::UpdateInitialization,
+    },
 };
 
 use super::SQLiteConnect;
@@ -14,25 +12,25 @@ use super::SQLiteConnect;
 impl SQLiteConnect {
     /// Opens new SQLite connection based of the path of the database file.
     #[inline]
-    pub fn new_path(path: &str) -> Self { SQLiteConnect::Path(path.to_string()) }
+    pub fn new_path(path: &str) -> Self {
+        SQLiteConnect::Path(path.to_string())
+    }
 
     /// Opens new SQLite connection in memory. This database ceases to exist once the connection is closed.
     #[inline]
-    pub fn in_memory() -> Self { SQLiteConnect::Memory }
+    pub fn in_memory() -> Self {
+        SQLiteConnect::Memory
+    }
 
     pub(crate) fn initialize_connection(&self) -> Result<rusqlite::Connection, Error> {
         match self {
-            SQLiteConnect::Path(path) => {
-                match rusqlite::Connection::open(path.to_string()) {
-                    Ok(val) => return Ok(val),
-                    Err(err) => return Err(Error::SQLiteError(err)),
-                }
+            SQLiteConnect::Path(path) => match rusqlite::Connection::open(path.to_string()) {
+                Ok(val) => return Ok(val),
+                Err(err) => return Err(Error::SQLiteError(err)),
             },
-            SQLiteConnect::Memory => {
-                match rusqlite::Connection::open_in_memory() {
-                    Ok(val) => return Ok(val),
-                    Err(err) => return Err(Error::SQLiteError(err)),
-                }
+            SQLiteConnect::Memory => match rusqlite::Connection::open_in_memory() {
+                Ok(val) => return Ok(val),
+                Err(err) => return Err(Error::SQLiteError(err)),
             },
         }
     }
@@ -61,9 +59,7 @@ impl SQLiteConnect {
 
         let res = columns
             .iter()
-            .map(|row| {
-                row.to_string()
-            })
+            .map(|row| row.to_string())
             .collect::<Vec<String>>();
         Ok(res)
     }
@@ -71,32 +67,26 @@ impl SQLiteConnect {
 
 impl QueryBuilder for SQLiteConnect {
     fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
-        SQLImplementation::SQLite(self.clone())
-            .select_initialization(table, columns)
+        SQLImplementation::SQLite(self.clone()).select_initialization(table, columns)
     }
 
     fn update(&self, table: &str) -> UpdateInitialization {
-        SQLImplementation::SQLite(self.clone())
-            .update_initialization(table)
+        SQLImplementation::SQLite(self.clone()).update_initialization(table)
     }
 
     fn insert<T: ToSQLData>(&self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
-        SQLImplementation::SQLite(self.clone())
-            .insert_initialization(table, data)
+        SQLImplementation::SQLite(self.clone()).insert_initialization(table, data)
     }
 
     fn create(&self) -> CreateProps {
-        SQLImplementation::SQLite(self.clone())
-            .create_initialization()
+        SQLImplementation::SQLite(self.clone()).create_initialization()
     }
 
     fn alter(&self) -> AlterProps {
-        SQLImplementation::SQLite(self.clone())
-            .alter_initialization()
+        SQLImplementation::SQLite(self.clone()).alter_initialization()
     }
 
     fn delete(&self, table: &str) -> DeleteProps {
-        SQLImplementation::SQLite(self.clone())
-            .delete_initialization(table)
+        SQLImplementation::SQLite(self.clone()).delete_initialization(table)
     }
 }

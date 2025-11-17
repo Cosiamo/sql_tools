@@ -1,5 +1,6 @@
 use crate::{
-    data_types::{SQLDataTypes, ToSQLData}, Error, SQLImplementation
+    Error, SQLImplementation,
+    data_types::{SQLDataTypes, ToSQLData},
 };
 
 pub mod implement;

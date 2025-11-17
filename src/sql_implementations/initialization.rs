@@ -1,24 +1,34 @@
-use crate::{data_types::{SQLDataTypes, ToSQLData}, statements::{alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps, select::{Column, Limit, OrderBy, SelectProps}, update::UpdateInitialization}, utils::remove_invalid_chars, Error, SQLImplementation};
+use crate::{
+    Error, SQLImplementation,
+    data_types::{SQLDataTypes, ToSQLData},
+    statements::{
+        alter::AlterProps,
+        create::CreateProps,
+        delete::DeleteProps,
+        insert::InsertProps,
+        select::{Column, Limit, OrderBy, SelectProps},
+        update::UpdateInitialization,
+    },
+    utils::remove_invalid_chars,
+};
 
 impl SQLImplementation {
-    pub(crate) fn select_initialization (
-        self, 
-        table: &str, 
-        columns: Vec<&str>,
-    ) -> SelectProps {
+    pub(crate) fn select_initialization(self, table: &str, columns: Vec<&str>) -> SelectProps {
         let table = table.trim();
 
         let mut header = vec![];
         for col in columns {
             if col.contains(".") {
                 let col_props = col.split(".").collect::<Vec<&str>>();
-                header.push(
-                    Column { name: col_props[col_props.len() - 1].to_string(), table: col_props[0].to_string() }
-                );
+                header.push(Column {
+                    name: col_props[col_props.len() - 1].to_string(),
+                    table: col_props[0].to_string(),
+                });
             } else {
-                header.push(
-                    Column { name: col.to_string(), table: table.to_string() }
-                );
+                header.push(Column {
+                    name: col.to_string(),
+                    table: table.to_string(),
+                });
             }
         }
 
@@ -45,7 +55,11 @@ impl SQLImplementation {
         }
     }
 
-    pub(crate) fn insert_initialization<T: ToSQLData>(self, table: &str, data: Vec<Vec<T>>) -> Result<InsertProps, Error> {
+    pub(crate) fn insert_initialization<T: ToSQLData>(
+        self,
+        table: &str,
+        data: Vec<Vec<T>>,
+    ) -> Result<InsertProps, Error> {
         if data.len() < 2 {
             return Err(Error::NoHeading);
         }
@@ -75,15 +89,11 @@ impl SQLImplementation {
     }
 
     pub(crate) fn create_initialization(self) -> CreateProps {
-        CreateProps {
-            connect: self,
-        }
+        CreateProps { connect: self }
     }
 
     pub(crate) fn alter_initialization(self) -> AlterProps {
-        AlterProps {
-            connect: self,
-        }
+        AlterProps { connect: self }
     }
 
     pub(crate) fn delete_initialization(self, table: &str) -> DeleteProps {

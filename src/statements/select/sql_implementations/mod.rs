@@ -1,4 +1,3 @@
-
 use crate::{
     Error,
     statements::select::{
@@ -7,8 +6,8 @@ use crate::{
     },
 };
 
-pub(crate) mod mutate_query;
 pub(crate) mod multithread;
+pub(crate) mod mutate_query;
 pub mod oracle;
 pub mod sqlite;
 

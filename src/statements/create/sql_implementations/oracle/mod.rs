@@ -9,7 +9,6 @@ pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(),
         SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
     };
 
-    
     let sql = fmt_create_table_columns(&create_table);
     let conn: oracle::Connection = oracle::Connection::connect(
         &conn_info.username,

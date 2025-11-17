@@ -8,7 +8,7 @@ pub(crate) fn fmt_create_table_columns(create_table: &CreateTable) -> String {
             CreateDataTypes::VARCHAR(mut num) => {
                 if num == 0 {
                     num = 1
-                } 
+                }
                 format!("{} VARCHAR2({})", &col_props.name, num)
             }
             CreateDataTypes::NUMBER => format!("{} NUMBER", &col_props.name),

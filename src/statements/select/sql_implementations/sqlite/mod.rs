@@ -1,9 +1,13 @@
 use crate::{
-    data_types::SQLDataTypes, statements::select::{
+    Error, SQLImplementation,
+    data_types::SQLDataTypes,
+    statements::select::{
+        Column, SelectProps,
         sql_implementations::{
-            multithread::multithread_execution, mutate_query::limit_offset, shared_select_operations, sqlite::execution::sqlite_handle_execution
-        }, Column, SelectProps
-    }, Error, SQLImplementation
+            multithread::multithread_execution, mutate_query::limit_offset,
+            shared_select_operations, sqlite::execution::sqlite_handle_execution,
+        },
+    },
 };
 
 pub mod execution;
@@ -17,24 +21,26 @@ pub(crate) fn build_select_sqlite(
     };
 
     let conn = conn_info.initialize_connection()?;
-    
+
     let table = &select_props.table;
 
     if select_props.columns[0].name == "*".to_string() {
         let table_headers = conn_info.table_info(&table)?;
         let mut buffer = vec![];
         for header in table_headers {
-            buffer.push(
-                Column {
-                    name: header,
-                    table: table.to_owned(),
-                }
-            );
+            buffer.push(Column {
+                name: header,
+                table: table.to_owned(),
+            });
         }
         select_props.columns = buffer;
     }
 
-    let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
+    let cols = &select_props
+        .columns
+        .iter()
+        .map(|col| format!("{}.{}", col.table, col.name))
+        .collect::<Vec<String>>();
 
     let mut query = format!(
         "SELECT row_number() over (order by rowid) as row_num, {} FROM {}",
@@ -78,25 +84,23 @@ pub(crate) fn build_select_sqlite_single_thread(
         let table_headers = conn_info.table_info(&table)?;
         let mut buffer = vec![];
         for header in table_headers {
-            buffer.push(
-                Column {
-                    name: header,
-                    table: table.to_owned(),
-                }
-            );
+            buffer.push(Column {
+                name: header,
+                table: table.to_owned(),
+            });
         }
         select_props.columns = buffer;
     }
 
     let conn = conn_info.initialize_connection()?;
 
-    let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
+    let cols = &select_props
+        .columns
+        .iter()
+        .map(|col| format!("{}.{}", col.table, col.name))
+        .collect::<Vec<String>>();
 
-    let mut query = format!(
-        "SELECT {} FROM {}",
-        &cols.join(", "),
-        &table,
-    );
+    let mut query = format!("SELECT {} FROM {}", &cols.join(", "), &table,);
 
     query = shared_select_operations(&select_props, query)?;
 
@@ -116,10 +120,16 @@ pub(crate) fn build_select_sqlite_single_thread(
     }
 
     if select_props.return_header {
-        let header = vec![select_props.columns.iter().map(|column| {
-            let column = &column.name;
-            Box::new(SQLDataTypes::Varchar(column.to_owned()))
-        }).collect::<Vec<Box<SQLDataTypes>>>()];
+        let header = vec![
+            select_props
+                .columns
+                .iter()
+                .map(|column| {
+                    let column = &column.name;
+                    Box::new(SQLDataTypes::Varchar(column.to_owned()))
+                })
+                .collect::<Vec<Box<SQLDataTypes>>>(),
+        ];
         res.splice(..0, header.iter().cloned());
     }
 

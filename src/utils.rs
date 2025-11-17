@@ -1,5 +1,8 @@
 use crate::{
-    Error, QueryBuilder, query_conjunctions::{QueryConjunctions, WhereArg}, sql_implementations::OracleConnect, statements::select::SelectBuilder
+    Error, QueryBuilder,
+    query_conjunctions::{QueryConjunctions, WhereArg},
+    sql_implementations::OracleConnect,
+    statements::select::SelectBuilder,
 };
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
@@ -24,7 +27,9 @@ pub(crate) fn remove_invalid_chars(input: &String) -> String {
 
 impl OracleConnect {
     pub fn does_table_exist(&self, table: &str) -> Result<bool, Error> {
-        let value = WhereArg::Values(vec![crate::data_types::SQLDataTypes::Varchar(table.to_ascii_uppercase())]);
+        let value = WhereArg::Values(vec![crate::data_types::SQLDataTypes::Varchar(
+            table.to_ascii_uppercase(),
+        )]);
         let exists = self
             .select("user_tables", vec!["table_name"])
             .where_in("upper(table_name)", value)

@@ -1,11 +1,18 @@
 use execution::stmt_res;
 
 use crate::{
-    data_types::SQLDataTypes, sql_implementations::OracleConnect, statements::select::{
+    Error, SQLImplementation,
+    data_types::SQLDataTypes,
+    sql_implementations::OracleConnect,
+    statements::select::{
+        SelectProps,
         sql_implementations::{
-            multithread::multithread_execution, mutate_query::limit_offset_oracle, oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution}, shared_select_operations
-        }, SelectProps
-    }, Error, SQLImplementation
+            multithread::multithread_execution,
+            mutate_query::limit_offset_oracle,
+            oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution},
+            shared_select_operations,
+        },
+    },
 };
 
 pub mod columns;
@@ -19,7 +26,11 @@ pub(crate) fn oracle_build_select(
     }
 
     let table = &select_props.table;
-    let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
+    let cols = &select_props
+        .columns
+        .iter()
+        .map(|col| format!("{}.{}", col.table, col.name))
+        .collect::<Vec<String>>();
 
     let mut query = format!(
         "SELECT row_number() over (order by {}.rowid) as row_num, {} FROM {}",
@@ -62,13 +73,13 @@ pub(crate) fn oracle_build_single_thread_select(
     }
 
     let table = &select_props.table;
-    let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
+    let cols = &select_props
+        .columns
+        .iter()
+        .map(|col| format!("{}.{}", col.table, col.name))
+        .collect::<Vec<String>>();
 
-    let mut query = format!(
-        "SELECT {} FROM {}",
-        &cols.join(", "),
-        &table,
-    );
+    let mut query = format!("SELECT {} FROM {}", &cols.join(", "), &table,);
 
     query = shared_select_operations(&select_props, query)?;
 
@@ -84,9 +95,13 @@ pub(crate) fn oracle_build_single_thread_select(
     let stmt = conn.statement(&query).build()?;
     let mut res = stmt_res(stmt, select_props.columns.len(), false)?;
     if select_props.return_header {
-        let header = vec![select_props.columns.iter().map(|column| {
-            Box::new(SQLDataTypes::Varchar(column.name.to_string()))
-        }).collect::<Vec<Box<SQLDataTypes>>>()];
+        let header = vec![
+            select_props
+                .columns
+                .iter()
+                .map(|column| Box::new(SQLDataTypes::Varchar(column.name.to_string())))
+                .collect::<Vec<Box<SQLDataTypes>>>(),
+        ];
         res.splice(..0, header.iter().cloned());
     }
     Ok(res)

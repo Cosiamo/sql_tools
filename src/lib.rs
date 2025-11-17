@@ -8,10 +8,10 @@ use statements::{
 };
 
 pub mod data_types;
+pub mod query_conjunctions;
 pub mod sql_implementations;
 pub mod statements;
 pub mod utils;
-pub mod query_conjunctions;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -140,12 +140,12 @@ pub trait QueryBuilder {
     ///
     /// my_table.build()?;
     /// ```
-    /// 
+    ///
     /// Or dynamically build a table.
     /// ```no_run
     /// let my_table: CreateTable = conn.create()
     ///     .table("my_table", columns);
-    /// 
+    ///
     /// for col_name in data_header {
     ///     my_table.add_column(col_name, CreateDataTypes::VARCHAR(50));
     /// }

@@ -1,8 +1,6 @@
 use group_by::Grouped;
 
-use crate::{
-    Error, SQLImplementation, data_types::SQLDataTypes
-};
+use crate::{Error, SQLImplementation, data_types::SQLDataTypes};
 
 pub mod group_by;
 pub mod implement;

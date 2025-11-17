@@ -1,4 +1,7 @@
-use crate::{statements::select::{Column, SelectProps}, Error, SQLImplementation};
+use crate::{
+    Error, SQLImplementation,
+    statements::select::{Column, SelectProps},
+};
 
 pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<Column>, Error> {
     let conn_info = match &select_props.connect {
