@@ -13,14 +13,12 @@ use super::SQLiteConnect;
 
 impl SQLiteConnect {
     /// Opens new SQLite connection based of the path of the database file.
-    pub fn new_path(path: &str) -> Self {
-        SQLiteConnect::Path(path.to_string())
-    }
+    #[inline]
+    pub fn new_path(path: &str) -> Self { SQLiteConnect::Path(path.to_string()) }
 
     /// Opens new SQLite connection in memory. This database ceases to exist once the connection is closed.
-    pub fn in_memory() -> Self {
-        SQLiteConnect::Memory
-    }
+    #[inline]
+    pub fn in_memory() -> Self { SQLiteConnect::Memory }
 
     pub(crate) fn initialize_connection(&self) -> Result<rusqlite::Connection, Error> {
         match self {

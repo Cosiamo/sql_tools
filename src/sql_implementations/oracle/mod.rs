@@ -10,6 +10,7 @@ use crate::{
 };
 
 impl OracleConnect {
+    #[inline]
     pub fn new(connection_string: &str, username: &str, password: &str) -> Result<Self, Error> {
         match oracle::Connection::connect(&username, &password, &connection_string) {
             Ok(_) => Ok(Self {
