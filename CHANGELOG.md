@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.9.0] - 2025-11-17
+### Added
+- In memory SQLite database
+
+### Changed
+- `SQLiteConnect::new_path()` is now `SQLiteConnect::from_path()`
+- `fmt_data()` is now `to_sql_fmt()`
+
+### Improved
+- Inlined new connection methods
+
 ## [0.8.1] - 2025-11-12
 ### Added
 - Impl ToSqlData trait for `Option<SQLDataType>` and `Box<Option<SQLDataType>>` 

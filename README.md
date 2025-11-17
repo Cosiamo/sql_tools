@@ -1,11 +1,11 @@
 # SQL Tools
-A rust crate meant to make SQL queries simple and communication between various SQL versions easy. The goal is to have most major variations of SQL compatible with this crate, however only Oracle SQL and SQLite are available right now. This is an evolution of [oracle_sql_tools](https://crates.io/crates/oracle_sql_tools).
+A rust crate meant to make SQL queries simple and communication between various SQL versions easy. The goal is to have most major variations of SQL compatible, however only Oracle SQL and SQLite are available right now. This is an evolution of [oracle_sql_tools](https://crates.io/crates/oracle_sql_tools). This project is constantly changing, check out the [change logs](https://github.com/Cosiamo/sql_tools/blob/main/CHANGELOG.md) to see what's new.
 
 # How To Use
 In your `cargo.toml` file:
 ```toml
 [dependencies]
-sql_tools = "0.8.0"
+sql_tools = "<CURRENT_VERSION>"
 # chrono is required if you're working with dates 
 chrono = "0.4.41" 
 ```
@@ -24,14 +24,19 @@ let conn = OracleConnect::new(connection_string, username, password)?;
 ```
 
 ### SQLite 
+You can open a SQLite connection in a db file or open a connection in memory.
 ```rust
 use sql_tools::sql_variations::SQLiteConnect;
 
+// Open connection from a file
 let path = "<PATH_TO_DB_FILE>";
-let conn = SQLiteConnect::new_path(path);
+let conn = SQLiteConnect::from_path(path);
+
+// Open connection from memory
+let conn = SQLiteConnect::in_memory();
 ```
 
-Once you established a connection type, you can use the various methods in this crate to interact with your database. These options are [select](#select), [update](#update), [insert](#insert), [create](#create), [delete](delete), and [alter](#alter).
+Once you established a connection type, you can use the various methods in this crate to interact with your database. These options are [select](#select), [update](#update), [insert](#insert), [create](#create), [delete](delete), and [alter](#alter). The data types that are supported by default can be found in the docs under the [ToSQLData](https://docs.rs/sql_tools/latest/sql_tools/data_types/trait.ToSQLData.html) trait. You can [implement ToSQLData for your own enum or struct](#ToSQLData) to make integration into your application easy.
 
 ## SQLDataTypes
 This is the enum that is used to apply the proper type to the data that's being selected, updated, or inserted.
@@ -48,7 +53,7 @@ pub enum SQLDataTypes {
 ## SELECT
 For the select method, you add the table you want to select from, then the columns in a vector. If you want to select all, simply input `vec!["*"]`. You can add a [where clause](#where) to filter out the rows you want, just like writing a SQL query.
 ```rust
-let product_ids = WhereArg::Values(vec![SQLDataTypes::Number(1001),SQLDataTypes::Number(4567)]);
+let product_ids = WhereArg::Values(vec![1001.to_sql_fmt(), 4567.to_sql_fmt()]);
 let state = WhereArg::Like("Tex%");
 let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
 let data: Vec<Vec<SQLDataTypes>> = conn
@@ -71,7 +76,9 @@ data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ## UPDATE
 Updates a table's column(s) based on criteria set in the optional [where clauses](#where). Updates can return Ok() or the number of rows that were updated.
 ```rust
-let countries = WhereArg::Values(vec![SQLDataTypes::Varchar("Canada"), SQLDataTypes::Varchar("United States"), SQLDataTypes::Varchar("Mexico")]);
+let north_american_countries = vec!["Canada", "United States", "Mexico"];
+let na_countries_formatted = north_american_countries.iter().map(|value| value.to_sql_fmt()).collect::<Vec<SQLDataTypes>>();
+let countries = WhereArg::Values(na_countries_formatted);
 conn.update("global_sales")
     .set("continent", "North America")
     .where_in("country", countries)
@@ -198,7 +205,7 @@ Conjunction statements are split into 4 categories via the `WhereArg` enum to pr
 
 - `Values` is a vector of any data type that has is implemented for the `ToSQLData` trait. This would be used as if you have a basic WHERE clause that you have set values for.
 ```rust
-.where_in("column", WhereArg::Values(vec!["one", "two", "three"]))
+.where_in("column", WhereArg::Values(vec!["one".to_sql_fmt(), "two".to_sql_fmt(), "three".to_sql_fmt()]))
 ```
 ```sql
 WHERE column IN ('one', 'two', 'three');
@@ -226,7 +233,7 @@ WHERE column IS NULL
 ```
 
 ## ToSQLData
-`ToSQLData` is the trait that is implemented for the `insert()` method which is used to convert various data types to `SQLDataTypes`. 
+`ToSQLData` is the trait that is used to convert various data types to `SQLDataTypes`. 
 
 To implement a local enum: 
 ```rust
@@ -236,7 +243,7 @@ enum MyEnum {
 }
 
 impl ToSQLData for MyEnum {
-    fn fmt_data(self) -> SQLDataTypes {
+    fn to_sql_fmt(&self) -> SQLDataTypes {
         match self {
             MyEnum::Name(val) => SQLDataTypes::Varchar(val.into()),
             MyEnum::Age(val) => SQLDataTypes::Number(val.into()),
@@ -252,8 +259,8 @@ use some_crate::SomeForeignType;
 struct MyType<'a>(&'a SomeForeignType);
 
 impl ToSQLData for MyType<'_> {
-    fn fmt_data(self) -> SQLDataTypes {
-        match self.0 {
+    fn to_sql_fmt(&'_ self) -> SQLDataTypes {
+        match self {
             SomeForeignType::Int(val) => SQLDataTypes::Number(*val),
             SomeForeignType::Float(val) => SQLDataTypes::Float(*val),
             SomeForeignType::String(val) => SQLDataTypes::Varchar(val.to_owned()),
