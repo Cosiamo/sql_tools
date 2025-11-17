@@ -12,7 +12,7 @@ use super::SQLiteConnect;
 impl SQLiteConnect {
     /// Opens new SQLite connection based of the path of the database file.
     #[inline]
-    pub fn new_path(path: &str) -> Self {
+    pub fn from_path(path: &str) -> Self {
         SQLiteConnect::Path(path.to_string())
     }
 
