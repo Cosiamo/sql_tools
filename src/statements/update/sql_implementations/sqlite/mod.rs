@@ -1,5 +1,3 @@
-use rusqlite::Connection;
-
 use crate::{Error, SQLImplementation, data_types::SQLDataTypes, statements::update::UpdateProps};
 
 pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
@@ -39,7 +37,7 @@ pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Erro
         }
     };
 
-    let conn = Connection::open(&conn_info.path.clone())?;
+    let conn = conn_info.initialize_connection()?;
     conn.execute(&query, [])?;
     let mut stmt = conn.prepare(&count_sql)?;
     let mut rows = stmt.query([])?;
@@ -87,7 +85,7 @@ pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
 
     let query = format!("BEGIN; {sql}; COMMIT;");
 
-    let conn = Connection::open(&conn_info.path)?;
+    let conn = conn_info.initialize_connection()?;
     conn.execute_batch(&query)?;
 
     Ok(())

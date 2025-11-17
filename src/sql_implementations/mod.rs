@@ -13,4 +13,5 @@ pub struct OracleConnect {
 #[derive(Debug, Clone)]
 pub struct SQLiteConnect {
     pub path: String,
+    pub memory: bool,
 }

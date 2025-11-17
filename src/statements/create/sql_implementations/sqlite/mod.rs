@@ -1,5 +1,3 @@
-use rusqlite::Connection;
-
 use crate::{
     Error, SQLImplementation,
     statements::create::{CreateTable, sql_implementations::utils::fmt_create_table_columns},
@@ -12,7 +10,7 @@ pub(crate) fn sqlite_build_create_table(create_table: CreateTable) -> Result<(),
     };
 
     let sql = fmt_create_table_columns(&create_table);
-    let conn = Connection::open(&conn_info.path)?;
+    let conn = conn_info.initialize_connection()?;
     conn.execute(&sql, ())?;
     Ok(())
 }

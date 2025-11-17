@@ -1,5 +1,3 @@
-use rusqlite::Connection;
-
 use crate::{Error, SQLImplementation, statements::delete::DeleteProps};
 
 pub fn sqlite_delete(props: DeleteProps) -> Result<(), Error> {
@@ -7,7 +5,7 @@ pub fn sqlite_delete(props: DeleteProps) -> Result<(), Error> {
         SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
         SQLImplementation::SQLite(connect) => connect,
     };
-    let conn = Connection::open(&conn_info.path.clone())?;
+    let conn = conn_info.initialize_connection()?;
 
     let query = match props.clause {
         Some(filters) => format!("DELETE FROM {} WHERE {}", &props.table, filters),

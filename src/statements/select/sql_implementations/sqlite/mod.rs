@@ -1,5 +1,3 @@
-use rusqlite::Connection;
-
 use crate::{
     data_types::SQLDataTypes, statements::select::{
         sql_implementations::{
@@ -18,7 +16,7 @@ pub(crate) fn build_select_sqlite(
         SQLImplementation::SQLite(connect) => connect,
     };
 
-    let conn = Connection::open(&conn_info.path.clone())?;
+    let conn = conn_info.initialize_connection()?;
     
     let table = &select_props.table;
 
@@ -90,7 +88,7 @@ pub(crate) fn build_select_sqlite_single_thread(
         select_props.columns = buffer;
     }
 
-    let conn = Connection::open(&conn_info.path.clone())?;
+    let conn = conn_info.initialize_connection()?;
 
     let cols = &select_props.columns.iter().map(|col|{ format!("{}.{}", col.table, col.name) }).collect::<Vec<String>>();
 

@@ -1,18 +1,16 @@
 use std::sync::Arc;
 
-use rusqlite::Connection;
-
 use crate::{Error, SQLImplementation, data_types::SQLDataTypes, statements::select::SelectProps};
 
 pub fn sqlite_handle_execution(
     select_props: Arc<SelectProps>,
     sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let path = match &select_props.connect {
+    let conn_info = match &select_props.connect {
         SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => &connect.path,
+        SQLImplementation::SQLite(connect) => connect,
     };
-    let conn = Connection::open(path.clone())?;
+    let conn = conn_info.initialize_connection()?;
     let column_size = select_props.columns.len() + 1;
     let mut stmt = conn.prepare(&sql)?;
     let mut rows = stmt.query([])?;

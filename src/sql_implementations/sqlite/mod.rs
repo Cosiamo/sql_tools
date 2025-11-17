@@ -12,9 +12,27 @@ use crate::{
 use super::SQLiteConnect;
 
 impl SQLiteConnect {
+    /// Opens new SQLite connection based of the path of the database file.
     pub fn new_path(path: &str) -> Self {
         SQLiteConnect {
             path: path.to_string(),
+            memory: false,
+        }
+    }
+
+    /// Opens new SQLite connection in memory. This database ceases to exist once the connection is closed.
+    pub fn in_memory() -> Self {
+        SQLiteConnect { 
+            path: "".to_string(), 
+            memory: true,
+        }
+    }
+
+    pub(crate) fn initialize_connection(&self) -> Result<rusqlite::Connection, rusqlite::Error> {
+        if self.memory == true {
+            rusqlite::Connection::open_in_memory()
+        } else {
+            rusqlite::Connection::open(self.path.clone())
         }
     }
 
@@ -23,8 +41,7 @@ impl SQLiteConnect {
             return Err(Error::TableDoesNotExist);
         };
 
-        let connection = SQLiteConnect::new_path(&self.path);
-        let conn = rusqlite::Connection::open(&connection.path.clone())?;
+        let conn = self.initialize_connection()?;
 
         let query = format!("select name from PRAGMA_TABLE_INFO('{table}')");
         let mut stmt = conn.prepare(&query)?;
