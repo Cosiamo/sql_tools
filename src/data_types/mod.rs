@@ -29,7 +29,7 @@ impl fmt::Display for SQLDataTypes {
 
 /// A trait that formats the input data to match [`SQLDataTypes`]
 ///
-/// Already implemented for `&[u8]`, `Vec<u8>`, `&str`, 'String', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64', and [`chrono::NaiveDateTime`], as well as, their Option<> variants
+/// Already implemented for `&[u8]`, `Vec<u8>`, `&str`,`String`, `i8`, `i16`, `i32`, `i64`, `f32`, `f64`, and [`chrono::NaiveDateTime`], as well as, their Option<> and Box<> variants
 ///
 /// To implement a local enum:
 ///
@@ -40,7 +40,7 @@ impl fmt::Display for SQLDataTypes {
 /// }
 ///
 /// impl ToSQLData for MyEnum {
-///     fn fmt_data(&self) -> SQLDataTypes {
+///     fn to_sql_fmt(&self) -> SQLDataTypes {
 ///         match self {
 ///             MyEnum::Name(val) => SQLDataTypes::Varchar(val.into()),
 ///             MyEnum::Age(val) => SQLDataTypes::Number(val.into()),
@@ -57,7 +57,7 @@ impl fmt::Display for SQLDataTypes {
 /// struct MyType<'a>(&'a SomeForeignType);
 ///
 /// impl ToSQLData for MyType<'_> {
-///     fn fmt_data(&'_ self) -> SQLDataTypes {
+///     fn to_sql_fmt(&'_ self) -> SQLDataTypes {
 ///         match self {
 ///             MyType(SomeForeignType::Int(val)) => SQLDataTypes::Number(*val),
 ///             MyType(SomeForeignType::Float(val)) => SQLDataTypes::Float(*val),
@@ -69,5 +69,5 @@ impl fmt::Display for SQLDataTypes {
 /// ```
 ///
 pub trait ToSQLData {
-    fn fmt_data(&self) -> SQLDataTypes;
+    fn to_sql_fmt(&self) -> SQLDataTypes;
 }

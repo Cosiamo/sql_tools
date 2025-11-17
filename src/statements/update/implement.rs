@@ -13,7 +13,7 @@ impl UpdateInitialization {
     pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateProps {
         let set = vec![SetMatch {
             column: column.to_string(),
-            value: new_value.fmt_data(),
+            value: new_value.to_sql_fmt(),
             query: false,
         }];
         UpdateProps {
@@ -27,7 +27,7 @@ impl UpdateInitialization {
     pub fn set_query(self, column: &str, query: &str) -> UpdateProps {
         let set = vec![SetMatch {
             column: column.to_string(),
-            value: query.fmt_data(),
+            value: query.to_sql_fmt(),
             query: true,
         }];
         UpdateProps {
@@ -43,7 +43,7 @@ impl UpdateBuilder for UpdateProps {
     fn set<T: ToSQLData>(mut self, column: &str, new_value: T) -> Self {
         self.set_match.push(SetMatch {
             column: column.to_string(),
-            value: new_value.fmt_data(),
+            value: new_value.to_sql_fmt(),
             query: false,
         });
         self
@@ -52,7 +52,7 @@ impl UpdateBuilder for UpdateProps {
     fn set_query(mut self, column: &str, query: &str) -> Self {
         self.set_match.push(SetMatch {
             column: column.to_string(),
-            value: query.fmt_data(),
+            value: query.to_sql_fmt(),
             query: true,
         });
         self

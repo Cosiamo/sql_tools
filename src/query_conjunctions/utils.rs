@@ -6,7 +6,7 @@ use crate::{
 pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
     items
         .iter()
-        .map(|cell| match cell.fmt_data() {
+        .map(|cell| match cell.to_sql_fmt() {
             data_types::SQLDataTypes::Varchar(val) => format!("'{}'", val),
             data_types::SQLDataTypes::Number(val) => format!("{}", val),
             data_types::SQLDataTypes::Float(val) => format!("{}", val),

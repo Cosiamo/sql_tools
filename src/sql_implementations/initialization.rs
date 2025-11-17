@@ -67,7 +67,7 @@ impl SQLImplementation {
             .iter()
             .map(|row| {
                 row.iter()
-                    .map(|cell| cell.fmt_data())
+                    .map(|cell| cell.to_sql_fmt())
                     .collect::<Vec<SQLDataTypes>>()
             })
             .collect::<Vec<Vec<SQLDataTypes>>>();
