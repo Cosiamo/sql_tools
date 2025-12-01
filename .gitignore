@@ -1,1 +1,3 @@
 /target
+# codebook is the spell checking plugin for Zed
+codebook.toml 

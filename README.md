@@ -51,20 +51,19 @@ pub enum SQLDataTypes {
 ```
 
 ## SELECT
-For the select method, you add the table you want to select from, then the columns in a vector. If you want to select all, simply input `vec!["*"]`. You can add a [where clause](#where) to filter out the rows you want, just like writing a SQL query.
+For the select method, you add the table you want to select from, then you can choose specific columns, functions, varchars, or everything from a particular table. To see these options more in-depth, look at the [`Column`](crate::statements::select::Column) enum. You can add a [`conjunction statement`](crate::query_conjunctions::QueryConjunctions) to filter out the rows you want, just like a SQL query.
 ```rust
 let product_ids = WhereArg::Values(vec![1001.to_sql_fmt(), 4567.to_sql_fmt()]);
 let state = WhereArg::Like("Tex%");
 let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
+let columns = vec![
+    Column::Value(ColumnProps { name: "revenue as national_rev".to_string(), table: "national_sales".to_string() }),
+    Column::Value(ColumnProps { name: "revenue as regional_rev".to_string(), table: "regional_sales".to_string() }),
+    Column::Value(ColumnProps { name: "city".to_string(), table: "regional_sales".to_string() }),
+    Column::Function("to_date('01/01/2000', 'mm/dd/YYYY')".to_string()),
+];
 let data: Vec<Vec<SQLDataTypes>> = conn
-    .select("regional_sales", vec![ 
-        // columns from joined tables need an id associated with them
-        "national_sales.revenue as state_rev", 
-        // columns from the selected table do not
-        "revenue as city_rev", 
-        "city"
-        "sale_date",
-    ])
+    .select("regional_sales", columns)
     .inner_join("national_sales", "product_id", "product_id")
     .where_in("product_id", product_ids)
     .and("national_sales.state", state) 
@@ -74,9 +73,9 @@ data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ```
 
 ## UPDATE
-Updates a table's column(s) based on criteria set in the optional [where clauses](#where). Updates can return Ok() or the number of rows that were updated.
+Updates a table's column(s) based on criteria set with an optional [`conjunction statement`](crate::query_conjunctions::QueryConjunctions). Updates can return Ok() or the number of rows that were updated.
 ```rust
-let north_american_countries = vec!["Canada", "United States", "Mexico"];
+let north_american_countries = vec!["Canada".to_sql_fmt(), "United States".to_sql_fmt(), "Mexico".to_sql_fmt()];
 let na_countries_formatted = north_american_countries.iter().map(|value| value.to_sql_fmt()).collect::<Vec<SQLDataTypes>>();
 let countries = WhereArg::Values(na_countries_formatted);
 conn.update("global_sales")
