@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 Dates are labeled YYYY-MM-DD.
 
+## [0.10.0] - 2025-12-01
+### Changed
+- The columns vector for the select method uses SQLDataType instead of String
+
 ## [0.9.0] - 2025-11-17
 ### Added
 - In memory SQLite database
