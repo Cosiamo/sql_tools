@@ -8,9 +8,11 @@ use crate::{Error, data_types::SQLDataTypes, statements::select::SelectProps};
 pub(crate) fn multithread_execution(
     handle_execution: fn(
         select_props: Arc<SelectProps>,
+        column_size: usize,
         sql: String,
     ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>,
     select_props: SelectProps,
+    header: &Vec<Box<SQLDataTypes>>,
     query: String,
     count: Option<usize>,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
@@ -27,6 +29,8 @@ pub(crate) fn multithread_execution(
 
     let mut prev: usize = 0; // The previous thread's "end" number
 
+    let column_size = &header.len() + 1;
+
     for nthread in 0..nthreads {
         let start: usize = prev + 1;
         let mut end = (nthread + 1) * num.ceil() as usize;
@@ -37,7 +41,9 @@ pub(crate) fn multithread_execution(
         let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
 
         let select_props = Arc::clone(&select_props);
-        handles.push(thread::spawn(move || handle_execution(select_props, sql)));
+        handles.push(thread::spawn(move || {
+            handle_execution(select_props, column_size, sql)
+        }));
 
         prev = end;
     }
@@ -49,15 +55,7 @@ pub(crate) fn multithread_execution(
     }
 
     if select_props.return_header {
-        let col_fmt = select_props
-            .columns
-            .iter()
-            .map(|column| {
-                let column = column.name.split(".").collect::<Vec<&str>>();
-                Box::new(SQLDataTypes::Varchar(column[column.len() - 1].to_string()))
-            })
-            .collect::<Vec<Box<SQLDataTypes>>>();
-        let header = vec![col_fmt];
+        let header = vec![header.to_owned()];
         res.splice(..0, header.iter().cloned());
     }
 

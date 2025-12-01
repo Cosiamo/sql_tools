@@ -1,6 +1,5 @@
-use group_by::Grouped;
-
 use crate::{Error, SQLImplementation, data_types::SQLDataTypes};
+use group_by::Grouped;
 
 pub mod group_by;
 pub mod implement;
@@ -19,8 +18,38 @@ pub struct SelectProps {
     pub return_header: bool,
 }
 
+/// The column value used in SELECT statements, WHERE clauses, and conjunctions.
 #[derive(Debug)]
-pub struct Column {
+pub enum Column {
+    /// Column name and table.
+    /// 
+    /// ```sql
+    /// SELECT my_table.my_column FROM my_table;
+    /// ```
+    Name(ColumnProps),
+    /// Used to return columns passed into functions and procedures.
+    /// 
+    /// ```sql
+    /// SELECT COUNT(my_column) FROM my_table;  
+    /// ```
+    Function(String),
+    /// Use a Varchar as a column.
+    ///
+    /// ```sql
+    /// SELECT 'My String' FROM dual;
+    /// ```
+    Varchar(String),
+    /// Selects all columns from the input table.
+    /// The equivalent to:
+    ///
+    /// ```sql
+    /// SELECT my_table.* FROM my_table;
+    /// ```
+    ALL(String),
+}
+
+#[derive(Debug)]
+pub struct ColumnProps {
     pub name: String,
     pub table: String,
 }

@@ -7,6 +7,8 @@ use statements::{
     select::SelectProps, update::UpdateInitialization,
 };
 
+use crate::statements::select::Column;
+
 pub mod data_types;
 pub mod query_conjunctions;
 pub mod sql_implementations;
@@ -53,15 +55,24 @@ pub enum Error {
 pub trait QueryBuilder {
     /// Creates a new [`SelectProps`] to start building out a select query.
     ///
-    /// For the select method, you add the table you want to select from, then the columns in a vector.
-    /// If you want to select all, simply input `vec!["*"]`.
-    /// You can add a [`where_clause::WhereSelect`] to filter out the rows you want, just like writing a SQL query.
+    /// For the select method, you add the table you want to select from,
+    /// then you can choose specific columns, functions, varchars, or everything from a particular table.
+    /// To see these options more in-depth, look at the [`Column`](crate::statements::select::Column) enum.
+    /// You can add a [`conjunction statement`](crate::query_conjunctions::QueryConjunctions) to filter out the rows you want,
+    /// just like writing a SQL query.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// // Columns
+    /// let product_id = Column::ColumnProps{ name: "product_id".to_string(), table: "regional_sales".to_string() };
+    /// let revenue = Column::ColumnProps{ name: "revenue".to_string(), table: "regional_sales".to_string() };
+    /// let y2k = Column::Function("to_date('12/31/1999', 'mm/dd/YYYY') as y2k".to_string());
+    /// // WhereArgs
+    /// // Most of the common data types used in Rust are implemented in the ToSqlData trait,
+    /// // so you can iterate a vector and append the to_sql_fmt() method to your values.
+    /// let cities = WhereArg::Values(vec!["Austin".to_sql_fmt(), "Dallas".to_sql_fmt()]);
     /// let product_ids = WhereArg::Values(vec![SQLDataTypes::Number(1001), SQLDataTypes::Number(4567)]);
-    /// let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
     /// let data: Vec<Vec<SQLDataTypes>> = conn
-    ///     .select("regional_sales", vec!["product_id", "revenue", "sale_date"])
+    ///     .select("regional_sales", vec![product_id, revenue, y2k])
     ///     .where_in("product_id", product_ids)
     ///     .and_not("city", cities)
     ///     .build()?;
@@ -69,11 +80,11 @@ pub trait QueryBuilder {
     /// ```
     /// Is the same as:
     /// ```sql
-    /// SELECT product_id, revenue, sale_date FROM regional_sales
-    /// WHERE product_id IN ('1001', '4567')
+    /// SELECT product_id, revenue, to_date('12/31/1999', 'mm/dd/YYYY') as y2k FROM regional_sales
+    /// WHERE product_id IN (1001, 4567)
     /// AND city NOT IN ('Austin', 'Dallas');
     /// ```
-    fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps;
+    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps;
 
     /// Creates a new [`UpdateProps`] to start building out an update query.
     ///

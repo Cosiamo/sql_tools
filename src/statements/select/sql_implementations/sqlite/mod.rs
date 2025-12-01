@@ -1,8 +1,8 @@
 use crate::{
     Error, SQLImplementation,
-    data_types::SQLDataTypes,
+    data_types::{SQLDataTypes, ToSQLData},
     statements::select::{
-        Column, SelectProps,
+        SelectProps,
         sql_implementations::{
             multithread::multithread_execution, mutate_query::limit_offset,
             shared_select_operations, sqlite::execution::sqlite_handle_execution,
@@ -13,7 +13,7 @@ use crate::{
 pub mod execution;
 
 pub(crate) fn build_select_sqlite(
-    mut select_props: SelectProps,
+    select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = match &select_props.connect {
         SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
@@ -23,29 +23,46 @@ pub(crate) fn build_select_sqlite(
     let conn = conn_info.initialize_connection()?;
 
     let table = &select_props.table;
-
-    if select_props.columns[0].name == "*".to_string() {
-        let table_headers = conn_info.table_info(&table)?;
-        let mut buffer = vec![];
-        for header in table_headers {
-            buffer.push(Column {
-                name: header,
-                table: table.to_owned(),
-            });
-        }
-        select_props.columns = buffer;
-    }
-
     let cols = &select_props
         .columns
         .iter()
-        .map(|col| format!("{}.{}", col.table, col.name))
-        .collect::<Vec<String>>();
+        .map(|col| -> Result<String, Error> {
+            let col = match col {
+                crate::statements::select::Column::Name(name) => {
+                    format!("{}.{}", name.table, name.name)
+                }
+                crate::statements::select::Column::Function(function) => format!("{}", function),
+                crate::statements::select::Column::Varchar(varchar) => format!("'{}'", varchar),
+                crate::statements::select::Column::ALL(all) => {
+                    let columns = conn_info.table_info(&table)?;
+                    columns
+                        .iter()
+                        .map(|col| format!("{}.{}", all, col))
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                }
+            };
+            Ok(col)
+        })
+        .collect::<Result<Vec<String>, Error>>()?;
+
+    let header = &cols
+        .iter()
+        .map(|col| {
+            let col = col.split(".").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" as ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            Box::new(col.to_sql_fmt())
+        })
+        .collect::<Vec<Box<SQLDataTypes>>>();
+    let columns = &cols.join(", ");
 
     let mut query = format!(
         "SELECT row_number() over (order by rowid) as row_num, {} FROM {}",
-        &cols.join(", "),
-        &table
+        &columns, &table
     );
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
@@ -67,11 +84,11 @@ pub(crate) fn build_select_sqlite(
         }
     }
 
-    multithread_execution(sqlite_handle_execution, select_props, query, count)
+    multithread_execution(sqlite_handle_execution, select_props, header, query, count)
 }
 
 pub(crate) fn build_select_sqlite_single_thread(
-    mut select_props: SelectProps,
+    select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = match &select_props.connect {
         SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
@@ -79,28 +96,34 @@ pub(crate) fn build_select_sqlite_single_thread(
     };
 
     let table = &select_props.table;
-
-    if &select_props.columns[0].name == &"*".to_string() {
-        let table_headers = conn_info.table_info(&table)?;
-        let mut buffer = vec![];
-        for header in table_headers {
-            buffer.push(Column {
-                name: header,
-                table: table.to_owned(),
-            });
-        }
-        select_props.columns = buffer;
-    }
-
-    let conn = conn_info.initialize_connection()?;
-
     let cols = &select_props
         .columns
         .iter()
-        .map(|col| format!("{}.{}", col.table, col.name))
-        .collect::<Vec<String>>();
+        .map(|col| -> Result<String, Error> {
+            let col = match col {
+                crate::statements::select::Column::Name(name) => {
+                    format!("{}.{}", name.table, name.name)
+                }
+                crate::statements::select::Column::Function(function) => format!("{}", function),
+                crate::statements::select::Column::Varchar(varchar) => format!("'{}'", varchar),
+                crate::statements::select::Column::ALL(all) => {
+                    let columns = conn_info.table_info(&table)?;
+                    columns
+                        .iter()
+                        .map(|col| format!("{}.{}", all, col))
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                }
+            };
+            Ok(col)
+        })
+        .collect::<Result<Vec<String>, Error>>()?;
 
-    let mut query = format!("SELECT {} FROM {}", &cols.join(", "), &table,);
+    let columns = &cols.join(", ");
+
+    let conn = conn_info.initialize_connection()?;
+
+    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
 
     query = shared_select_operations(&select_props, query)?;
 
@@ -121,13 +144,11 @@ pub(crate) fn build_select_sqlite_single_thread(
 
     if select_props.return_header {
         let header = vec![
-            select_props
-                .columns
+            columns
+                .split(",")
+                .collect::<Vec<&str>>()
                 .iter()
-                .map(|column| {
-                    let column = &column.name;
-                    Box::new(SQLDataTypes::Varchar(column.to_owned()))
-                })
+                .map(|col| Box::new(col.to_sql_fmt()))
                 .collect::<Vec<Box<SQLDataTypes>>>(),
         ];
         res.splice(..0, header.iter().cloned());

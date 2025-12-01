@@ -2,15 +2,13 @@ use execution::stmt_res;
 
 use crate::{
     Error, SQLImplementation,
-    data_types::SQLDataTypes,
+    data_types::{SQLDataTypes, ToSQLData},
     sql_implementations::OracleConnect,
     statements::select::{
         SelectProps,
         sql_implementations::{
-            multithread::multithread_execution,
-            mutate_query::limit_offset_oracle,
-            oracle::{columns::get_column_names_oracle, execution::oracle_handle_execution},
-            shared_select_operations,
+            multithread::multithread_execution, mutate_query::limit_offset_oracle,
+            oracle::execution::oracle_handle_execution, shared_select_operations,
         },
     },
 };
@@ -19,25 +17,32 @@ pub mod columns;
 pub mod execution;
 
 pub(crate) fn oracle_build_select(
-    mut select_props: SelectProps,
+    select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    if select_props.columns[0].name == "*".to_string() {
-        select_props.columns = get_column_names_oracle(&select_props)?;
-    }
-
     let table = &select_props.table;
-    let cols = &select_props
-        .columns
+    let cols = select_props.oracle_column_name()?;
+
+    let header = &cols
         .iter()
-        .map(|col| format!("{}.{}", col.table, col.name))
-        .collect::<Vec<String>>();
+        .map(|col| {
+            let col = col.split(".").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" as ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            Box::new(col.to_sql_fmt())
+        })
+        .collect::<Vec<Box<SQLDataTypes>>>();
+    let columns = &cols.join(", ");
 
     let mut query = format!(
         "SELECT row_number() over (order by {}.rowid) as row_num, {} FROM {}",
-        &table,
-        &cols.join(", "),
-        &table,
+        &table, &columns, &table,
     );
+    dbg!(&query);
+
+    dbg!(&columns);
 
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
@@ -62,28 +67,34 @@ pub(crate) fn oracle_build_select(
         count = row.get_as::<Option<usize>>()?;
     }
 
-    multithread_execution(oracle_handle_execution, select_props, query, count)
+    multithread_execution(oracle_handle_execution, select_props, header, query, count)
 }
 
 pub(crate) fn oracle_build_single_thread_select(
-    mut select_props: SelectProps,
+    select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    if select_props.columns[0].name == "*".to_string() {
-        select_props.columns = get_column_names_oracle(&select_props)?;
-    }
-
     let table = &select_props.table;
-    let cols = &select_props
-        .columns
-        .iter()
-        .map(|col| format!("{}.{}", col.table, col.name))
-        .collect::<Vec<String>>();
+    let cols = select_props.oracle_column_name()?;
 
-    let mut query = format!("SELECT {} FROM {}", &cols.join(", "), &table,);
+    let header = &cols
+        .iter()
+        .map(|col| {
+            let col = col.split(".").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            let col = col.split(" as ").collect::<Vec<&str>>();
+            let col = col[col.len() - 1];
+            Box::new(col.to_sql_fmt())
+        })
+        .collect::<Vec<Box<SQLDataTypes>>>();
+    let columns = &cols.join(", ");
+
+    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
 
     query = shared_select_operations(&select_props, query)?;
-
     query = limit_offset_oracle(&select_props, query);
+    dbg!(&query);
 
     let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
@@ -93,15 +104,10 @@ pub(crate) fn oracle_build_single_thread_select(
     )?;
 
     let stmt = conn.statement(&query).build()?;
-    let mut res = stmt_res(stmt, select_props.columns.len(), false)?;
+    let column_size = header.len();
+    let mut res = stmt_res(stmt, column_size, false)?;
     if select_props.return_header {
-        let header = vec![
-            select_props
-                .columns
-                .iter()
-                .map(|column| Box::new(SQLDataTypes::Varchar(column.name.to_string())))
-                .collect::<Vec<Box<SQLDataTypes>>>(),
-        ];
+        let header = vec![header.to_owned()];
         res.splice(..0, header.iter().cloned());
     }
     Ok(res)

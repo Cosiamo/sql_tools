@@ -4,6 +4,7 @@ use crate::{Error, SQLImplementation, data_types::SQLDataTypes, statements::sele
 
 pub fn sqlite_handle_execution(
     select_props: Arc<SelectProps>,
+    column_size: usize,
     sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = match &select_props.connect {
@@ -11,7 +12,6 @@ pub fn sqlite_handle_execution(
         SQLImplementation::SQLite(connect) => connect,
     };
     let conn = conn_info.initialize_connection()?;
-    let column_size = select_props.columns.len() + 1;
     let mut stmt = conn.prepare(&sql)?;
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();

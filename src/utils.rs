@@ -2,7 +2,7 @@ use crate::{
     Error, QueryBuilder,
     query_conjunctions::{QueryConjunctions, WhereArg},
     sql_implementations::OracleConnect,
-    statements::select::SelectBuilder,
+    statements::select::{Column, ColumnProps, SelectBuilder},
 };
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
@@ -30,8 +30,12 @@ impl OracleConnect {
         let value = WhereArg::Values(vec![crate::data_types::SQLDataTypes::Varchar(
             table.to_ascii_uppercase(),
         )]);
+        let column = Column::Name(ColumnProps {
+            name: "table_name".to_string(),
+            table: "user_tables".to_string(),
+        });
         let exists = self
-            .select("user_tables", vec!["table_name"])
+            .select("user_tables", vec![column])
             .where_in("upper(table_name)", value)
             .build_single_thread()?;
         if exists.len() > 0 {
@@ -42,8 +46,12 @@ impl OracleConnect {
     }
 
     pub fn get_table_names(&self) -> Result<Vec<String>, Error> {
+        let column = Column::Name(ColumnProps {
+            name: "table_name".to_string(),
+            table: "user_tables".to_string(),
+        });
         let tables = self
-            .select("user_tables", vec!["table_name"])
+            .select("user_tables", vec![column])
             .build_single_thread()?;
         let names = tables
             .iter()

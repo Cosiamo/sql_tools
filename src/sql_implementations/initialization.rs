@@ -13,28 +13,11 @@ use crate::{
 };
 
 impl SQLImplementation {
-    pub(crate) fn select_initialization(self, table: &str, columns: Vec<&str>) -> SelectProps {
+    pub(crate) fn select_initialization(self, table: &str, columns: Vec<Column>) -> SelectProps {
         let table = table.trim();
-
-        let mut header = vec![];
-        for col in columns {
-            if col.contains(".") {
-                let col_props = col.split(".").collect::<Vec<&str>>();
-                header.push(Column {
-                    name: col_props[col_props.len() - 1].to_string(),
-                    table: col_props[0].to_string(),
-                });
-            } else {
-                header.push(Column {
-                    name: col.to_string(),
-                    table: table.to_string(),
-                });
-            }
-        }
-
         SelectProps {
             connect: self,
-            columns: header,
+            columns,
             table: table.to_string(),
             joins: vec![],
             clause: None,

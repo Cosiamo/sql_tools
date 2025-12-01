@@ -3,8 +3,12 @@ use crate::{
     data_types::ToSQLData,
     sql_implementations::OracleConnect,
     statements::{
-        alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
-        select::SelectProps, update::UpdateInitialization,
+        alter::AlterProps,
+        create::CreateProps,
+        delete::DeleteProps,
+        insert::InsertProps,
+        select::{Column, SelectProps},
+        update::UpdateInitialization,
     },
 };
 
@@ -23,7 +27,7 @@ impl OracleConnect {
 }
 
 impl QueryBuilder for OracleConnect {
-    fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
+    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps {
         SQLImplementation::Oracle(self.clone()).select_initialization(table, columns)
     }
 

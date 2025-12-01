@@ -2,8 +2,12 @@ use crate::{
     Error, QueryBuilder, SQLImplementation,
     data_types::{SQLDataTypes, ToSQLData},
     statements::{
-        alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
-        select::SelectProps, update::UpdateInitialization,
+        alter::AlterProps,
+        create::CreateProps,
+        delete::DeleteProps,
+        insert::InsertProps,
+        select::{Column, SelectProps},
+        update::UpdateInitialization,
     },
 };
 
@@ -66,7 +70,7 @@ impl SQLiteConnect {
 }
 
 impl QueryBuilder for SQLiteConnect {
-    fn select(&self, table: &str, columns: Vec<&str>) -> SelectProps {
+    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps {
         SQLImplementation::SQLite(self.clone()).select_initialization(table, columns)
     }
 

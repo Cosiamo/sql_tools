@@ -10,6 +10,7 @@ use crate::{
 
 pub(crate) fn oracle_handle_execution(
     select_props: Arc<SelectProps>,
+    column_size: usize,
     sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = extract_connection(&select_props.connect)?;
@@ -19,7 +20,6 @@ pub(crate) fn oracle_handle_execution(
         conn_info.connection_string,
     )?;
     let stmt = conn.statement(&sql).build()?;
-    let column_size = select_props.columns.len() + 1;
     stmt_res(stmt, column_size, true)
 }
 

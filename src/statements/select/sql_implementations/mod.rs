@@ -1,8 +1,11 @@
 use crate::{
     Error,
     statements::select::{
-        SelectProps,
-        sql_implementations::mutate_query::{filters, group_by, join_operations, order_by},
+        Column, SelectProps,
+        sql_implementations::{
+            mutate_query::{filters, group_by, join_operations, order_by},
+            oracle::columns::get_column_names_oracle,
+        },
     },
 };
 
@@ -27,4 +30,36 @@ pub(crate) fn shared_select_operations(
     query = order_by(&select_props, &query)?;
 
     Ok(query)
+}
+
+impl SelectProps {
+    pub(crate) fn oracle_column_name(&self) -> Result<Vec<String>, Error> {
+        self.columns
+            .iter()
+            .map(|col| -> Result<String, Error> { col.to_query_string(self) })
+            .collect::<Result<Vec<String>, Error>>()
+    }
+}
+
+impl Column {
+    pub(crate) fn to_query_string(&self, select_props: &SelectProps) -> Result<String, Error> {
+        let col = match self {
+            crate::statements::select::Column::Name(name) => {
+                format!("{}.{}", name.table, name.name)
+            }
+            crate::statements::select::Column::Function(function) => {
+                format!("{}", function)
+            }
+            crate::statements::select::Column::Varchar(varchar) => format!("'{}'", varchar),
+            crate::statements::select::Column::ALL(all) => {
+                let columns = get_column_names_oracle(&select_props)?;
+                columns
+                    .iter()
+                    .map(|col| format!("{}.{}", all, col.name))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            }
+        };
+        Ok(col)
+    }
 }

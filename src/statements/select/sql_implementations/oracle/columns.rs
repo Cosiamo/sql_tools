@@ -1,9 +1,9 @@
 use crate::{
     Error, SQLImplementation,
-    statements::select::{Column, SelectProps},
+    statements::select::{ColumnProps, SelectProps},
 };
 
-pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<Column>, Error> {
+pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<ColumnProps>, Error> {
     let conn_info = match &select_props.connect {
         SQLImplementation::Oracle(connect) => connect,
         SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
@@ -18,13 +18,13 @@ pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<Column>
         conn_info.connection_string.clone(),
     )?;
 
-    let mut header: Vec<Column> = Vec::new();
+    let mut header: Vec<ColumnProps> = Vec::new();
     let rows = conn.query(&sql, &[])?;
     for row_result in rows {
         let row = row_result?;
         for val in row.sql_values() {
             let res = val.get::<String>()?;
-            header.push(Column {
+            header.push(ColumnProps {
                 name: res,
                 table: select_props.table.to_owned(),
             })
