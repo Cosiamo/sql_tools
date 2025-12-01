@@ -7,9 +7,43 @@ pub(crate) mod utils;
 /// The argument type for the `where_in`, `where_not`, `and`, `and_not`, `or`, and `or_not` methods.
 /// This is split up specifically to prevent SQL injections and to be more intentional with building query structures.
 pub enum WhereArg {
+    /// A vector of [`SQLDataTypes`](crate::data_types::SQLDataTypes). 
+    /// [`ToSQLData`](crate::data_types::ToSQLData) is implemented for most of the common data types used in Rust,
+    /// so you can easily convert your data to SQLDataTypes using the [`to_sql_fmt()`](crate::data_types::ToSQLData::to_sql_fmt()) method.
+    /// ```no_run
+    /// .where_in("column_name", WhereArg::Values(vec!["value1".to_sql_fmt(), "value2".to_sql_fmt()]))
+    /// ```
+    /// Is the equivalent of:
+    /// ```sql
+    /// WHERE column_name IN ('value1', 'value2')
+    /// ```
     Values(Vec<SQLDataTypes>),
+    /// A LIKE clause for string matching.
+    /// ```no_run
+    /// .where_in("column_name", WhereArg::Like("%value%".to_string()))
+    /// ```
+    /// Is the equivalent of:
+    /// ```sql
+    /// WHERE column_name LIKE '%value%'
+    /// ```
     Like(String),
+    /// A subquery string to be used in the conjunction statements.
+    /// ```no_run
+    /// .where_in("column_name", WhereArg::Query("SELECT id FROM other_table WHERE condition".to_string()))
+    /// ```
+    /// Is the equivalent of:
+    /// ```sql
+    /// WHERE column_name IN (SELECT id FROM other_table WHERE condition)
+    /// ```
     Query(String),
+    /// A NULL value for checking against NULL in the conjunction statements.
+    /// ```no_run  
+    /// .where_in("column_name", WhereArg::NULL)
+    /// ```
+    /// Is the equivalent of:
+    /// ```sql 
+    /// WHERE column_name IS NULL
+    /// ```
     NULL,
 }
 
@@ -19,8 +53,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `and`, `or`, `and_not`, and `or_not`.
     /// 
-    /// `.where_in(column, values)`
-    ///
     /// ```sql
     /// WHERE column IN (values);
     /// ```
@@ -30,8 +62,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `and`, `or`, `and_not`, and `or_not`.
     /// 
-    /// `.where_not(column, values)`
-    ///
     /// ```sql
     /// WHERE column NOT IN (values);
     /// ```
@@ -41,8 +71,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `or`, `and_not`, and `or_not`.
     /// 
-    /// `.and(column, values)`
-    ///
     /// ```sql
     /// AND column IN (values);
     /// ```
@@ -52,8 +80,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `and`, `and_not`, and `or_not`.
     /// 
-    /// `.or(column, values)`
-    ///
     /// ```sql
     /// OR column IN (values);
     /// ```
@@ -63,8 +89,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `and`, `or`, and `or_not`.
     /// 
-    /// `.and_not(column, values)`
-    ///
     /// ```sql
     /// AND column NOT IN (values);
     /// ```
@@ -74,8 +98,6 @@ pub trait QueryConjunctions {
     /// The first argument is the column you want to filter on, and the second argument is the values you want to filter by.
     /// This can be chained with other conjunctions like `and`, `and_not`, and `or`.
     /// 
-    /// `.or_not(column, values)`
-    ///
     /// ```sql
     /// OR column NOT IN (values);
     /// ```
