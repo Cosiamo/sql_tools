@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.1] - 2025-12-03
+### Changed
+- Can now pass an empty string into the ColumnProps table field for conjunctions. This is a temporary fix for passing functions, such as `UPPER(column_name)`, as the column in conjunctions. Will work on a better solution in the future.
+
 ## [0.11.0] - 2025-12-02
 ### Changed
 - Conjunction methods use ColumnProps as the argument for columns instead or strings.
