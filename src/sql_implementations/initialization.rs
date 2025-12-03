@@ -13,8 +13,12 @@ use crate::{
 };
 
 impl SQLImplementation {
-    pub(crate) fn select_initialization(self, table: &str, columns: Vec<Column>) -> SelectProps {
+    pub(crate) fn select_initialization(self, table: &str, columns: Vec<&Column>) -> SelectProps {
         let table = table.trim();
+        let columns = columns
+            .iter()
+            .map(|col| col.to_owned().to_owned())
+            .collect::<Vec<Column>>();
         SelectProps {
             connect: self,
             columns,

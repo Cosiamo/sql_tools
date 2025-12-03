@@ -63,7 +63,8 @@ pub trait QueryBuilder {
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
     /// // Columns
-    /// let product_id = Column::ColumnProps{ name: "product_id".to_string(), table: "regional_sales".to_string() };
+    /// let product_id = ColumnProps{ name: "product_id".to_string(), table: "regional_sales".to_string() };
+    /// let city = ColumnProps{ name: "city".to_string(), table: "regional_sales".to_string() };
     /// let revenue = Column::ColumnProps{ name: "revenue".to_string(), table: "regional_sales".to_string() };
     /// let y2k = Column::Function("to_date('12/31/1999', 'mm/dd/YYYY') as y2k".to_string());
     /// // WhereArgs
@@ -72,9 +73,9 @@ pub trait QueryBuilder {
     /// let cities = WhereArg::Values(vec!["Austin".to_sql_fmt(), "Dallas".to_sql_fmt()]);
     /// let product_ids = WhereArg::Values(vec![SQLDataTypes::Number(1001), SQLDataTypes::Number(4567)]);
     /// let data: Vec<Vec<SQLDataTypes>> = conn
-    ///     .select("regional_sales", vec![product_id, revenue, y2k])
-    ///     .where_in("product_id", product_ids)
-    ///     .and_not("city", cities)
+    ///     .select("regional_sales", vec![&product_id, &revenue, &y2k])
+    ///     .where_in(&product_id, product_ids)
+    ///     .and_not(&city, cities)
     ///     .build()?;
     /// data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
     /// ```
@@ -84,7 +85,7 @@ pub trait QueryBuilder {
     /// WHERE product_id IN (1001, 4567)
     /// AND city NOT IN ('Austin', 'Dallas');
     /// ```
-    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps;
+    fn select(&self, table: &str, columns: Vec<&Column>) -> SelectProps;
 
     /// Creates a new [`UpdateProps`] to start building out an update query.
     ///
@@ -92,16 +93,17 @@ pub trait QueryBuilder {
     /// Updates can return Ok() or the number of rows that were updated.
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// let country = ColumnProps{ name: "country".to_string(), table: "global_sales".to_string() };
     /// let countries = WhereArg::Values(vec![SQLDataTypes::Varchar("Canada"),SQLDataTypes::Varchar("United States"), SQLDataTypes::Varchar("Mexico")]);
     /// conn.update("global_sales")
     ///     .set("continent", "North America")
-    ///     .where_in("country", countries)
+    ///     .where_in(country, countries)
     ///     .build()?;
     /// // If you want to get the number of rows that were updated
     /// let count: usize = conn
     ///     .update("global_sales")
     ///     .set("continent", "North America")
-    ///     .where_in("country", countries)
+    ///     .where_in(country, countries)
     ///     .build_return_count()?;
     /// ```
     fn update(&self, table: &str) -> UpdateInitialization;
@@ -181,8 +183,9 @@ pub trait QueryBuilder {
     ///
     /// ```no_run
     /// let conn = OracleConnect::new(connection_string, username, password)?;
+    /// let column = ColumnProps{ name: "Column_A".to_string(), table: "my_table".to_string() };
     /// conn.delete("my_table")
-    ///     .where_in("Column_A", WhereArg::NULL)
+    ///     .where_in(column, WhereArg::NULL)
     ///     .build()?
     /// ```
     fn delete(&self, table: &str) -> DeleteProps;

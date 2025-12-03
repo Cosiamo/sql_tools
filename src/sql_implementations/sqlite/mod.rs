@@ -70,7 +70,7 @@ impl SQLiteConnect {
 }
 
 impl QueryBuilder for SQLiteConnect {
-    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps {
+    fn select(&self, table: &str, columns: Vec<&Column>) -> SelectProps {
         SQLImplementation::SQLite(self.clone()).select_initialization(table, columns)
     }
 

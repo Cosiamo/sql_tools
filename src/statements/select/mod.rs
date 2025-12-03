@@ -19,18 +19,18 @@ pub struct SelectProps {
 }
 
 /// The column value used in SELECT statements, WHERE clauses, and conjunctions.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Column {
     /// Column name and table.
-    /// 
+    ///
     /// ```sql
     /// SELECT my_table.my_column FROM my_table;
     /// ```
     Name(ColumnProps),
     /// Used to return columns passed into functions and procedures.
-    /// 
+    ///
     /// ```sql
-    /// SELECT COUNT(my_column) FROM my_table;  
+    /// SELECT COUNT(my_column) FROM my_table;
     /// ```
     Function(String),
     /// Use a Varchar as a column.
@@ -48,7 +48,7 @@ pub enum Column {
     ALL(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ColumnProps {
     pub name: String,
     pub table: String,

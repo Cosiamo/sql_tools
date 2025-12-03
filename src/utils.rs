@@ -35,8 +35,14 @@ impl OracleConnect {
             table: "user_tables".to_string(),
         });
         let exists = self
-            .select("user_tables", vec![column])
-            .where_in("upper(table_name)", value)
+            .select("user_tables", vec![&column])
+            .where_in(
+                &ColumnProps {
+                    name: "upper(table_name)".to_string(),
+                    table: "user_table".to_string(),
+                },
+                value,
+            )
             .build_single_thread()?;
         if exists.len() > 0 {
             Ok(true)
@@ -51,7 +57,7 @@ impl OracleConnect {
             table: "user_tables".to_string(),
         });
         let tables = self
-            .select("user_tables", vec![column])
+            .select("user_tables", vec![&column])
             .build_single_thread()?;
         let names = tables
             .iter()

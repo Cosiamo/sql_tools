@@ -1,6 +1,7 @@
 use crate::{
     data_types::{self, ToSQLData},
     query_conjunctions::WhereArg,
+    statements::select::ColumnProps,
 };
 
 pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
@@ -17,15 +18,8 @@ pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
         .join(", ")
 }
 
-pub(crate) fn match_table_ids(id: &String, column: &str) -> String {
-    if column.contains(".") {
-        column.to_owned()
-    } else {
-        format!("{id}.{column}")
-    }
-}
-
-pub(crate) fn where_match(column: &str, values: WhereArg) -> String {
+pub(crate) fn where_match(column: &ColumnProps, values: WhereArg) -> String {
+    let column = format!("{}.{}", column.table, column.name);
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
@@ -43,11 +37,12 @@ pub(crate) fn where_match(column: &str, values: WhereArg) -> String {
     }
 }
 
-pub(crate) fn where_match_not(column: &str, values: WhereArg) -> String {
+pub(crate) fn where_match_not(column: &ColumnProps, values: WhereArg) -> String {
+    let column = format!("{}.{}", column.table, column.name);
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
-            format!("{column} NOt IN ({value})")
+            format!("{column} NOT IN ({value})")
         }
         WhereArg::Like(like) => {
             format!("{column} NOT LIKE '{like}'")
@@ -62,11 +57,12 @@ pub(crate) fn where_match_not(column: &str, values: WhereArg) -> String {
 }
 
 pub(crate) fn conjunction_match(
-    column: &str,
+    column: &ColumnProps,
     values: WhereArg,
     clause: &Option<String>,
     conjunction: &str,
 ) -> String {
+    let column = format!("{}.{}", column.table, column.name);
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
@@ -105,11 +101,12 @@ pub(crate) fn conjunction_match(
 }
 
 pub(crate) fn conjunction_match_not(
-    column: &str,
+    column: &ColumnProps,
     values: WhereArg,
     clause: &Option<String>,
     conjunction: &str,
 ) -> String {
+    let column = format!("{}.{}", column.table, column.name);
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
