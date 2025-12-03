@@ -1,7 +1,21 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+How I determine version numbers for this project: 
+- Major version: substantial changes such as implementing a new SQL type or a rewrite of the library.
+- Minor version: breaking changes such as changing the name of a method or changing method arguments. Minor versions may also include major, non-breaking changes such as adding new features or improving existing ones.
+- Patch version: non-breaking changes such as fixing a bug, minor performance improvements, or improving documentation.
+
 Dates are labeled YYYY-MM-DD.
+
+## [0.11.0] - 2025-12-02
+### Changed
+- Conjunction methods use ColumnProps as the argument for columns instead or strings.
+- Select method uses borrowed ColumnProps instead of consuming them.
+
+### Added
+- Derived Clone in the Column and ColumnProps struct
 
 ## [0.10.0] - 2025-12-01
 ### Changed

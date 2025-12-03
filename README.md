@@ -53,6 +53,9 @@ pub enum SQLDataTypes {
 ## SELECT
 For the select method, you add the table you want to select from, then you can choose specific columns, functions, varchars, or everything from a particular table. To see these options more in-depth, look at the [`Column`](crate::statements::select::Column) enum. You can add a [`conjunction statement`](crate::query_conjunctions::QueryConjunctions) to filter out the rows you want, just like a SQL query.
 ```rust
+let product_id = ColumnProps { name: "product_id".to_string(), table: "regional_sales".to_string() };
+let state = ColumnProps { name: "state".to_string(), table: "national_sales".to_string() };
+let city = ColumnProps { name: "city".to_string(), table: "regional_sales".to_string() };
 let product_ids = WhereArg::Values(vec![1001.to_sql_fmt(), 4567.to_sql_fmt()]);
 let state = WhereArg::Like("Tex%");
 let cities = WhereArg::Values(vec![SQLDataTypes::Varchar("Austin"), SQLDataTypes::Varchar("Dallas")]);
@@ -65,9 +68,9 @@ let columns = vec![
 let data: Vec<Vec<SQLDataTypes>> = conn
     .select("regional_sales", columns)
     .inner_join("national_sales", "product_id", "product_id")
-    .where_in("product_id", product_ids)
-    .and("national_sales.state", state) 
-    .and_not("city", cities)
+    .where_in(product_id, product_ids)
+    .and(state, state) 
+    .and_not(city, cities)
     .build()?;
 data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ```
@@ -75,18 +78,19 @@ data.iter().for_each(|row: &Vec<SQLDataTypes>| { println!("{:?}", row) });
 ## UPDATE
 Updates a table's column(s) based on criteria set with an optional [`conjunction statement`](crate::query_conjunctions::QueryConjunctions). Updates can return Ok() or the number of rows that were updated.
 ```rust
+let country = ColumnProps{ name: "country".to_string(), table: "global_sales".to_string() };
 let north_american_countries = vec!["Canada".to_sql_fmt(), "United States".to_sql_fmt(), "Mexico".to_sql_fmt()];
 let na_countries_formatted = north_american_countries.iter().map(|value| value.to_sql_fmt()).collect::<Vec<SQLDataTypes>>();
 let countries = WhereArg::Values(na_countries_formatted);
 conn.update("global_sales")
     .set("continent", "North America")
-    .where_in("country", countries)
+    .where_in(country, countries)
     .build()?;
 // If you want to get the number of rows that were updated
 let count: usize = conn
     .update("global_sales")
     .set("continent", "North America")
-    .where_in("country", countries)
+    .where_in(country, countries)
     .build_return_count()?;
 ```
 
@@ -153,9 +157,10 @@ my_table.build()?;
 ## DELETE
 Deletes rows in a table based on the where methods added to the `DeleteProps`. If no where methods are added, it will delete all data in the table.
 ```rust
+let status = ColumnProps{ name: "status".to_string(), table: "employee_data".to_string() };
 let terminated = WhereArg::Query("SELECT status FROM employment_statues WHERE status_type LIKE 'termina%'");
 conn.delete("employee_data")
-    .where_in("status", terminated)
+    .where_in(status, terminated)
     .build()?;
 ```
 
@@ -204,28 +209,28 @@ Conjunction statements are split into 4 categories via the `WhereArg` enum to pr
 
 - `Values` is a vector of any data type that has is implemented for the `ToSQLData` trait. This would be used as if you have a basic WHERE clause that you have set values for.
 ```rust
-.where_in("column", WhereArg::Values(vec!["one".to_sql_fmt(), "two".to_sql_fmt(), "three".to_sql_fmt()]))
+.where_in(column, WhereArg::Values(vec!["one".to_sql_fmt(), "two".to_sql_fmt(), "three".to_sql_fmt()]))
 ```
 ```sql
 WHERE column IN ('one', 'two', 'three');
 ```
 - `Like` is used the same way as a SQL LIKE statement.
 ```rust
-.where_in("column", WhereArg::Like("Hello Wor%"))
+.where_in(column, WhereArg::Like("Hello Wor%"))
 ```
 ```sql
 WHERE column IN ('Hello Wor%');
 ```
 - `Query` is when you want to select values from another table.
 ```rust
-.where_in("column", WhereArg::Query("SELECT value FROM another_table"))
+.where_in(column, WhereArg::Query("SELECT value FROM another_table"))
 ```
 ```sql
 WHERE column IN (SELECT value FROM another_table)
 ```
 - `NULL` is for selecting NULL values.
 ```rust
-.where_in("column", WhereArg::NULL)
+.where_in(column, WhereArg::NULL)
 ```
 ```sql
 WHERE column IS NULL
