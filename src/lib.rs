@@ -85,7 +85,7 @@ pub trait QueryBuilder {
     /// WHERE product_id IN (1001, 4567)
     /// AND city NOT IN ('Austin', 'Dallas');
     /// ```
-    fn select(&self, table: &str, columns: Vec<&Column>) -> SelectProps;
+    fn select(&self, table: &str, columns: Vec<Column>) -> SelectProps;
 
     /// Creates a new [`UpdateProps`] to start building out an update query.
     ///
