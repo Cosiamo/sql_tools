@@ -46,7 +46,9 @@ pub(crate) fn build_select_sqlite(
         })
         .collect::<Result<Vec<String>, Error>>()?;
 
-    let header = &cols
+    let columns = &cols.join(", ");
+    let head = &columns.split(",").collect::<Vec<&str>>();
+    let header = head
         .iter()
         .map(|col| {
             let col = col.split(".").collect::<Vec<&str>>();
@@ -84,7 +86,7 @@ pub(crate) fn build_select_sqlite(
         }
     }
 
-    multithread_execution(sqlite_handle_execution, select_props, header, query, count)
+    multithread_execution(sqlite_handle_execution, select_props, &header, query, count)
 }
 
 pub(crate) fn build_select_sqlite_single_thread(
@@ -128,24 +130,25 @@ pub(crate) fn build_select_sqlite_single_thread(
     query = shared_select_operations(&select_props, query)?;
 
     query = limit_offset(&select_props, query);
+    dbg!(&query);
 
     let mut stmt = conn.prepare(&query)?;
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();
+    let header = columns.split(",").collect::<Vec<&str>>();
+    dbg!(&header);
     while let Some(row) = rows.next()? {
-        let p = select_props
-            .columns
+        let p = header
             .iter()
             .enumerate()
             .map(|(idx, _)| Box::new(row.get::<usize, SQLDataTypes>(idx).unwrap()))
             .collect::<Vec<Box<SQLDataTypes>>>();
         res.push(p)
     }
+    dbg!(&res);
 
     if select_props.return_header {
-        let header = columns
-            .split(",")
-            .collect::<Vec<&str>>()
+        let header = header
             .iter()
             .map(|col| Box::new(col.to_sql_fmt()))
             .collect::<Vec<Box<SQLDataTypes>>>();
