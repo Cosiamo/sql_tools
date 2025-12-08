@@ -3,7 +3,11 @@ use std::{
     thread::{self, JoinHandle},
 };
 
-use crate::{Error, data_types::SQLDataTypes, statements::select::SelectProps};
+use crate::{
+    Error,
+    data_types::{SQLDataTypes, ToSQLData},
+    statements::select::SelectProps,
+};
 
 pub(crate) fn multithread_execution(
     handle_execution: fn(
@@ -55,6 +59,19 @@ pub(crate) fn multithread_execution(
     }
 
     if select_props.return_header {
+        let header = header
+            .iter()
+            .map(|head| {
+                let head = head.to_string();
+                let head = head.split(" as ").collect::<Vec<&str>>();
+                let head = head[head.len() - 1];
+                let head = head.split(" ").collect::<Vec<&str>>();
+                let head = head[head.len() - 1];
+                let head = head.split(".").collect::<Vec<&str>>();
+                let head = head[head.len() - 1];
+                Box::new(head.to_sql_fmt())
+            })
+            .collect::<Vec<Box<SQLDataTypes>>>();
         let header = vec![header.to_owned()];
         res.splice(..0, header.iter().cloned());
     }
