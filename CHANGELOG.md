@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.4] - 2025-12-08
+### Fixed 
+- Will return correct grid size for `SELECT *` in SQLite. 
+
 ## [0.11.3] - 2025-12-08
 ### Fixed 
 - return_header method for select doesn't return the column alias attached anymore. Just the column name.
