@@ -4,7 +4,8 @@ use crate::{
     Error, SQLImplementation,
     data_types::SQLDataTypes,
     statements::insert::{
-        InsertProps, sql_implementations::sqlite::utils::does_sqlite_table_exist,
+        InsertProps,
+        sql_implementations::sqlite::utils::{create_sqlite_table, does_sqlite_table_exist},
     },
 };
 
@@ -16,7 +17,12 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
         SQLImplementation::SQLite(connect) => connect,
     };
 
-    does_sqlite_table_exist(&insert_props, conn_info)?;
+    let table_exist = does_sqlite_table_exist(&insert_props, &conn_info)?;
+    if !table_exist && insert_props.create {
+        create_sqlite_table(&insert_props, conn_info)?;
+    } else if !table_exist && !insert_props.create {
+        return Err(Error::TableDoesNotExist);
+    }
 
     let mut values = Vec::new();
     for idx in 0..insert_props.grid.len() {

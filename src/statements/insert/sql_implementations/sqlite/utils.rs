@@ -1,6 +1,5 @@
 use crate::{
     Error, QueryBuilder,
-    data_types::SQLDataTypes,
     sql_implementations::SQLiteConnect,
     statements::{
         create::{CreateColumns, CreateDataTypes, ModifyCreateTable},
@@ -11,28 +10,11 @@ use crate::{
 pub(crate) fn does_sqlite_table_exist(
     insert_props: &InsertProps,
     conn_info: &SQLiteConnect,
-) -> Result<(), Error> {
+) -> Result<bool, Error> {
     // Does table exist
-    let table = &insert_props.table.split(".").collect::<Vec<&str>>();
-    let table = table
-        .iter()
-        .map(|cell| SQLDataTypes::Varchar(cell.to_string()))
-        .collect::<Vec<SQLDataTypes>>();
-    let exists = conn_info.table_info(&table[0].to_string());
-
-    match exists {
-        Ok(val) => {
-            if val.len() == 0 && !insert_props.create {
-                return Err(Error::TableDoesNotExist);
-            }
-            create_sqlite_table(insert_props, conn_info)
-        }
-        Err(_err) => {
-            if !insert_props.create {
-                return Err(Error::TableDoesNotExist);
-            }
-            create_sqlite_table(insert_props, conn_info)
-        }
+    match conn_info.table_info(&insert_props.table.to_string()) {
+        Ok(_val) => Ok(true),
+        Err(_err) => Ok(false),
     }
 }
 
