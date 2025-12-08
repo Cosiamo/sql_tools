@@ -9,6 +9,11 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.3] - 2025-12-08
+### Fixed 
+- return_header method for select doesn't return the column alias attached anymore. Just the column name.
+- Fixed issue where insert method for SQLite would fail when passing using columns from another database.
+
 ## [0.11.2] - 2025-12-03
 ### Reverted
 - Reverted the decision to borrow the Column struct in the select method.
