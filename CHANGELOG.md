@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.6] - 2026-01-13
+### Fixed
+- Made column and by inside the OrderBy struct public 
+
 ## [0.11.5] - 2026-01-13
 ### Changed
 - Overhauled how the ORDER BY and GROUP BY methods work.

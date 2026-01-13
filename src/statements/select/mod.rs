@@ -54,8 +54,8 @@ pub struct ColumnProps {
 
 #[derive(Debug)]
 pub struct OrderBy {
-    column: Column,
-    by: Direction,
+    pub column: Column,
+    pub by: Direction,
 }
 
 #[derive(Debug)]
