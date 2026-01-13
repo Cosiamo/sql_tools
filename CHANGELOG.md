@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.5] - 2026-01-13
+### Changed
+- Overhauled how the ORDER BY and GROUP BY methods work.
+
 ## [0.11.4] - 2025-12-08
 ### Fixed 
 - Will return correct grid size for `SELECT *` in SQLite. 
