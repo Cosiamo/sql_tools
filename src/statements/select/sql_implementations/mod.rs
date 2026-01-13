@@ -25,9 +25,13 @@ pub(crate) fn shared_select_operations(
     // ===== Where, and, or =====
     query = filters(&select_props, &query);
 
-    query = group_by(&select_props, &query);
+    if let Some(group) = &select_props.group_by {
+        query = group_by(group, &query);
+    }
 
-    query = order_by(&select_props, &query)?;
+    if let Some(order) = &select_props.order_by {
+        query = order_by(order, &query);
+    }
 
     Ok(query)
 }

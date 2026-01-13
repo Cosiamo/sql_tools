@@ -6,7 +6,7 @@ use crate::{
         create::CreateProps,
         delete::DeleteProps,
         insert::InsertProps,
-        select::{Column, Limit, OrderBy, SelectProps},
+        select::{Column, Limit, SelectProps},
         update::UpdateInitialization,
     },
     utils::remove_invalid_chars,
@@ -21,7 +21,7 @@ impl SQLImplementation {
             table: table.to_string(),
             joins: vec![],
             clause: None,
-            order_by: (None, OrderBy::None),
+            order_by: None,
             group_by: None,
             limit: Limit {
                 limit: None,

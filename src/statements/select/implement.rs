@@ -2,15 +2,14 @@ use crate::{
     Error, SQLImplementation,
     data_types::SQLDataTypes,
     statements::select::{
-        JoinType, Joins,
-        sql_implementations::{
+        Column, JoinType, Joins, sql_implementations::{
             oracle::{oracle_build_select, oracle_build_single_thread_select},
             sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
-        },
+        }
     },
 };
 
-use super::{Limit, OrderBy, Ordered, SelectBuilder, SelectProps, group_by::Grouped};
+use super::{Limit, OrderBy, SelectBuilder, SelectProps};
 
 impl SelectBuilder for SelectProps {
     fn inner_join(
@@ -77,24 +76,18 @@ impl SelectBuilder for SelectProps {
         self
     }
 
-    fn order_asc(mut self, column: &str) -> Ordered {
-        self.order_by = (Some(column.to_string()), OrderBy::ASC);
-        Ordered { select: self }
+    fn order_by(mut self, columns: Vec<OrderBy>) -> Self {
+        self.order_by = Some(columns);
+        self
     }
 
-    fn order_desc(mut self, column: &str) -> Ordered {
-        self.order_by = (Some(column.to_string()), OrderBy::DESC);
-        Ordered { select: self }
-    }
-
-    fn group_by(mut self, columns: Vec<&str>) -> Grouped {
-        self.group_by = Some(
-            columns
-                .iter()
-                .map(|col| col.to_string())
-                .collect::<Vec<String>>(),
-        );
-        Grouped { select: self }
+    fn group_by(mut self, columns: Vec<&Column>) -> Self {
+        let mut group_by = Vec::new();
+        for col in columns {
+            group_by.push(col.to_owned());
+        }
+        self.group_by = Some(group_by);
+        self
     }
 
     fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
@@ -122,15 +115,5 @@ impl SelectBuilder for SelectProps {
     fn return_header(mut self) -> Self {
         self.return_header = true;
         self
-    }
-}
-
-impl Ordered {
-    pub fn build(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-        self.select.build()
-    }
-
-    pub fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-        self.select.build_single_thread()
     }
 }

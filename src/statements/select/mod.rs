@@ -1,7 +1,5 @@
 use crate::{Error, SQLImplementation, data_types::SQLDataTypes};
-use group_by::Grouped;
 
-pub mod group_by;
 pub mod implement;
 pub mod sql_implementations;
 
@@ -12,8 +10,8 @@ pub struct SelectProps {
     pub table: String,
     pub joins: Vec<Joins>,
     pub clause: Option<String>,
-    pub order_by: (Option<String>, OrderBy),
-    pub group_by: Option<Vec<String>>,
+    pub order_by: Option<Vec<OrderBy>>,
+    pub group_by: Option<Vec<Column>>,
     pub limit: Limit,
     pub return_header: bool,
 }
@@ -55,21 +53,21 @@ pub struct ColumnProps {
 }
 
 #[derive(Debug)]
-pub enum OrderBy {
+pub struct OrderBy {
+    column: Column,
+    by: Direction,
+}
+
+#[derive(Debug)]
+pub enum Direction {
     ASC,
     DESC,
-    None,
 }
 
 #[derive(Debug)]
 pub struct Limit {
     pub limit: Option<usize>,
     pub offset: Option<usize>,
-}
-
-#[derive(Debug)]
-pub struct Ordered {
-    select: SelectProps,
 }
 
 #[derive(Debug)]
@@ -161,14 +159,11 @@ pub trait SelectBuilder {
     /// ```
     fn left_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self;
 
-    /// Order By a column ascending
-    fn order_asc(self, column: &str) -> Ordered;
-
-    /// Order By a column descending
-    fn order_desc(self, column: &str) -> Ordered;
+    /// Order By column(s)
+    fn order_by(self, columns: Vec<OrderBy>) -> Self;
 
     /// Group By column(s)
-    fn group_by(self, columns: Vec<&str>) -> Grouped;
+    fn group_by(self, columns: Vec<&Column>) -> Self;
 
     /// Sets limit and offset of query
     fn limit(self, limit: usize, offset: Option<usize>) -> Self;
@@ -185,4 +180,16 @@ pub trait SelectBuilder {
 
     /// Builds the query only using one thread.
     fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
+}
+
+
+impl Column {
+    pub fn fmt_to_string(&self) -> String {
+        match self {
+            Column::Name(column_props) => format!("{}.{}", column_props.table, column_props.name),
+            Column::Function(func) => format!("{}", func),
+            Column::Varchar(varchar) => format!("'{}'", varchar),
+            Column::ALL(all) => format!("{}.*", all),
+        }
+    }
 }

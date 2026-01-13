@@ -1,6 +1,5 @@
 use crate::{
-    Error,
-    statements::select::{JoinType, OrderBy, SelectProps},
+    statements::select::{Column, Direction, JoinType, OrderBy, SelectProps},
 };
 
 pub(crate) fn join_operations(select_props: &SelectProps, mut query: String) -> String {
@@ -28,23 +27,23 @@ pub(crate) fn filters(select_props: &SelectProps, query: &String) -> String {
     }
 }
 
-pub(crate) fn group_by(select_props: &SelectProps, query: &String) -> String {
-    if let Some(group_by) = &select_props.group_by {
-        format!("{} GROUP BY {}", query, group_by.join(", "))
-    } else {
-        query.to_owned()
+pub(crate) fn group_by(group: &Vec<Column>, query: &String) -> String {
+    let mut v = Vec::new();
+    for group_by in group {
+        v.push(group_by.fmt_to_string());
     }
+    format!("{} GROUP BY {}", query, v.join(", "))
 }
 
-pub(crate) fn order_by(select_props: &SelectProps, query: &String) -> Result<String, Error> {
-    match &select_props.order_by {
-        (None, OrderBy::ASC) => return Err(Error::OrderByError),
-        (None, OrderBy::DESC) => return Err(Error::OrderByError),
-        (None, OrderBy::None) => Ok(query.to_owned()),
-        (Some(column), OrderBy::ASC) => Ok(format!("{} ORDER BY {} ASC", query, column)),
-        (Some(column), OrderBy::DESC) => Ok(format!("{} ORDER BY {} DESC", query, column)),
-        (Some(_), OrderBy::None) => Ok(query.to_owned()),
+pub(crate) fn order_by(order: &Vec<OrderBy>, query: &String) -> String {
+    let mut v = Vec::new();
+    for order_by in order {
+        match order_by.by {
+            Direction::ASC => v.push(format!("{} ASC", order_by.column.fmt_to_string())),
+            Direction::DESC => v.push(format!("{} DESC", order_by.column.fmt_to_string())),
+        }
     }
+    format!("{} ORDER BY {}", query, v.join(", "))
 }
 
 pub(crate) fn limit_offset(select_props: &SelectProps, mut query: String) -> String {
