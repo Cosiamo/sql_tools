@@ -62,10 +62,7 @@ pub(crate) fn build_select_sqlite(
         .collect::<Vec<Box<SQLDataTypes>>>();
     let columns = &cols.join(", ");
 
-    let mut query = format!(
-        "SELECT row_number() over (order by rowid) as row_num, {} FROM {}",
-        &columns, &table
-    );
+    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
     query = shared_select_operations(&select_props, query)?;
@@ -86,7 +83,7 @@ pub(crate) fn build_select_sqlite(
         }
     }
 
-    multithread_execution(sqlite_handle_execution, select_props, &header, query, count)
+    multithread_execution(SQLImplementation::SQLite(conn_info.to_owned()) ,sqlite_handle_execution, select_props, &header, query, count)
 }
 
 pub(crate) fn build_select_sqlite_single_thread(

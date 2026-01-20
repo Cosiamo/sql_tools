@@ -4,12 +4,11 @@ use std::{
 };
 
 use crate::{
-    Error,
-    data_types::{SQLDataTypes, ToSQLData},
-    statements::select::SelectProps,
+    Error, SQLImplementation, data_types::{SQLDataTypes, ToSQLData}, statements::select::SelectProps
 };
 
 pub(crate) fn multithread_execution(
+    sql_implementation: SQLImplementation,
     handle_execution: fn(
         select_props: Arc<SelectProps>,
         column_size: usize,
@@ -33,7 +32,8 @@ pub(crate) fn multithread_execution(
 
     let mut prev: usize = 0; // The previous thread's "end" number
 
-    let column_size = &header.len() + 1;
+    let column_size = &header.len() + 0;
+    let mut limit = 0 as usize;
 
     for nthread in 0..nthreads {
         let start: usize = prev + 1;
@@ -41,8 +41,17 @@ pub(crate) fn multithread_execution(
         if end > data_length {
             end = data_length
         }
+        if nthread == 0 {
+            limit = end
+        }
 
-        let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
+        let offset = start - 1;
+        let sql = match sql_implementation {
+            SQLImplementation::Oracle(_) => format!("SELECT * FROM ({query}) OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"),
+            SQLImplementation::SQLite(_) => format!("SELECT * FROM ({query}) LIMIT {limit} OFFSET {offset}"),
+        };
+        // let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
+        dbg!(&sql);
 
         let select_props = Arc::clone(&select_props);
         handles.push(thread::spawn(move || {

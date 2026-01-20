@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.7] - 2026-01-20
+### Fixed
+- Views can now be queried with multiple threads (slower than I want and needs to be improved)
+
 ## [0.11.6] - 2026-01-13
 ### Fixed
 - Made column and by inside the OrderBy struct public 

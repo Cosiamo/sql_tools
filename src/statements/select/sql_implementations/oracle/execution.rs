@@ -26,7 +26,7 @@ pub(crate) fn oracle_handle_execution(
 pub(crate) fn stmt_res(
     mut stmt: Statement,
     column_size: usize,
-    is_parallel: bool,
+    _is_parallel: bool,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let query = stmt.query(&[])?;
     let mut outer_vec = Vec::new();
@@ -37,9 +37,9 @@ pub(crate) fn stmt_res(
             let a = p.get::<usize, SQLDataTypes>(col_idx)?;
             inner_vec.push(Box::new(a))
         }
-        if is_parallel {
-            inner_vec.remove(0);
-        }
+        // if is_parallel {
+        //     inner_vec.remove(0);
+        // }
         outer_vec.push(inner_vec)
     }
 
