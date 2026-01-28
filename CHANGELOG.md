@@ -9,6 +9,12 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.8] - 2026-01-28
+### Changed
+- Update method now returns `UpdateProps` struct
+### Removed
+- All of the dbg! macros in Select
+
 ## [0.11.7] - 2026-01-20
 ### Fixed
 - Views can now be queried with multiple threads (slower than I want and needs to be improved)
