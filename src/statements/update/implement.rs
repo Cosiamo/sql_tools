@@ -7,37 +7,7 @@ use crate::{
     },
 };
 
-use super::{SetMatch, UpdateBuilder, UpdateInitialization, UpdateProps};
-
-impl UpdateInitialization {
-    pub fn set<T: ToSQLData>(self, column: &str, new_value: T) -> UpdateProps {
-        let set = vec![SetMatch {
-            column: column.to_string(),
-            value: new_value.to_sql_fmt(),
-            query: false,
-        }];
-        UpdateProps {
-            connect: self.connect,
-            set_match: set,
-            table: self.table,
-            clause: None,
-        }
-    }
-
-    pub fn set_query(self, column: &str, query: &str) -> UpdateProps {
-        let set = vec![SetMatch {
-            column: column.to_string(),
-            value: query.to_sql_fmt(),
-            query: true,
-        }];
-        UpdateProps {
-            connect: self.connect,
-            set_match: set,
-            table: self.table,
-            clause: None,
-        }
-    }
-}
+use super::{SetMatch, UpdateBuilder, UpdateProps};
 
 impl UpdateBuilder for UpdateProps {
     fn set<T: ToSQLData>(mut self, column: &str, new_value: T) -> Self {

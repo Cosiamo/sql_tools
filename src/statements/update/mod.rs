@@ -7,12 +7,6 @@ pub mod implement;
 pub mod sql_implementations;
 
 #[derive(Debug)]
-pub struct UpdateInitialization {
-    pub connect: SQLImplementation,
-    pub table: String,
-}
-
-#[derive(Debug)]
 pub struct UpdateProps {
     pub connect: SQLImplementation,
     pub set_match: Vec<SetMatch>,

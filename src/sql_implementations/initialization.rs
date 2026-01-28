@@ -7,7 +7,7 @@ use crate::{
         delete::DeleteProps,
         insert::InsertProps,
         select::{Column, Limit, SelectProps},
-        update::UpdateInitialization,
+        update::UpdateProps,
     },
     utils::remove_invalid_chars,
 };
@@ -31,10 +31,12 @@ impl SQLImplementation {
         }
     }
 
-    pub(crate) fn update_initialization(self, table: &str) -> UpdateInitialization {
-        UpdateInitialization {
+    pub(crate) fn update_initialization(self, table: &str) -> UpdateProps {
+        UpdateProps {
             connect: self,
             table: table.to_owned(),
+            set_match: Vec::new(),
+            clause: None,
         }
     }
 

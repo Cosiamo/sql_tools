@@ -8,7 +8,7 @@ use crate::{
         delete::DeleteProps,
         insert::InsertProps,
         select::{Column, SelectProps},
-        update::UpdateInitialization,
+        update::UpdateProps,
     },
 };
 
@@ -31,7 +31,7 @@ impl QueryBuilder for OracleConnect {
         SQLImplementation::Oracle(self.clone()).select_initialization(table, columns)
     }
 
-    fn update(&self, table: &str) -> UpdateInitialization {
+    fn update(&self, table: &str) -> UpdateProps {
         SQLImplementation::Oracle(self.clone()).update_initialization(table)
     }
 

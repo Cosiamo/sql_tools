@@ -4,10 +4,8 @@ use data_types::ToSQLData;
 use sql_implementations::{OracleConnect, SQLiteConnect};
 use statements::{
     alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
-    select::SelectProps, update::UpdateInitialization,
+    select::SelectProps, select::Column, update::UpdateProps
 };
-
-use crate::statements::select::Column;
 
 pub mod data_types;
 pub mod query_conjunctions;
@@ -106,7 +104,7 @@ pub trait QueryBuilder {
     ///     .where_in(country, countries)
     ///     .build_return_count()?;
     /// ```
-    fn update(&self, table: &str) -> UpdateInitialization;
+    fn update(&self, table: &str) -> UpdateProps;
 
     /// Creates a new [`InsertProps`] to start building out an insert query.
     ///

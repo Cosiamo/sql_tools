@@ -63,7 +63,7 @@ pub(crate) fn oracle_build_update(update_set: UpdateProps) -> Result<usize, Erro
         count = p.get::<usize, usize>(0)?;
     }
 
-    conn.execute(&query, &[]).unwrap();
+    conn.execute(&query, &[])?;
     conn.commit()?;
 
     Ok(count)
