@@ -51,7 +51,6 @@ pub(crate) fn multithread_execution(
             SQLImplementation::SQLite(_) => format!("SELECT * FROM ({query}) LIMIT {limit} OFFSET {offset}"),
         };
         // let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
-        dbg!(&sql);
 
         let select_props = Arc::clone(&select_props);
         handles.push(thread::spawn(move || {

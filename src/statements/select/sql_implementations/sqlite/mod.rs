@@ -127,13 +127,11 @@ pub(crate) fn build_select_sqlite_single_thread(
     query = shared_select_operations(&select_props, query)?;
 
     query = limit_offset(&select_props, query);
-    dbg!(&query);
 
     let mut stmt = conn.prepare(&query)?;
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();
     let header = columns.split(",").collect::<Vec<&str>>();
-    dbg!(&header);
     while let Some(row) = rows.next()? {
         let p = header
             .iter()
@@ -142,7 +140,6 @@ pub(crate) fn build_select_sqlite_single_thread(
             .collect::<Vec<Box<SQLDataTypes>>>();
         res.push(p)
     }
-    dbg!(&res);
 
     if select_props.return_header {
         let header = header

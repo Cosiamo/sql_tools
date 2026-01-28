@@ -37,9 +37,6 @@ pub(crate) fn oracle_build_select(
     let columns = &cols.join(", ");
     
     let mut query = format!("SELECT {} FROM {}", &columns, &table,);
-    dbg!(&query);
-
-    dbg!(&columns);
 
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
 
@@ -91,7 +88,6 @@ pub(crate) fn oracle_build_single_thread_select(
 
     query = shared_select_operations(&select_props, query)?;
     query = limit_offset_oracle(&select_props, query);
-    dbg!(&query);
 
     let conn_info = extract_connection(&select_props.connect)?;
     let conn: oracle::Connection = oracle::Connection::connect(
