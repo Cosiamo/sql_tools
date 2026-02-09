@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.9] - 2026-02-09
+### Changed
+- `get_table_names` for Oracle now returns the tables in ascending order
+
 ## [0.11.8] - 2026-01-28
 ### Changed
 - Update method now returns `UpdateProps` struct
