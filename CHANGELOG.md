@@ -9,6 +9,10 @@ How I determine version numbers for this project:
 
 Dates are labeled YYYY-MM-DD.
 
+## [0.11.10] - 2026-02-11
+### Changed
+- `&String` is now implemented into `ToSQLData` by default
+
 ## [0.11.9] - 2026-02-09
 ### Changed
 - `get_table_names` for Oracle now returns the tables in ascending order

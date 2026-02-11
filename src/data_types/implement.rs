@@ -155,6 +155,7 @@ macro_rules! impl_fmt_data {
 }
 impl_fmt_data!(&str, Varchar);
 impl_fmt_data!(String, Varchar);
+impl_fmt_data!(&String, Varchar);
 impl_fmt_data!(i8, Number);
 impl_fmt_data!(i16, Number);
 impl_fmt_data!(i32, Number);
@@ -175,6 +176,7 @@ macro_rules! impl_fmt_data_heap {
 }
 impl_fmt_data_heap!(Box<&str>, Varchar);
 impl_fmt_data_heap!(Box<String>, Varchar);
+impl_fmt_data_heap!(Box<&String>, Varchar);
 impl_fmt_data_heap!(Box<i8>, Number);
 impl_fmt_data_heap!(Box<i16>, Number);
 impl_fmt_data_heap!(Box<i32>, Number);
@@ -197,6 +199,7 @@ macro_rules! impl_fmt_data_option {
 }
 impl_fmt_data_option!(Option<&str>, Varchar);
 impl_fmt_data_option!(Option<String>, Varchar);
+impl_fmt_data_option!(Option<&String>, Varchar);
 impl_fmt_data_option!(Option<i8>, Number);
 impl_fmt_data_option!(Option<i16>, Number);
 impl_fmt_data_option!(Option<i32>, Number);
@@ -222,6 +225,7 @@ macro_rules! impl_fmt_data_option_heap {
 }
 impl_fmt_data_option_heap!(Option<Box<&str>>, Varchar);
 impl_fmt_data_option_heap!(Option<Box<String>>, Varchar);
+impl_fmt_data_option_heap!(Option<Box<&String>>, Varchar);
 impl_fmt_data_option_heap!(Option<Box<i8>>, Number);
 impl_fmt_data_option_heap!(Option<Box<i16>>, Number);
 impl_fmt_data_option_heap!(Option<Box<i32>>, Number);
