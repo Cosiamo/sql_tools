@@ -1,6 +1,4 @@
-use crate::{
-    statements::select::{Column, Direction, JoinType, OrderBy, SelectProps},
-};
+use crate::statements::select::{Column, Direction, JoinType, OrderBy, SelectProps};
 
 pub(crate) fn join_operations(select_props: &SelectProps, mut query: String) -> String {
     for join in &select_props.joins {

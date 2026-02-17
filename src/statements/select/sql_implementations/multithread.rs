@@ -4,7 +4,9 @@ use std::{
 };
 
 use crate::{
-    Error, SQLImplementation, data_types::{SQLDataTypes, ToSQLData}, statements::select::SelectProps
+    Error, SQLImplementation,
+    data_types::{SQLDataTypes, ToSQLData},
+    statements::select::SelectProps,
 };
 
 pub(crate) fn multithread_execution(
@@ -47,8 +49,12 @@ pub(crate) fn multithread_execution(
 
         let offset = start - 1;
         let sql = match sql_implementation {
-            SQLImplementation::Oracle(_) => format!("SELECT * FROM ({query}) OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY"),
-            SQLImplementation::SQLite(_) => format!("SELECT * FROM ({query}) LIMIT {limit} OFFSET {offset}"),
+            SQLImplementation::Oracle(_) => {
+                format!("SELECT * FROM ({query}) OFFSET {offset} ROWS FETCH NEXT {limit} ROWS ONLY")
+            }
+            SQLImplementation::SQLite(_) => {
+                format!("SELECT * FROM ({query}) LIMIT {limit} OFFSET {offset}")
+            }
         };
         // let sql = format!("SELECT * FROM ({query}) WHERE row_num >= {start} and row_num <= {end}");
 

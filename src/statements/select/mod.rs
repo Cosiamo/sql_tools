@@ -182,7 +182,6 @@ pub trait SelectBuilder {
     fn build_single_thread(self) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error>;
 }
 
-
 impl Column {
     pub fn fmt_to_string(&self) -> String {
         match self {

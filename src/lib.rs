@@ -4,7 +4,7 @@ use data_types::ToSQLData;
 use sql_implementations::{OracleConnect, SQLiteConnect};
 use statements::{
     alter::AlterProps, create::CreateProps, delete::DeleteProps, insert::InsertProps,
-    select::SelectProps, select::Column, update::UpdateProps
+    select::Column, select::SelectProps, update::UpdateProps,
 };
 
 pub mod data_types;

@@ -83,7 +83,14 @@ pub(crate) fn build_select_sqlite(
         }
     }
 
-    multithread_execution(SQLImplementation::SQLite(conn_info.to_owned()) ,sqlite_handle_execution, select_props, &header, query, count)
+    multithread_execution(
+        SQLImplementation::SQLite(conn_info.to_owned()),
+        sqlite_handle_execution,
+        select_props,
+        &header,
+        query,
+        count,
+    )
 }
 
 pub(crate) fn build_select_sqlite_single_thread(

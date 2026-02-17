@@ -58,15 +58,13 @@ impl OracleConnect {
         });
         let tables = self
             .select("user_tables", vec![column])
-            .order_by(vec![
-                OrderBy {
-                    column: Column::Name(ColumnProps {
-                        name: "table_name".to_string(),
-                        table: "user_tables".to_string(),
-                    }),
-                    by: Direction::ASC,
-                },
-            ])
+            .order_by(vec![OrderBy {
+                column: Column::Name(ColumnProps {
+                    name: "table_name".to_string(),
+                    table: "user_tables".to_string(),
+                }),
+                by: Direction::ASC,
+            }])
             .build_single_thread()?;
         let names = tables
             .iter()

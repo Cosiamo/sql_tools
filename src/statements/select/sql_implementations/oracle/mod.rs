@@ -35,7 +35,7 @@ pub(crate) fn oracle_build_select(
         })
         .collect::<Vec<Box<SQLDataTypes>>>();
     let columns = &cols.join(", ");
-    
+
     let mut query = format!("SELECT {} FROM {}", &columns, &table,);
 
     let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
@@ -61,7 +61,14 @@ pub(crate) fn oracle_build_select(
         count = row.get_as::<Option<usize>>()?;
     }
 
-    multithread_execution( SQLImplementation::Oracle(conn_info),oracle_handle_execution, select_props, header, query, count)
+    multithread_execution(
+        SQLImplementation::Oracle(conn_info),
+        oracle_handle_execution,
+        select_props,
+        header,
+        query,
+        count,
+    )
 }
 
 pub(crate) fn oracle_build_single_thread_select(

@@ -2,10 +2,11 @@ use crate::{
     Error, SQLImplementation,
     data_types::SQLDataTypes,
     statements::select::{
-        Column, JoinType, Joins, sql_implementations::{
+        Column, JoinType, Joins,
+        sql_implementations::{
             oracle::{oracle_build_select, oracle_build_single_thread_select},
             sqlite::{build_select_sqlite, build_select_sqlite_single_thread},
-        }
+        },
     },
 };
 
