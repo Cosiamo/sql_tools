@@ -4,6 +4,22 @@ use crate::{
     statements::select::ColumnProps,
 };
 
+fn format_column(column: &ColumnProps) -> String {
+    if column.table.is_empty() {
+        column.name.clone()
+    } else {
+        format!("{}.{}", column.table, column.name)
+    }
+}
+
+fn append_clause(clause: &Option<String>, conjunction: &str, stmt: &str) -> String {
+    if let Some(existing) = clause {
+        format!("{existing} {conjunction} {stmt}")
+    } else {
+        stmt.to_string()
+    }
+}
+
 pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
     items
         .iter()
@@ -19,12 +35,7 @@ pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
 }
 
 pub(crate) fn where_match(column: &ColumnProps, values: WhereArg) -> String {
-    let col: String;
-    if column.table.len() == 0 {
-        col = format!("{}", column.name);
-    } else {
-        col = format!("{}.{}", column.table, column.name);
-    }
+    let col = format_column(column);
 
     match values {
         WhereArg::Values(items) => {
@@ -44,12 +55,7 @@ pub(crate) fn where_match(column: &ColumnProps, values: WhereArg) -> String {
 }
 
 pub(crate) fn where_match_not(column: &ColumnProps, values: WhereArg) -> String {
-    let col: String;
-    if column.table.len() == 0 {
-        col = format!("{}", column.name);
-    } else {
-        col = format!("{}.{}", column.table, column.name);
-    }
+    let col = format_column(column);
 
     match values {
         WhereArg::Values(items) => {
@@ -74,46 +80,25 @@ pub(crate) fn conjunction_match(
     clause: &Option<String>,
     conjunction: &str,
 ) -> String {
-    let col: String;
-    if column.table.len() == 0 {
-        col = format!("{}", column.name);
-    } else {
-        col = format!("{}.{}", column.table, column.name);
-    }
+    let col = format_column(column);
 
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
             let stmt = format!("{} IN ({})", col, value);
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::Like(like) => {
             let stmt = format!("{col} LIKE '{like}'");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::Query(query) => {
             let stmt = format!("{col} IN ({query})");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::NULL => {
             let stmt = format!("{col} IS NULL");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
     }
 }
@@ -124,46 +109,25 @@ pub(crate) fn conjunction_match_not(
     clause: &Option<String>,
     conjunction: &str,
 ) -> String {
-    let col: String;
-    if column.table.len() == 0 {
-        col = format!("{}", column.name);
-    } else {
-        col = format!("{}.{}", column.table, column.name);
-    }
+    let col = format_column(column);
 
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
             let stmt = format!("{} NOT IN ({})", col, value);
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::Like(like) => {
             let stmt = format!("{col} NOT LIKE '{like}'");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::Query(query) => {
             let stmt = format!("{col} NOT IN ({query})");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
         WhereArg::NULL => {
             let stmt = format!("{col} IS NOT NULL");
-            if let Some(existing) = clause {
-                format!("{existing} {conjunction} {stmt}")
-            } else {
-                format!("{stmt}")
-            }
+            append_clause(clause, conjunction, &stmt)
         }
     }
 }
