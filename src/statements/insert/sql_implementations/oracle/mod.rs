@@ -95,8 +95,7 @@ pub(crate) fn oracle_build_insert(
         );
         let data = insert_props.grid;
         let conn: oracle::Connection =
-            oracle::Connection::connect(username_conn, password_conn, connection_string_conn)
-                .unwrap();
+            oracle::Connection::connect(username_conn, password_conn, connection_string_conn)?;
         let mut batch = conn.batch(&query, data.len()).build()?;
         iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
         conn.commit()?;
@@ -122,7 +121,7 @@ pub(crate) fn oracle_build_insert(
             handles.push(thread::spawn(move || {
                 // println!("THREAD:{n} DATA:{:?}", data);
                 let conn: oracle::Connection =
-                    oracle::Connection::connect(username, password, connection_string).unwrap();
+                    oracle::Connection::connect(username, password, connection_string)?;
                 let mut batch = conn.batch(&query, data.len()).build()?;
                 iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
                 conn.commit()?;
