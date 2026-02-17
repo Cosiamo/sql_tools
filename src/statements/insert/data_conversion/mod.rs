@@ -14,7 +14,7 @@ impl SQLDataTypes {
         } else {
             return self;
         };
-        if val.trim().len() == 0 {
+        if val.trim().is_empty() {
             *self = SQLDataTypes::NULL;
             return self;
         }
@@ -35,29 +35,16 @@ impl SQLDataTypes {
                 return self;
             }
         }
-        return self;
+        self
     }
 }
 
-fn contains_number(input: &mut String) -> bool {
-    let is_num = input
-        .trim()
-        .chars()
-        .map(|char| char.is_ascii_digit())
-        .collect::<Vec<bool>>();
-    if is_num.contains(&true) {
-        return true;
-    } else {
-        false
-    }
+fn contains_number(input: &str) -> bool {
+    input.trim().chars().any(|character| character.is_ascii_digit())
 }
 
-fn is_dt(input: &mut String) -> bool {
-    if input.contains("/") || input.contains("-") || input.contains(":") {
-        return true;
-    } else {
-        return false;
-    }
+fn is_dt(input: &str) -> bool {
+    input.contains("/") || input.contains("-") || input.contains(":")
 }
 
 fn date_match(val: &mut String) -> Option<SQLDataTypes> {
