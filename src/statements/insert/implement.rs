@@ -20,9 +20,9 @@ impl InsertPropsFormatted {
 
 impl InsertBuilder for InsertProps {
     fn format_grid_strings(mut self) -> Result<InsertPropsFormatted, Error> {
-        for y_idx in 0..self.grid.len() {
-            for x_idx in 0..self.grid[y_idx].len() {
-                self.grid[y_idx][x_idx].format_data_types();
+        for row in &mut self.grid {
+            for cell in row {
+                cell.format_data_types();
             }
         }
 
