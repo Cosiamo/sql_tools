@@ -24,6 +24,14 @@ impl OracleConnect {
             Err(e) => Err(Error::OracleError(e)),
         }
     }
+
+    pub(crate) fn initialize_connection(&self) -> Result<oracle::Connection, Error> {
+        Ok(oracle::Connection::connect(
+            &self.username,
+            &self.password,
+            &self.connection_string,
+        )?)
+    }
 }
 
 impl QueryBuilder for OracleConnect {

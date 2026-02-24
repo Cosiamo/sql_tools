@@ -9,11 +9,7 @@ pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<ColumnP
         "SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'",
         select_props.table.to_ascii_uppercase()
     );
-    let conn: oracle::Connection = oracle::Connection::connect(
-        conn_info.username.clone(),
-        conn_info.password.clone(),
-        conn_info.connection_string.clone(),
-    )?;
+    let conn = conn_info.initialize_connection()?;
 
     let mut header: Vec<ColumnProps> = Vec::new();
     let rows = conn.query(&sql, &[])?;

@@ -14,11 +14,7 @@ pub(crate) fn oracle_handle_execution(
     sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
     let conn_info = select_props.connect.as_oracle()?;
-    let conn = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )?;
+    let conn = conn_info.initialize_connection()?;
     let stmt = conn.statement(&sql).build()?;
     stmt_res(stmt, column_size, true)
 }

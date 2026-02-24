@@ -27,9 +27,6 @@ pub(crate) fn oracle_build_insert(
     use_pb: bool,
 ) -> Result<(), Error> {
     let conn_info = insert_props.connect.as_oracle()?;
-    let username_conn = conn_info.username.to_owned();
-    let password_conn = conn_info.password.to_owned();
-    let connection_string_conn = conn_info.connection_string.to_owned();
 
     let table_exist = does_table_exist(&insert_props.table, &conn_info)?;
     if !table_exist && insert_props.create {
@@ -91,8 +88,7 @@ pub(crate) fn oracle_build_insert(
             &insert_props.header.join(", "),
         );
         let data = insert_props.grid;
-        let conn: oracle::Connection =
-            oracle::Connection::connect(username_conn, password_conn, connection_string_conn)?;
+        let conn = conn_info.initialize_connection()?;
         let mut batch = conn.batch(&query, data.len()).build()?;
         iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
         conn.commit()?;
@@ -110,15 +106,12 @@ pub(crate) fn oracle_build_insert(
                 &insert_props.table,
                 &insert_props.header.join(", "),
             );
-            let username = username_conn.clone();
-            let password = password_conn.clone();
-            let connection_string = connection_string_conn.clone();
+            let thread_conn_info = (*conn_info).clone();
             let datatype_indices = datatype_indices.clone();
             let pb = Arc::clone(&pb);
             handles.push(thread::spawn(move || {
                 // println!("THREAD:{n} DATA:{:?}", data);
-                let conn: oracle::Connection =
-                    oracle::Connection::connect(username, password, connection_string)?;
+                let conn = thread_conn_info.initialize_connection()?;
                 let mut batch = conn.batch(&query, data.len()).build()?;
                 iter_grid(&mut batch, data, pb, datatype_indices, use_pb)?;
                 conn.commit()?;

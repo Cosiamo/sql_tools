@@ -7,12 +7,7 @@ pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(),
     let conn_info = create_table.connect.as_oracle()?;
 
     let sql = fmt_create_table_columns(&create_table);
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )
-    .unwrap();
+    let conn = conn_info.initialize_connection()?;
     conn.execute(&sql, &[])?;
     conn.commit()?;
     Ok(())

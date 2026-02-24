@@ -5,12 +5,7 @@ use itertools::Itertools;
 use crate::{Error, data_types::SQLDataTypes, sql_implementations::OracleConnect};
 
 pub(crate) fn does_table_exist(table: &String, conn_info: &OracleConnect) -> Result<bool, Error> {
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )
-    .unwrap();
+    let conn = conn_info.initialize_connection()?;
     let mut existing_tables = conn
         .statement("SELECT table_name FROM user_tables")
         .build()?;

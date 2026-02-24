@@ -29,12 +29,7 @@ pub(crate) fn oracle_build_update(update_set: UpdateProps) -> Result<usize, Erro
         }
     };
 
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )
-    .unwrap();
+    let conn = conn_info.initialize_connection()?;
 
     let mut count: usize = 0;
     let mut stmt = conn.statement(&count_sql).build()?;
@@ -69,12 +64,7 @@ pub fn batch_update_oracle(updates: Vec<UpdateProps>) -> Result<(), Error> {
 
     let query = format!("BEGIN {sql}; END;");
 
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )
-    .unwrap();
+    let conn = conn_info.initialize_connection()?;
     conn.execute(&query, &[]).unwrap();
     conn.commit()?;
 

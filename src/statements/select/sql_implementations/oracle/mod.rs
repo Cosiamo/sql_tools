@@ -42,11 +42,7 @@ pub(crate) fn oracle_build_select(
     count_sql = limit_offset_oracle(&select_props, count_sql);
 
     let conn_info = select_props.connect.as_oracle()?.clone();
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )?;
+    let conn = conn_info.initialize_connection()?;
 
     let mut count: Option<usize> = None;
     let count_query = conn.query(&count_sql, &[])?;
@@ -87,11 +83,7 @@ pub(crate) fn oracle_build_single_thread_select(
     query = limit_offset_oracle(&select_props, query);
 
     let conn_info = select_props.connect.as_oracle()?;
-    let conn: oracle::Connection = oracle::Connection::connect(
-        &conn_info.username,
-        &conn_info.password,
-        &conn_info.connection_string,
-    )?;
+    let conn = conn_info.initialize_connection()?;
 
     let stmt = conn.statement(&query).build()?;
     let column_size = header.len();
