@@ -12,69 +12,39 @@ use crate::{
 
 use super::{Limit, OrderBy, SelectBuilder, SelectProps};
 
+impl SelectProps {
+    fn add_join(
+        mut self,
+        foreign_table: &str,
+        primary_column: &str,
+        foreign_column: &str,
+        join_type: JoinType,
+    ) -> Self {
+        self.joins.push(Joins {
+            table: foreign_table.to_owned(),
+            primary_column: String::from(primary_column),
+            foreign_column: String::from(foreign_column),
+            join_type,
+        });
+        self
+    }
+}
+
 impl SelectBuilder for SelectProps {
-    fn inner_join(
-        mut self,
-        foreign_table: &str,
-        primary_column: &str,
-        foreign_column: &str,
-    ) -> Self {
-        let join = Joins {
-            table: foreign_table.to_owned(),
-            primary_column: String::from(primary_column),
-            foreign_column: String::from(foreign_column),
-            join_type: JoinType::Inner,
-        };
-        self.joins.push(join);
-        self
+    fn inner_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self {
+        self.add_join(foreign_table, primary_column, foreign_column, JoinType::Inner)
     }
 
-    fn outer_join(
-        mut self,
-        foreign_table: &str,
-        primary_column: &str,
-        foreign_column: &str,
-    ) -> Self {
-        let join = Joins {
-            table: foreign_table.to_owned(),
-            primary_column: String::from(primary_column),
-            foreign_column: String::from(foreign_column),
-            join_type: JoinType::Outer,
-        };
-        self.joins.push(join);
-        self
+    fn outer_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self {
+        self.add_join(foreign_table, primary_column, foreign_column, JoinType::Outer)
     }
 
-    fn right_join(
-        mut self,
-        foreign_table: &str,
-        primary_column: &str,
-        foreign_column: &str,
-    ) -> Self {
-        let join = Joins {
-            table: foreign_table.to_owned(),
-            primary_column: String::from(primary_column),
-            foreign_column: String::from(foreign_column),
-            join_type: JoinType::Right,
-        };
-        self.joins.push(join);
-        self
+    fn right_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self {
+        self.add_join(foreign_table, primary_column, foreign_column, JoinType::Right)
     }
 
-    fn left_join(
-        mut self,
-        foreign_table: &str,
-        primary_column: &str,
-        foreign_column: &str,
-    ) -> Self {
-        let join = Joins {
-            table: foreign_table.to_owned(),
-            primary_column: String::from(primary_column),
-            foreign_column: String::from(foreign_column),
-            join_type: JoinType::Left,
-        };
-        self.joins.push(join);
-        self
+    fn left_join(self, foreign_table: &str, primary_column: &str, foreign_column: &str) -> Self {
+        self.add_join(foreign_table, primary_column, foreign_column, JoinType::Left)
     }
 
     fn order_by(mut self, columns: Vec<OrderBy>) -> Self {
