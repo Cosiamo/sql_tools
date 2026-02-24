@@ -3,23 +3,17 @@ use crate::{
 };
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
+    const REMOVE: &[char] = &['\'', '%', '!', '?', '|', '#', '\\', '/', '(', ')', '+'];
     input
         .trim()
-        .replace(|c: char| !c.is_ascii(), "")
-        .replace(" ", "_")
-        .replace("-", "_")
-        .replace("'", "")
-        .replace("%", "")
-        .replace("!", "")
-        .replace("?", "")
-        .replace("|", "")
-        .replace("#", "")
-        .replace("\\", "")
-        .replace("/", "")
-        .replace("(", "")
-        .replace(")", "")
-        .replace("+", "")
-        .replace("#", "")
+        .chars()
+        .filter(|c| c.is_ascii())
+        .filter_map(|c| match c {
+            ' ' | '-' => Some('_'),
+            c if REMOVE.contains(&c) => None,
+            c => Some(c),
+        })
+        .collect()
 }
 
 impl OracleConnect {
