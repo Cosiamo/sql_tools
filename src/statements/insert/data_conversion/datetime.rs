@@ -1,5 +1,41 @@
 use chrono::NaiveDateTime;
 
+const FORMATS: &[&str] = &[
+    // 4-digit year, AM/PM with seconds
+    "%m-%d-%Y %I:%M:%S %p",
+    "%d-%m-%Y %I:%M:%S %p",
+    "%Y-%m-%d %I:%M:%S %p",
+    "%Y-%d-%m %I:%M:%S %p",
+    // 4-digit year, 24h with seconds
+    "%m-%d-%Y %H:%M:%S",
+    "%d-%m-%Y %H:%M:%S",
+    "%Y-%m-%d %H:%M:%S",
+    // 4-digit year, AM/PM without seconds
+    "%m-%d-%Y %I:%M %p",
+    "%d-%m-%Y %I:%M %p",
+    "%Y-%m-%d %I:%M %p",
+    "%Y-%d-%m %I:%M %p",
+    // 4-digit year, 24h without seconds
+    "%m-%d-%Y %H:%M",
+    "%d-%m-%Y %H:%M",
+    "%Y-%m-%d %H:%M",
+    "%Y-%d-%m %H:%M",
+    // 2-digit year, AM/PM with seconds
+    "%m-%d-%y %I:%M:%S %p",
+    "%d-%m-%y %I:%M:%S %p",
+    "%y-%m-%d %I:%M:%S %p",
+    "%y-%d-%m %I:%M:%S %p",
+    // 2-digit year, 24h with seconds
+    "%m-%d-%y %H:%M:%S",
+    "%d-%m-%y %H:%M:%S",
+    "%y-%m-%d %H:%M:%S",
+    // 2-digit year, AM/PM without seconds
+    "%m-%d-%y %I:%M %p",
+    "%d-%m-%y %I:%M %p",
+    "%y-%m-%d %I:%M %p",
+    "%y-%d-%m %I:%M %p",
+];
+
 pub fn datetime_conversion(input: &mut String) -> Result<NaiveDateTime, String> {
     let fmt_dt = input
         .replace("/", "-")
@@ -7,127 +43,11 @@ pub fn datetime_conversion(input: &mut String) -> Result<NaiveDateTime, String> 
         .trim()
         .to_ascii_uppercase();
 
-    // mm/dd/yyyy hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%Y %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // dd/mm/yyyy hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%Y %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // yyyy/mm/dd hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%m-%d %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // yyyy/dd/mm hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%d-%m %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // mm/dd/yyyy hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%Y %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // dd/mm/yyyy hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%Y %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // yyyy/mm/dd hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%m-%d %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // mm/dd/yyyy hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%Y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // dd/mm/yyyy hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%Y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yyyy/mm/dd hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%m-%d %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yyyy/dd/mm hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%d-%m %I:%M %p") {
-        return Ok(date_time);
-    }
-    // mm/dd/yyyy hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%Y %H:%M") {
-        return Ok(date_time);
-    }
-    // dd/mm/yyyy hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%Y %H:%M") {
-        return Ok(date_time);
-    }
-    // yyyy/mm/dd hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%m-%d %H:%M") {
-        return Ok(date_time);
-    }
-    // yyyy/dd/mm hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%d-%m %H:%M") {
-        return Ok(date_time);
+    for fmt in FORMATS {
+        if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, fmt) {
+            return Ok(date_time);
+        }
     }
 
-    // mm/dd/yyyy hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%Y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // dd/mm/yyyy hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%Y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yyyy/mm/dd hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%m-%d %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yyyy/dd/mm hh:mm
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%Y-%d-%m %I:%M %p") {
-        return Ok(date_time);
-    }
-    // mm/dd/yy hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%y %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // dd/mm/yy hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%y %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // yy/mm/dd hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%y-%m-%d %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // yy/dd/mm hh:mm:ss AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%y-%d-%m %I:%M:%S %p") {
-        return Ok(date_time);
-    }
-    // mm/dd/yy hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%y %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // dd/mm/yy hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%y %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // yy/mm/dd hh:mm:ss
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%y-%m-%d %H:%M:%S") {
-        return Ok(date_time);
-    }
-    // mm/dd/yy hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%m-%d-%y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // dd/mm/yy hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%d-%m-%y %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yy/mm/dd hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%y-%m-%d %I:%M %p") {
-        return Ok(date_time);
-    }
-    // yy/dd/mm hh:mm AM
-    if let Ok(date_time) = NaiveDateTime::parse_from_str(&fmt_dt, "%y-%d-%m %I:%M %p") {
-        return Ok(date_time);
-    }
-
-    return Err(input.clone());
+    Err(input.clone())
 }
