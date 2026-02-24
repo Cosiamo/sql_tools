@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::{Error, SQLImplementation, data_types::SQLDataTypes};
 
 pub mod data_conversion;
@@ -19,6 +21,7 @@ pub struct DatatypeIndices {
     pub is_float: Vec<usize>,
     pub is_int: Vec<usize>,
     pub is_date: Vec<usize>,
+    pub varchar_size: HashMap<usize, usize>,
 }
 
 pub struct InsertPropsFormatted {

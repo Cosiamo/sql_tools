@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::{data_types::SQLDataTypes, statements::insert::DatatypeIndices};
 
@@ -36,6 +36,7 @@ pub(crate) fn get_dt_indices(data: &Vec<Vec<SQLDataTypes>>) -> DatatypeIndices {
         is_float,
         is_int,
         is_date,
+        varchar_size: HashMap::new(),
     }
     .find_uniques()
 }
@@ -46,6 +47,7 @@ fn remove_conflicts(winners: &HashSet<usize>, losers: &mut HashSet<usize>) {
 
 impl DatatypeIndices {
     pub(crate) fn find_uniques(self) -> Self {
+        let varchar_size = self.varchar_size;
         let is_varchar: HashSet<usize> = self.is_varchar.into_iter().collect();
         let mut is_float: HashSet<usize> = self.is_float.into_iter().collect();
         let mut is_int: HashSet<usize> = self.is_int.into_iter().collect();
@@ -63,6 +65,7 @@ impl DatatypeIndices {
             is_float: is_float.into_iter().collect(),
             is_int: is_int.into_iter().collect(),
             is_date: is_date.into_iter().collect(),
+            varchar_size,
         }
     }
 }
