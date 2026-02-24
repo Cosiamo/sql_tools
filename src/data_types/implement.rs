@@ -29,29 +29,32 @@ impl ToSQLData for Option<Box<SQLDataTypes>> {
     }
 }
 
+fn bytes_to_varchar(bytes: &[u8]) -> SQLDataTypes {
+    let utf8_string = String::from_utf8_lossy(bytes).replace(|c: char| !c.is_ascii(), "");
+    SQLDataTypes::Varchar(utf8_string)
+}
+
+fn vec_u8_to_varchar(bytes: Vec<u8>) -> SQLDataTypes {
+    let utf8_string = String::from_utf8(bytes)
+        .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
+        .unwrap();
+    SQLDataTypes::Varchar(utf8_string)
+}
+
 impl ToSQLData for &[u8] {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        let clone_on_write_string = String::from_utf8_lossy(self);
-        let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-        SQLDataTypes::Varchar(utf8_string)
+        bytes_to_varchar(self)
     }
 }
 impl ToSQLData for Vec<u8> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        let utf8_string = String::from_utf8(self.to_vec())
-            .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
-            .unwrap();
-        SQLDataTypes::Varchar(utf8_string)
+        vec_u8_to_varchar(self.to_vec())
     }
 }
 impl ToSQLData for Option<&[u8]> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
         match self {
-            Some(val) => {
-                let clone_on_write_string = String::from_utf8_lossy(val);
-                let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-                SQLDataTypes::Varchar(utf8_string)
-            }
+            Some(val) => bytes_to_varchar(val),
             None => SQLDataTypes::NULL,
         }
     }
@@ -59,12 +62,7 @@ impl ToSQLData for Option<&[u8]> {
 impl ToSQLData for Option<Vec<u8>> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
         match self {
-            Some(val) => {
-                let utf8_string = String::from_utf8(val.to_vec())
-                    .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
-                    .unwrap();
-                SQLDataTypes::Varchar(utf8_string)
-            }
+            Some(val) => vec_u8_to_varchar(val.to_vec()),
             None => SQLDataTypes::NULL,
         }
     }
@@ -72,40 +70,26 @@ impl ToSQLData for Option<Vec<u8>> {
 
 impl ToSQLData for Box<&[u8]> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        let clone_on_write_string = String::from_utf8_lossy(self);
-        let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-        SQLDataTypes::Varchar(utf8_string)
+        bytes_to_varchar(self)
     }
 }
 impl ToSQLData for Box<Vec<u8>> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        let utf8_string = String::from_utf8(self.to_vec())
-            .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
-            .unwrap();
-        SQLDataTypes::Varchar(utf8_string)
+        vec_u8_to_varchar(self.to_vec())
     }
 }
 impl ToSQLData for Option<Box<&[u8]>> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        match &self {
-            Some(val) => {
-                let clone_on_write_string = String::from_utf8_lossy(**val);
-                let utf8_string = clone_on_write_string.replace(|c: char| !c.is_ascii(), "");
-                SQLDataTypes::Varchar(utf8_string)
-            }
+        match self {
+            Some(val) => bytes_to_varchar(**val),
             None => SQLDataTypes::NULL,
         }
     }
 }
 impl ToSQLData for Option<Box<Vec<u8>>> {
     fn to_sql_fmt(&self) -> SQLDataTypes {
-        match &self {
-            Some(val) => {
-                let utf8_string = String::from_utf8(val.to_vec())
-                    .map_err(|non_utf8| String::from_utf8_lossy(non_utf8.as_bytes()).into_owned())
-                    .unwrap();
-                SQLDataTypes::Varchar(utf8_string)
-            }
+        match self {
+            Some(val) => vec_u8_to_varchar(val.to_vec()),
             None => SQLDataTypes::NULL,
         }
     }
