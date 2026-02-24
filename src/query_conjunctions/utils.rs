@@ -34,100 +34,28 @@ pub(crate) fn where_clause_value_format<T: ToSQLData>(items: Vec<T>) -> String {
         .join(", ")
 }
 
-pub(crate) fn where_match(column: &ColumnProps, values: WhereArg) -> String {
+pub(crate) fn build_where_stmt(column: &ColumnProps, values: WhereArg, negate: bool) -> String {
     let col = format_column(column);
+    let not = if negate { "NOT " } else { "" };
 
     match values {
         WhereArg::Values(items) => {
             let value = where_clause_value_format(items);
-            format!("{col} IN ({value})")
+            format!("{col} {not}IN ({value})")
         }
-        WhereArg::Like(like) => {
-            format!("{col} LIKE '{like}'")
-        }
-        WhereArg::Query(value) => {
-            format!("{col} IN ({value})")
-        }
-        WhereArg::NULL => {
-            format!("{col} IS NULL")
-        }
+        WhereArg::Like(like) => format!("{col} {not}LIKE '{like}'"),
+        WhereArg::Query(value) => format!("{col} {not}IN ({value})"),
+        WhereArg::NULL => format!("{col} IS {not}NULL"),
     }
 }
 
-pub(crate) fn where_match_not(column: &ColumnProps, values: WhereArg) -> String {
-    let col = format_column(column);
-
-    match values {
-        WhereArg::Values(items) => {
-            let value = where_clause_value_format(items);
-            format!("{col} NOT IN ({value})")
-        }
-        WhereArg::Like(like) => {
-            format!("{col} NOT LIKE '{like}'")
-        }
-        WhereArg::Query(value) => {
-            format!("{col} NOT IN ({value})")
-        }
-        WhereArg::NULL => {
-            format!("{col} IS NOT NULL")
-        }
-    }
-}
-
-pub(crate) fn conjunction_match(
+pub(crate) fn build_conjunction_stmt(
     column: &ColumnProps,
     values: WhereArg,
     clause: &Option<String>,
     conjunction: &str,
+    negate: bool,
 ) -> String {
-    let col = format_column(column);
-
-    match values {
-        WhereArg::Values(items) => {
-            let value = where_clause_value_format(items);
-            let stmt = format!("{} IN ({})", col, value);
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::Like(like) => {
-            let stmt = format!("{col} LIKE '{like}'");
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::Query(query) => {
-            let stmt = format!("{col} IN ({query})");
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::NULL => {
-            let stmt = format!("{col} IS NULL");
-            append_clause(clause, conjunction, &stmt)
-        }
-    }
-}
-
-pub(crate) fn conjunction_match_not(
-    column: &ColumnProps,
-    values: WhereArg,
-    clause: &Option<String>,
-    conjunction: &str,
-) -> String {
-    let col = format_column(column);
-
-    match values {
-        WhereArg::Values(items) => {
-            let value = where_clause_value_format(items);
-            let stmt = format!("{} NOT IN ({})", col, value);
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::Like(like) => {
-            let stmt = format!("{col} NOT LIKE '{like}'");
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::Query(query) => {
-            let stmt = format!("{col} NOT IN ({query})");
-            append_clause(clause, conjunction, &stmt)
-        }
-        WhereArg::NULL => {
-            let stmt = format!("{col} IS NOT NULL");
-            append_clause(clause, conjunction, &stmt)
-        }
-    }
+    let stmt = build_where_stmt(column, values, negate);
+    append_clause(clause, conjunction, &stmt)
 }
