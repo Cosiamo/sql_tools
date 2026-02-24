@@ -16,29 +16,32 @@ use crate::{
 pub mod columns;
 pub mod execution;
 
-pub(crate) fn oracle_build_select(
-    select_props: SelectProps,
-) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+fn oracle_select_setup(
+    select_props: &SelectProps,
+) -> Result<(Vec<Box<SQLDataTypes>>, String), Error> {
     let table = &select_props.table;
     let cols = select_props.oracle_column_name()?;
-
-    let header = &cols
+    let header = cols
         .iter()
         .map(|col| {
             let col = extract_column_name(col);
             Box::new(col.to_sql_fmt())
         })
         .collect::<Vec<Box<SQLDataTypes>>>();
-    let columns = &cols.join(", ");
+    let columns = cols.join(", ");
+    let mut query = format!("SELECT {} FROM {}", columns, table);
+    query = shared_select_operations(select_props, query)?;
+    query = limit_offset_oracle(select_props, query);
+    Ok((header, query))
+}
 
-    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
+pub(crate) fn oracle_build_select(
+    select_props: SelectProps,
+) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+    let (header, query) = oracle_select_setup(&select_props)?;
 
-    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
-
-    query = shared_select_operations(&select_props, query)?;
+    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
     count_sql = shared_select_operations(&select_props, count_sql)?;
-
-    query = limit_offset_oracle(&select_props, query);
     count_sql = limit_offset_oracle(&select_props, count_sql);
 
     let conn_info = select_props.connect.as_oracle()?.clone();
@@ -56,7 +59,7 @@ pub(crate) fn oracle_build_select(
         SQLImplementation::Oracle(conn_info),
         oracle_handle_execution,
         select_props,
-        header,
+        &header,
         query,
         count,
     )
@@ -65,22 +68,7 @@ pub(crate) fn oracle_build_select(
 pub(crate) fn oracle_build_single_thread_select(
     select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let table = &select_props.table;
-    let cols = select_props.oracle_column_name()?;
-
-    let header = &cols
-        .iter()
-        .map(|col| {
-            let col = extract_column_name(col);
-            Box::new(col.to_sql_fmt())
-        })
-        .collect::<Vec<Box<SQLDataTypes>>>();
-    let columns = &cols.join(", ");
-
-    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
-
-    query = shared_select_operations(&select_props, query)?;
-    query = limit_offset_oracle(&select_props, query);
+    let (header, query) = oracle_select_setup(&select_props)?;
 
     let conn_info = select_props.connect.as_oracle()?;
     let conn = conn_info.initialize_connection()?;

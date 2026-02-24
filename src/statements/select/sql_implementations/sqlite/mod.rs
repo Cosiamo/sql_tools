@@ -2,7 +2,7 @@ use crate::{
     Error, SQLImplementation,
     data_types::{SQLDataTypes, ToSQLData},
     statements::select::{
-        SelectProps,
+        Column, SelectProps,
         sql_implementations::{
             extract_column_name, multithread::multithread_execution, mutate_query::limit_offset,
             shared_select_operations, sqlite::execution::sqlite_handle_execution,
@@ -12,26 +12,21 @@ use crate::{
 
 pub mod execution;
 
-pub(crate) fn build_select_sqlite(
-    select_props: SelectProps,
-) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+fn sqlite_select_setup(
+    select_props: &SelectProps,
+) -> Result<(Vec<String>, String), Error> {
     let conn_info = select_props.connect.as_sqlite()?;
-
-    let conn = conn_info.initialize_connection()?;
-
     let table = &select_props.table;
-    let cols = &select_props
+    let cols = select_props
         .columns
         .iter()
         .map(|col| -> Result<String, Error> {
             let col = match col {
-                crate::statements::select::Column::Name(name) => {
-                    format!("{}.{}", name.table, name.name)
-                }
-                crate::statements::select::Column::Function(function) => format!("{}", function),
-                crate::statements::select::Column::Varchar(varchar) => format!("'{}'", varchar),
-                crate::statements::select::Column::ALL(all) => {
-                    let columns = conn_info.table_info(&table)?;
+                Column::Name(name) => format!("{}.{}", name.table, name.name),
+                Column::Function(function) => format!("{}", function),
+                Column::Varchar(varchar) => format!("'{}'", varchar),
+                Column::ALL(all) => {
+                    let columns = conn_info.table_info(table)?;
                     columns
                         .iter()
                         .map(|col| format!("{}.{}", all, col))
@@ -42,9 +37,23 @@ pub(crate) fn build_select_sqlite(
             Ok(col)
         })
         .collect::<Result<Vec<String>, Error>>()?;
+    let columns = cols.join(", ");
+    let mut query = format!("SELECT {} FROM {}", columns, table);
+    query = shared_select_operations(select_props, query)?;
+    query = limit_offset(select_props, query);
+    Ok((cols, query))
+}
 
-    let columns = &cols.join(", ");
-    let head = &columns.split(",").collect::<Vec<&str>>();
+pub(crate) fn build_select_sqlite(
+    select_props: SelectProps,
+) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+    let (cols, query) = sqlite_select_setup(&select_props)?;
+
+    let conn_info = select_props.connect.as_sqlite()?;
+    let conn = conn_info.initialize_connection()?;
+
+    let columns = cols.join(", ");
+    let head = columns.split(",").collect::<Vec<&str>>();
     let header = head
         .iter()
         .map(|col| {
@@ -52,15 +61,9 @@ pub(crate) fn build_select_sqlite(
             Box::new(col.to_sql_fmt())
         })
         .collect::<Vec<Box<SQLDataTypes>>>();
-    let columns = &cols.join(", ");
 
-    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
-    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &table);
-
-    query = shared_select_operations(&select_props, query)?;
+    let mut count_sql = format!("SELECT COUNT(*) FROM {}", &select_props.table);
     count_sql = shared_select_operations(&select_props, count_sql)?;
-
-    query = limit_offset(&select_props, query);
     count_sql = limit_offset(&select_props, count_sql);
 
     let mut count: Option<usize> = None;
@@ -88,42 +91,12 @@ pub(crate) fn build_select_sqlite(
 pub(crate) fn build_select_sqlite_single_thread(
     select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
+    let (cols, query) = sqlite_select_setup(&select_props)?;
+
     let conn_info = select_props.connect.as_sqlite()?;
-
-    let table = &select_props.table;
-    let cols = &select_props
-        .columns
-        .iter()
-        .map(|col| -> Result<String, Error> {
-            let col = match col {
-                crate::statements::select::Column::Name(name) => {
-                    format!("{}.{}", name.table, name.name)
-                }
-                crate::statements::select::Column::Function(function) => format!("{}", function),
-                crate::statements::select::Column::Varchar(varchar) => format!("'{}'", varchar),
-                crate::statements::select::Column::ALL(all) => {
-                    let columns = conn_info.table_info(&table)?;
-                    columns
-                        .iter()
-                        .map(|col| format!("{}.{}", all, col))
-                        .collect::<Vec<String>>()
-                        .join(", ")
-                }
-            };
-            Ok(col)
-        })
-        .collect::<Result<Vec<String>, Error>>()?;
-
-    let columns = &cols.join(", ");
-
     let conn = conn_info.initialize_connection()?;
 
-    let mut query = format!("SELECT {} FROM {}", &columns, &table,);
-
-    query = shared_select_operations(&select_props, query)?;
-
-    query = limit_offset(&select_props, query);
-
+    let columns = cols.join(", ");
     let mut stmt = conn.prepare(&query)?;
     let mut rows = stmt.query([])?;
     let mut res = Vec::new();
