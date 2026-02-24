@@ -1,4 +1,10 @@
-use crate::{Error, SQLImplementation, data_types::SQLDataTypes, statements::update::UpdateProps};
+use chrono::NaiveDateTime;
+use crate::{Error, SQLImplementation, statements::update::UpdateProps};
+use super::build_set_clause;
+
+fn sqlite_date_fmt(val: &NaiveDateTime) -> String {
+    format!("'{}'", val)
+}
 
 pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
     let conn_info = match &update_set.connect {
@@ -6,21 +12,7 @@ pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Erro
         SQLImplementation::SQLite(connect) => connect,
     };
 
-    let set_match_len = &update_set.set_match.len();
-    let set = update_set.set_match.iter().enumerate().map(|(idx, set_match)| {
-        let fmt_data_types = match &set_match.value {
-            SQLDataTypes::Varchar(val) => format!("'{}'", val),
-            SQLDataTypes::Number(val) => format!("{}", val),
-            SQLDataTypes::Float(val) => format!("{}", val),
-            SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
-            SQLDataTypes::NULL => format!("''"),
-        };
-
-        if set_match_len == &1 { format!("SET {} = {}", set_match.column, fmt_data_types) }
-        else if idx == 0 { format!("SET {} = {},", set_match.column, fmt_data_types) }
-        else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
-        else { format!("{} = {},", set_match.column, fmt_data_types) }
-    }).collect::<Vec<String>>().join(" ");
+    let set = build_set_clause(&update_set.set_match, sqlite_date_fmt, false)?;
 
     let count_sql: String;
     let query = match update_set.clause {
@@ -61,27 +53,17 @@ pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
         SQLImplementation::SQLite(connect) => connect,
     };
 
-    let sql = updates.iter().map(|update| {
-        let set_match_len = &update.set_match.len();
-        let set = update.set_match.iter().enumerate().map(|(idx, set_match)| {
-            let fmt_data_types = match &set_match.value {
-                SQLDataTypes::Varchar(val) => format!("'{}'", val),
-                SQLDataTypes::Number(val) => format!("{}", val),
-                SQLDataTypes::Float(val) => format!("{}", val),
-                SQLDataTypes::Date(val) => format!("to_date(to_char(to_timestamp('{}', 'YYYY-MM-DD HH24:MI:SS.FF3'), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", val),
-                SQLDataTypes::NULL => format!("''"),
-            };
-
-            if set_match_len == &1 { format!("SET {} = {}", set_match.column, fmt_data_types) }
-            else if idx == 0 { format!("SET {} = {},", set_match.column, fmt_data_types) }
-            else if &idx == &(set_match_len - 1) { format!("{} = {}", set_match.column, fmt_data_types) }
-            else { format!("{} = {},", set_match.column, fmt_data_types) }
-        }).collect::<Vec<String>>().join(" ");
-        match &update.clause {
-            Some(clause) => format!("UPDATE {} {} WHERE {}", &update.table, set, clause),
-            None => format!("UPDATE {} {}", &update.table, set),
-        }
-    }).collect::<Vec<String>>().join("; ");
+    let sql = updates
+        .iter()
+        .map(|update| {
+            let set = build_set_clause(&update.set_match, sqlite_date_fmt, false)?;
+            Ok(match &update.clause {
+                Some(clause) => format!("UPDATE {} {} WHERE {}", &update.table, set, clause),
+                None => format!("UPDATE {} {}", &update.table, set),
+            })
+        })
+        .collect::<Result<Vec<String>, Error>>()?
+        .join("; ");
 
     let query = format!("BEGIN; {sql}; COMMIT;");
 
