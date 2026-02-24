@@ -1,13 +1,10 @@
 use crate::{
-    Error, SQLImplementation,
+    Error,
     statements::select::{ColumnProps, SelectProps},
 };
 
 pub fn get_column_names_oracle(select_props: &SelectProps) -> Result<Vec<ColumnProps>, Error> {
-    let conn_info = match &select_props.connect {
-        SQLImplementation::Oracle(connect) => connect,
-        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
+    let conn_info = select_props.connect.as_oracle()?;
     let sql = format!(
         "SELECT column_name FROM all_tab_columns WHERE UPPER(table_name) = '{}'",
         select_props.table.to_ascii_uppercase()

@@ -15,10 +15,7 @@ pub mod execution;
 pub(crate) fn build_select_sqlite(
     select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let conn_info = match &select_props.connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = select_props.connect.as_sqlite()?;
 
     let conn = conn_info.initialize_connection()?;
 
@@ -91,10 +88,7 @@ pub(crate) fn build_select_sqlite(
 pub(crate) fn build_select_sqlite_single_thread(
     select_props: SelectProps,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let conn_info = match &select_props.connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = select_props.connect.as_sqlite()?;
 
     let table = &select_props.table;
     let cols = &select_props

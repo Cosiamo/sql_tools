@@ -1,8 +1,5 @@
 use crate::{
-    Error, QueryBuilder,
-    query_conjunctions::{QueryConjunctions, WhereArg},
-    sql_implementations::OracleConnect,
-    statements::select::{Column, ColumnProps, Direction, OrderBy, SelectBuilder},
+    Error, QueryBuilder, SQLImplementation, query_conjunctions::{QueryConjunctions, WhereArg}, sql_implementations::{OracleConnect, SQLiteConnect}, statements::select::{Column, ColumnProps, Direction, OrderBy, SelectBuilder}
 };
 
 pub(crate) fn remove_invalid_chars(input: &String) -> String {
@@ -71,5 +68,21 @@ impl OracleConnect {
             .map(|row| row[0].to_string())
             .collect::<Vec<String>>();
         Ok(names)
+    }
+}
+
+impl SQLImplementation {
+    pub(crate) fn as_oracle(&self) -> Result<&OracleConnect, Error> {
+        match self {
+            SQLImplementation::Oracle(c) => Ok(c),
+            SQLImplementation::SQLite(_) => Err(Error::SQLVariationError),
+        }
+    }
+
+    pub(crate) fn as_sqlite(&self) -> Result<&SQLiteConnect, Error> {
+        match self {
+            SQLImplementation::Oracle(_) => Err(Error::SQLVariationError),
+            SQLImplementation::SQLite(c) => Ok(c),
+        }
     }
 }

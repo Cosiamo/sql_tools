@@ -1,7 +1,7 @@
 use indicatif::ProgressBar;
 
 use crate::{
-    Error, SQLImplementation,
+    Error,
     data_types::SQLDataTypes,
     statements::insert::{
         InsertProps,
@@ -12,10 +12,7 @@ use crate::{
 pub(crate) mod utils;
 
 pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error> {
-    let conn_info = match &insert_props.connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = insert_props.connect.as_sqlite()?;
 
     let table_exist = does_sqlite_table_exist(&insert_props, &conn_info)?;
     if !table_exist && insert_props.create {
@@ -66,10 +63,7 @@ pub(crate) fn sqlite_build_insert(insert_props: InsertProps) -> Result<(), Error
 }
 
 pub(crate) fn sqlite_build_insert_pb(insert_props: InsertProps) -> Result<(), Error> {
-    let conn_info = match &insert_props.connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = insert_props.connect.as_sqlite()?;
 
     does_sqlite_table_exist(&insert_props, conn_info)?;
 

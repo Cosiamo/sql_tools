@@ -5,7 +5,7 @@ use oracle::Statement;
 use crate::{
     Error,
     data_types::SQLDataTypes,
-    statements::select::{SelectProps, sql_implementations::oracle::extract_connection},
+    statements::select::SelectProps,
 };
 
 pub(crate) fn oracle_handle_execution(
@@ -13,11 +13,11 @@ pub(crate) fn oracle_handle_execution(
     column_size: usize,
     sql: String,
 ) -> Result<Vec<Vec<Box<SQLDataTypes>>>, Error> {
-    let conn_info = extract_connection(&select_props.connect)?;
+    let conn_info = select_props.connect.as_oracle()?;
     let conn = oracle::Connection::connect(
-        conn_info.username,
-        conn_info.password,
-        conn_info.connection_string,
+        &conn_info.username,
+        &conn_info.password,
+        &conn_info.connection_string,
     )?;
     let stmt = conn.statement(&sql).build()?;
     stmt_res(stmt, column_size, true)

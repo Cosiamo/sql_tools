@@ -1,13 +1,10 @@
 use crate::{
-    Error, SQLImplementation,
+    Error,
     statements::create::{CreateTable, sql_implementations::utils::fmt_create_table_columns},
 };
 
 pub(crate) fn oracle_build_create_table(create_table: CreateTable) -> Result<(), Error> {
-    let conn_info = match &create_table.connect {
-        SQLImplementation::Oracle(oracle_connect) => oracle_connect,
-        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
+    let conn_info = create_table.connect.as_oracle()?;
 
     let sql = fmt_create_table_columns(&create_table);
     let conn: oracle::Connection = oracle::Connection::connect(

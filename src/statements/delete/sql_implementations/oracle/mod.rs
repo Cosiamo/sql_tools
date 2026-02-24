@@ -1,10 +1,7 @@
-use crate::{Error, SQLImplementation, statements::delete::DeleteProps};
+use crate::{Error, statements::delete::DeleteProps};
 
 pub fn oracle_build_delete(props: DeleteProps) -> Result<(), Error> {
-    let conn_info = match props.connect {
-        SQLImplementation::Oracle(oracle_connect) => oracle_connect,
-        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
-    };
+    let conn_info = props.connect.as_oracle()?;
     let conn: oracle::Connection = oracle::Connection::connect(
         &conn_info.username,
         &conn_info.password,

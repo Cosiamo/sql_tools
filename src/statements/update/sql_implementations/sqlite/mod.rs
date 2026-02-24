@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use crate::{Error, SQLImplementation, statements::update::UpdateProps};
+use crate::{Error, statements::update::UpdateProps};
 use super::build_set_clause;
 
 fn sqlite_date_fmt(val: &NaiveDateTime) -> String {
@@ -7,10 +7,7 @@ fn sqlite_date_fmt(val: &NaiveDateTime) -> String {
 }
 
 pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Error> {
-    let conn_info = match &update_set.connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = update_set.connect.as_sqlite()?;
 
     let set = build_set_clause(&update_set.set_match, sqlite_date_fmt, false)?;
 
@@ -46,12 +43,8 @@ pub(crate) fn sqlite_build_update(update_set: UpdateProps) -> Result<usize, Erro
 }
 
 pub fn batch_update_sqlite(updates: Vec<UpdateProps>) -> Result<(), Error> {
-    let connect = &updates[0].connect;
     // let table = &updates[0].query_type.table;
-    let conn_info = match connect {
-        SQLImplementation::Oracle(_) => return Err(Error::SQLVariationError),
-        SQLImplementation::SQLite(connect) => connect,
-    };
+    let conn_info = updates[0].connect.as_sqlite()?;
 
     let sql = updates
         .iter()

@@ -3,7 +3,6 @@ use execution::stmt_res;
 use crate::{
     Error, SQLImplementation,
     data_types::{SQLDataTypes, ToSQLData},
-    sql_implementations::OracleConnect,
     statements::select::{
         SelectProps,
         sql_implementations::{
@@ -42,7 +41,7 @@ pub(crate) fn oracle_build_select(
     query = limit_offset_oracle(&select_props, query);
     count_sql = limit_offset_oracle(&select_props, count_sql);
 
-    let conn_info = extract_connection(&select_props.connect)?;
+    let conn_info = select_props.connect.as_oracle()?.clone();
     let conn: oracle::Connection = oracle::Connection::connect(
         &conn_info.username,
         &conn_info.password,
@@ -87,11 +86,11 @@ pub(crate) fn oracle_build_single_thread_select(
     query = shared_select_operations(&select_props, query)?;
     query = limit_offset_oracle(&select_props, query);
 
-    let conn_info = extract_connection(&select_props.connect)?;
+    let conn_info = select_props.connect.as_oracle()?;
     let conn: oracle::Connection = oracle::Connection::connect(
-        conn_info.username,
-        conn_info.password,
-        conn_info.connection_string,
+        &conn_info.username,
+        &conn_info.password,
+        &conn_info.connection_string,
     )?;
 
     let stmt = conn.statement(&query).build()?;
@@ -110,11 +109,4 @@ pub(crate) fn oracle_build_single_thread_select(
         res.splice(..0, header.iter().cloned());
     }
     Ok(res)
-}
-
-fn extract_connection(connect: &SQLImplementation) -> Result<OracleConnect, Error> {
-    match connect {
-        SQLImplementation::Oracle(oracle_connect) => Ok(oracle_connect.to_owned()),
-        SQLImplementation::SQLite(_) => return Err(Error::SQLVariationError),
-    }
 }
