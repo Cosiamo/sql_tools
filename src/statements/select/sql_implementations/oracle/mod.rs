@@ -7,7 +7,8 @@ use crate::{
     statements::select::{
         SelectProps,
         sql_implementations::{
-            multithread::multithread_execution, mutate_query::limit_offset_oracle,
+            extract_column_name, multithread::multithread_execution,
+            mutate_query::limit_offset_oracle,
             oracle::execution::oracle_handle_execution, shared_select_operations,
         },
     },
@@ -25,12 +26,7 @@ pub(crate) fn oracle_build_select(
     let header = &cols
         .iter()
         .map(|col| {
-            let col = col.split(".").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
-            let col = col.split(" ").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
-            let col = col.split(" as ").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
+            let col = extract_column_name(col);
             Box::new(col.to_sql_fmt())
         })
         .collect::<Vec<Box<SQLDataTypes>>>();
@@ -80,12 +76,7 @@ pub(crate) fn oracle_build_single_thread_select(
     let header = &cols
         .iter()
         .map(|col| {
-            let col = col.split(".").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
-            let col = col.split(" ").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
-            let col = col.split(" as ").collect::<Vec<&str>>();
-            let col = col[col.len() - 1];
+            let col = extract_column_name(col);
             Box::new(col.to_sql_fmt())
         })
         .collect::<Vec<Box<SQLDataTypes>>>();
@@ -111,12 +102,7 @@ pub(crate) fn oracle_build_single_thread_select(
             .iter()
             .map(|head| {
                 let head = head.to_string();
-                let head = head.split(" as ").collect::<Vec<&str>>();
-                let head = head[head.len() - 1];
-                let head = head.split(" ").collect::<Vec<&str>>();
-                let head = head[head.len() - 1];
-                let head = head.split(".").collect::<Vec<&str>>();
-                let head = head[head.len() - 1];
+                let head = extract_column_name(&head);
                 Box::new(head.to_sql_fmt())
             })
             .collect::<Vec<Box<SQLDataTypes>>>();

@@ -14,6 +14,14 @@ pub(crate) mod mutate_query;
 pub mod oracle;
 pub mod sqlite;
 
+pub(crate) fn extract_column_name(col: &str) -> &str {
+    col.split('.')
+        .last()
+        .and_then(|s| s.split(' ').last())
+        .and_then(|s| s.split(" as ").last())
+        .unwrap_or(col)
+}
+
 pub(crate) fn shared_select_operations(
     select_props: &SelectProps,
     mut query: String,
