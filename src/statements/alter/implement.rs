@@ -94,7 +94,7 @@ pub fn alter_cols_fmt(cols: &AlterColumns) -> String {
     } else {
         res
     };
-    if let true = cols.not_null {
+    if cols.not_null {
         format!("{res} NOT NULL")
     } else {
         res
