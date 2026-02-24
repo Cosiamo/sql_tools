@@ -16,7 +16,7 @@ pub(crate) fn bind_cell_to_batch<T: oracle::sql_type::ToSql + std::fmt::Debug>(
 pub(crate) fn insert_stmt(length: usize, table: &String, header: &String) -> String {
     let mut values = Vec::new();
     for idx in 0..length {
-        values.push([":", &(idx + 1).to_string()].concat())
+        values.push(format!(":{}", idx + 1))
     }
     format!(
         "INSERT INTO {} ({}) VALUES ({})",
